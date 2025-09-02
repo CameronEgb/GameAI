@@ -1,40 +1,65 @@
-# Compiler
-CXX = g++
-
-# Check architecture to set correct Homebrew paths
-ARCH := $(shell uname -m)
-ifeq ($(ARCH), arm64)
-	# Path for Apple Silicon Macs (M1, M2, etc.)
-	BREW_PREFIX = /opt/homebrew
-else
-	# Path for Intel Macs
-	BREW_PREFIX = /usr/local
-endif
-
-# Compiler flags
-CXXFLAGS = -std=c++17 -Wall -I$(BREW_PREFIX)/include
-
-# Linker flags (we no longer need the thread library)
-LDFLAGS = -L$(BREW_PREFIX)/lib -lsfml-graphics -lsfml-window -lsfml-system
-
-# Source file and target executable name
-SRC = main.cpp
+# Executable name
 TARGET = app
 
-# Default target: builds the executable
+# Automatically find all .cpp files (works for single or multiple files)
+SRC := $(wildcard *.cpp)
+
+# Create a list of object files (.o) from the source files (.cpp)
+OBJ = $(patsubst %.cpp,%.o,$(SRC))
+
+# Common linker flags for SFML
+LDFLAGS = -lsfml-graphics -lsfml-window -lsfml-system
+
+# --- Platform-Specific Configuration ---
+
+# Default Include/Library paths for different systems
+MACOS_INCLUDE = -I/opt/homebrew/include
+MACOS_LIB = -L/opt/homebrew/lib
+UBUNTU_INCLUDE = -I/usr/include
+UBUNTU_LIB = # Standard Ubuntu paths are usually searched by default
+
+# Compilers
+MACOS_COMPILER = clang++
+UBUNTU_COMPILER = g++
+
+# --- Build Rules ---
+
+# Default target that `make` will run
 all: $(TARGET)
 
-# Rule that describes how to build the target
-$(TARGET): $(SRC)
-	$(CXX) $(CXXFLAGS) $(SRC) -o $(TARGET) $(LDFLAGS)
+# Get the Operating System name (e.g., "Darwin" for macOS, "Linux" for Linux)
+UNAME_S := $(shell uname -s)
 
-# A convenient rule to run the program
+# Rule for linking the final executable
+$(TARGET): $(OBJ)
+ifeq ($(UNAME_S),Darwin)
+	# macOS linking command
+	$(MACOS_COMPILER) -std=c++17 -o $@ $^ $(MACOS_LIB) $(LDFLAGS)
+else ifeq ($(UNAME_S),Linux)
+	# Linux linking command
+	$(UBUNTU_COMPILER) -std=c++17 -o $@ $^ $(UBUNTU_LIB) $(LDFLAGS)
+endif
+
+# Rule for compiling .cpp source files into .o object files
+%.o: %.cpp
+ifeq ($(UNAME_S),Darwin)
+	# macOS compilation command
+	$(MACOS_COMPILER) -std=c++17 -c $< -o $@ $(MACOS_INCLUDE)
+else ifeq ($(UNAME_S),Linux)
+	# Linux compilation command
+	$(UBUNTU_COMPILER) -std=c++17 -c $< -o $@ $(UBUNTU_INCLUDE)
+endif
+
+
+# --- Utility Rules ---
+
+# Rule to run the program
 run: all
 	./$(TARGET)
 
-# A rule to clean up compiled files
+# Rule to clean up all compiled files
 clean:
-	rm -f $(TARGET)
+	rm -f $(OBJ) $(TARGET)
 
-# Tells make that these targets don't correspond to actual files
+# Tell 'make' that these are command names, not files
 .PHONY: all run clean
