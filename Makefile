@@ -1,65 +1,64 @@
-# Executable name
-TARGET = app
+# Compiler and executable name
+CXX      := g++
+TARGET   := boid_simulation
 
-# Automatically find all .cpp files (works for single or multiple files)
-SRC := $(wildcard *.cpp)
+# C++ standard and compiler flags (warnings, etc.)
+# Using C++17 for modern features like structured bindings in the event loop
+CXXFLAGS := -std=c++17 -Wall -Wextra
 
-# Create a list of object files (.o) from the source files (.cpp)
-OBJ = $(patsubst %.cpp,%.o,$(SRC))
+# Source files and corresponding object files
+SRCS     := main.cpp
+OBJS     := $(SRCS:.cpp=.o)
 
-# Common linker flags for SFML
-LDFLAGS = -lsfml-graphics -lsfml-window -lsfml-system
+# --- OS-Specific Configuration ---
+# Detects the OS and sets the correct paths and libraries for SFML
+UNAME_S := $(shell uname -s)
 
-# --- Platform-Specific Configuration ---
+# macOS configuration
+ifeq ($(UNAME_S), Darwin)
+    # Assumes SFML was installed with Homebrew.
+    # This command finds the Homebrew prefix automatically for both Apple Silicon and Intel Macs.
+    BREW_PREFIX := $(shell brew --prefix)
+    CXXFLAGS    += -I$(BREW_PREFIX)/include
+    LDFLAGS     := -L$(BREW_PREFIX)/lib
+    LDLIBS      := -lsfml-graphics -lsfml-window -lsfml-system
 
-# Default Include/Library paths for different systems
-MACOS_INCLUDE = -I/opt/homebrew/include
-MACOS_LIB = -L/opt/homebrew/lib
-UBUNTU_INCLUDE = -I/usr/include
-UBUNTU_LIB = # Standard Ubuntu paths are usually searched by default
+# Linux (Ubuntu) configuration
+else ifeq ($(UNAME_S), Linux)
+    # Assumes SFML was installed via apt or another system package manager.
+    LDLIBS      := -lsfml-graphics -lsfml-window -lsfml-system
 
-# Compilers
-MACOS_COMPILER = clang++
-UBUNTU_COMPILER = g++
+# Fallback for other systems
+else
+    $(warning "Unsupported OS. You may need to set SFML paths manually.")
+endif
+# --- End of OS-Specific Configuration ---
+
 
 # --- Build Rules ---
 
-# Default target that `make` will run
+# Default rule: builds the executable
 all: $(TARGET)
 
-# Get the Operating System name (e.g., "Darwin" for macOS, "Linux" for Linux)
-UNAME_S := $(shell uname -s)
+# Rule to link the object files into the final executable
+$(TARGET): $(OBJS)
+	$(CXX) $(OBJS) -o $(TARGET) $(LDFLAGS) $(LDLIBS)
 
-# Rule for linking the final executable
-$(TARGET): $(OBJ)
-ifeq ($(UNAME_S),Darwin)
-	# macOS linking command
-	$(MACOS_COMPILER) -std=c++17 -o $@ $^ $(MACOS_LIB) $(LDFLAGS)
-else ifeq ($(UNAME_S),Linux)
-	# Linux linking command
-	$(UBUNTU_COMPILER) -std=c++17 -o $@ $^ $(UBUNTU_LIB) $(LDFLAGS)
-endif
-
-# Rule for compiling .cpp source files into .o object files
+# Rule to compile a .cpp source file into a .o object file
+# The -c flag means "compile only, do not link"
 %.o: %.cpp
-ifeq ($(UNAME_S),Darwin)
-	# macOS compilation command
-	$(MACOS_COMPILER) -std=c++17 -c $< -o $@ $(MACOS_INCLUDE)
-else ifeq ($(UNAME_S),Linux)
-	# Linux compilation command
-	$(UBUNTU_COMPILER) -std=c++17 -c $< -o $@ $(UBUNTU_INCLUDE)
-endif
+	$(CXX) $(CXXFLAGS) -c $< -o $@
 
-
-# --- Utility Rules ---
-
-# Rule to run the program
-run: all
-	./$(TARGET)
-
-# Rule to clean up all compiled files
+# Rule to remove generated object files
 clean:
-	rm -f $(OBJ) $(TARGET)
+	rm -f $(OBJS)
 
-# Tell 'make' that these are command names, not files
-.PHONY: all run clean
+# Rule to remove the executable and object files
+fclean: clean
+	rm -f $(TARGET)
+
+# Rule to force a full rebuild
+re: fclean all
+
+# Phony targets are not files; they are just names for commands.
+.PHONY: all clean fclean re
