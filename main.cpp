@@ -7,9 +7,9 @@
 // Forward declaration
 void runPart2();
 
-// --- Part 1 Logic (Unchanged) ---
+// --- Part 1 Logic (Updated for SFML 2) ---
 void runPart1() {
-    sf::RenderWindow window(sf::VideoMode({640, 480}), "Part 1: Simple Movement");
+    sf::RenderWindow window(sf::VideoMode(640, 480), "Part 1: Simple Movement");
     window.setFramerateLimit(60);
     sf::Texture boidTexture;
     if (!boidTexture.loadFromFile("boid-ss.png")) {
@@ -17,18 +17,22 @@ void runPart1() {
         return;
     }
     sf::Sprite boidSprite(boidTexture);
-    boidSprite.setPosition({0.f, 0.f});
+    boidSprite.setPosition(0.f, 0.f);
     float moveSpeed = 2.0f;
     while (window.isOpen()) {
-        while (const auto event = window.pollEvent()) {
-            if (event->is<sf::Event::Closed>()) {
+        // FIXED: SFML 2 event loop style
+        sf::Event event;
+        while (window.pollEvent(event)) {
+            if (event.type == sf::Event::Closed) {
                 window.close();
             }
         }
-        boidSprite.move({moveSpeed, 0.f});
+
+        boidSprite.move(moveSpeed, 0.f);
         if (boidSprite.getPosition().x > window.getSize().x) {
-            float spriteWidth = boidSprite.getGlobalBounds().size.x;
-            boidSprite.setPosition({-spriteWidth, 0.f});
+            // FIXED: FloatRect in SFML 2 uses .width instead of .size.x
+            float spriteWidth = boidSprite.getGlobalBounds().width;
+            boidSprite.setPosition(-spriteWidth, 0.f);
         }
         window.clear(sf::Color::White);
         window.draw(boidSprite);
@@ -52,13 +56,10 @@ struct Boid {
     explicit Boid(const sf::Texture& texture) : sprite(texture), dir(Direction::RIGHT) {}
 };
 
-// --- FIXED: The synchronization logic is now more robust ---
 void synchronizeBoids(std::vector<Boid>& boids, const sf::Vector2f& topRight, const sf::Vector2f& bottomRight, const sf::Vector2f& bottomLeft, const sf::Vector2f& topLeft) {
     if (boids.size() <= 1) return;
-
     const auto& leader = boids.front();
 
-    // Correctly calculate the leader's remaining distance and speed magnitude
     float remainingDistLeader = 0;
     const auto& posLeader = leader.sprite.getPosition();
     switch (leader.dir) {
@@ -69,8 +70,7 @@ void synchronizeBoids(std::vector<Boid>& boids, const sf::Vector2f& topRight, co
     }
 
     float speedMagLeader = std::sqrt(leader.velocity.x * leader.velocity.x + leader.velocity.y * leader.velocity.y);
-
-    if (speedMagLeader <= 0) return; // Cannot sync if leader is stopped
+    if (speedMagLeader <= 0) return;
 
     float timeToNextCorner = remainingDistLeader / speedMagLeader;
 
@@ -100,12 +100,7 @@ void synchronizeBoids(std::vector<Boid>& boids, const sf::Vector2f& topRight, co
 
 
 void runPart2() {
-    const unsigned int WIN_WIDTH = 640;
-    const unsigned int WIN_HEIGHT = 480;
-    const float PADDING = 50.0f;
-    const int TURN_FRAMES = 30;
-
-    sf::RenderWindow window(sf::VideoMode({WIN_WIDTH, WIN_HEIGHT}), "Part 2: Coordinated Movement");
+    sf::RenderWindow window(sf::VideoMode(640, 480), "Part 2: Coordinated Movement");
     window.setFramerateLimit(60);
 
     sf::Texture boidTexture;
@@ -115,15 +110,15 @@ void runPart2() {
     }
     boidTexture.setSmooth(true);
 
+    const float PADDING = 50.0f;
+    const int TURN_FRAMES = 30;
     const sf::Vector2f topLeft = {PADDING, PADDING};
-    const sf::Vector2f topRight = {WIN_WIDTH - PADDING, PADDING};
-    const sf::Vector2f bottomRight = {WIN_WIDTH - PADDING, WIN_HEIGHT - PADDING};
-    const sf::Vector2f bottomLeft = {PADDING, WIN_HEIGHT - PADDING};
+    const sf::Vector2f topRight = {(float)window.getSize().x - PADDING, PADDING};
+    const sf::Vector2f bottomRight = {(float)window.getSize().x - PADDING, (float)window.getSize().y - PADDING};
+    const sf::Vector2f bottomLeft = {PADDING, (float)window.getSize().y - PADDING};
 
     std::vector<Boid> boids;
     const float baseSpeed = 2.0f;
-
-    // --- FIXED: Use these variables to calculate speeds and remove warnings ---
     const float xDistance = topRight.x - topLeft.x;
     const float yDistance = bottomRight.y - topRight.y;
     const sf::Vector2f speedRight = {baseSpeed, 0.f};
@@ -135,7 +130,9 @@ void runPart2() {
 
     auto addBoid = [&]() {
         Boid newBoid(boidTexture);
-        newBoid.sprite.setOrigin(newBoid.sprite.getGlobalBounds().size / 2.f);
+        // FIXED: SFML 2 uses .width and .height for origin calculation
+        sf::FloatRect bounds = newBoid.sprite.getGlobalBounds();
+        newBoid.sprite.setOrigin(bounds.width / 2.f, bounds.height / 2.f);
         newBoid.sprite.setPosition(topLeft);
         newBoid.velocity = speedRight;
         boids.push_back(newBoid);
@@ -144,8 +141,10 @@ void runPart2() {
     addBoid();
 
     while (window.isOpen()) {
-        while (const auto event = window.pollEvent()) {
-            if (event->is<sf::Event::Closed>()) {
+        // FIXED: SFML 2 event loop style
+        sf::Event event;
+        while (window.pollEvent(event)) {
+            if (event.type == sf::Event::Closed) {
                 window.close();
             }
         }
@@ -158,12 +157,13 @@ void runPart2() {
                 boid.turnProgress++;
                 float t = static_cast<float>(boid.turnProgress) / TURN_FRAMES;
                 float currentAngle = boid.startRotation + t * (boid.targetRotation - boid.startRotation);
-                boid.sprite.setRotation(sf::degrees(currentAngle));
+                // FIXED: SFML 2's setRotation takes a float directly
+                boid.sprite.setRotation(currentAngle);
 
                 if (boid.turnProgress >= TURN_FRAMES) {
                     boid.isTurning = false;
                     boid.turnProgress = 0;
-                    boid.sprite.setRotation(sf::degrees(boid.targetRotation));
+                    boid.sprite.setRotation(boid.targetRotation);
                     
                     switch(boid.dir) {
                         case Direction::DOWN: boid.velocity = speedDown; break;
@@ -206,7 +206,7 @@ void runPart2() {
                         break;
                     case Direction::UP:
                         if (boid.sprite.getPosition().y <= topLeft.y) {
-                            boid.sprite.setPosition({-1000.f, -1000.f});
+                            boid.sprite.setPosition(-1000.f, -1000.f);
                         }
                         break;
                 }
