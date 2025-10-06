@@ -10,8 +10,8 @@
 #include <algorithm>
 
 const float PI = 3.14159265f;
-const int WINDOW_WIDTH = 400;
-const int WINDOW_HEIGHT = 400;
+const int WINDOW_WIDTH = 600;
+const int WINDOW_HEIGHT = 800;
 
 // Forward declarations
 struct Kinematic;
@@ -421,7 +421,7 @@ private:
     float detectionDistance;
     
 public:
-    WallAvoidance(float margin = 80.0f, float maxAccel = 300.0f, float detectDist = 120.0f)
+    WallAvoidance(float margin = 60.0f, float maxAccel = 300.0f, float detectDist = 120.0f)
         : wallMargin(margin), maxAcceleration(maxAccel), detectionDistance(detectDist) {}
     
     SteeringOutput calculateSteering(const Kinematic& character, const Kinematic& target) override {
@@ -754,8 +754,8 @@ public:
             kinematic.velocity.x = std::abs(kinematic.velocity.x) * 0.8f;
             hitBoundary = true;
         }
-        if (kinematic.position.x > WINDOW_WIDTH - 3*margin) {
-            kinematic.position.x = WINDOW_WIDTH - 2*margin;
+        if (kinematic.position.x > WINDOW_WIDTH - margin) {
+            kinematic.position.x = WINDOW_WIDTH - margin;
             kinematic.velocity.x = -std::abs(kinematic.velocity.x) * 0.8f;
             hitBoundary = true;
         }
@@ -764,8 +764,8 @@ public:
             kinematic.velocity.y = std::abs(kinematic.velocity.y) * 0.8f;
             hitBoundary = true;
         }
-        if (kinematic.position.y > WINDOW_HEIGHT - 2*margin) {
-            kinematic.position.y = WINDOW_HEIGHT - 2*margin;
+        if (kinematic.position.y > WINDOW_HEIGHT - margin) {
+            kinematic.position.y = WINDOW_HEIGHT - margin;
             kinematic.velocity.y = -std::abs(kinematic.velocity.y) * 0.8f;
             hitBoundary = true;
         }
@@ -858,10 +858,6 @@ public:
 
 // Main application
 int main() {
-    sf::Texture boidTexture;
-    boidTexture.loadFromFile("boid.png");
-    sf::Texture boidSmallTexture;
-    boidSmallTexture.loadFromFile("boid-sm.png");
 
     sf::RenderWindow window(sf::VideoMode(WINDOW_WIDTH, WINDOW_HEIGHT),
                             "Steering Behaviors Demo (1: VelMatchMouse, 2: Align+Arrive, 3: Wander, 4: Boids)");
