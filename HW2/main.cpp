@@ -152,6 +152,11 @@ public:
     }
 };
 
+class FastVelocityMatching : public VelocityMatching {
+public:
+    FastVelocityMatching() : VelocityMatching(400.0f, 0.05f) {}  // faster accel, shorter response
+};
+
 // Orientation Matching
 class OrientationMatching : public SteeringBehavior {
 private:
@@ -300,6 +305,17 @@ public:
         
         return result;
     }
+};
+
+// Custom HW2 behavior
+class SmoothAlign : public Align {
+public:
+    SmoothAlign() : Align(2.5f, 1.5f, 0.01f, 0.6f, 0.1f) {}
+};
+
+class QuickArrive : public Arrive {
+public:
+    QuickArrive() : Arrive(250.0f, 120.0f, 5.0f, 150.0f, 0.1f) {}
 };
 
 // Face behavior (align to direction of movement)
@@ -699,41 +715,51 @@ public:
 // Main application
 int main() {
     sf::RenderWindow window(sf::VideoMode(WINDOW_WIDTH, WINDOW_HEIGHT),
-                            "Steering Behaviors Demo (1: VelMatchMouse, 2: Arrive+Align, 3: Wander, 4: Boids)");
+                            "Steering Behaviors Demo (1: VelMatchMouse, 2: Align+Arrive, 3: Wander, 4: Boids)");
     window.setFramerateLimit(60);
 
     sf::Clock clock;
     int currentMode = 1;
 
-    // Behaviors
-    VelocityMatching velocityMatch;
-    Arrive arriveBehavior;
-    Align alignBehavior;
-    Wander wanderSmooth(60.0f, 40.0f, 0.5f);
-    Wander wanderErratic(80.0f, 60.0f, 1.0f);
+    // --- Behaviors ---
+    FastVelocityMatching fastVelMatch;
+    SmoothAlign smoothAlign;
+    QuickArrive quickArrive;
+    Wander wanderSmooth(60.0f, 40.0f, 0.6f);   // Slightly higher wanderRate
+    Wander wanderErratic(80.0f, 60.0f, 1.2f);  // More erratic
 
-    // Characters
+    // --- Characters ---
     Character velMatchChar(sf::Vector2f(WINDOW_WIDTH / 2, WINDOW_HEIGHT / 2), sf::Color::Red);
-    Character arriveChar(sf::Vector2f(WINDOW_WIDTH / 2, WINDOW_HEIGHT / 2), sf::Color::Cyan);
-    Character alignChar(sf::Vector2f(WINDOW_WIDTH / 2, WINDOW_HEIGHT / 2), sf::Color::Yellow);
+    Character cyanAlignChar(sf::Vector2f(WINDOW_WIDTH / 2, WINDOW_HEIGHT / 2), sf::Color::Cyan);
+    Character yellowArriveChar(sf::Vector2f(WINDOW_WIDTH / 2, WINDOW_HEIGHT / 2), sf::Color::Yellow);
 
-    // Wander groups
+    // --- Wander groups ---
     std::vector<std::unique_ptr<Character>> wanderSet1, wanderSet2;
     auto initWander = [&]() {
-        wanderSet1.clear(); wanderSet2.clear();
+        wanderSet1.clear();
+        wanderSet2.clear();
         for (int i = 0; i < 5; ++i) {
-            wanderSet1.push_back(std::make_unique<Character>(
-                sf::Vector2f(randomFloat(100, 1100), randomFloat(100, 700)), sf::Color::Blue));
-            wanderSet2.push_back(std::make_unique<Character>(
-                sf::Vector2f(randomFloat(100, 1100), randomFloat(100, 700)), sf::Color::Magenta));
+            auto c1 = std::make_unique<Character>(
+                sf::Vector2f(randomFloat(100, 1100), randomFloat(100, 700)), sf::Color::Blue);
+            auto c2 = std::make_unique<Character>(
+                sf::Vector2f(randomFloat(100, 1100), randomFloat(100, 700)), sf::Color::Magenta);
+            // Random starting orientations
+            c1->getKinematic().orientation = randomFloat(-PI, PI);
+            c2->getKinematic().orientation = randomFloat(-PI, PI);
+            // Slow movement
+            c1->setMaxSpeed(80.0f);
+            c2->setMaxSpeed(80.0f);
+            wanderSet1.push_back(std::move(c1));
+            wanderSet2.push_back(std::move(c2));
         }
     };
 
-    // Flocking setup
+    // --- Flocking setup ---
     std::vector<std::unique_ptr<Boid>> flock;
     std::vector<Kinematic*> flockKinematics;
     auto initFlocking = [&]() {
-        flock.clear(); flockKinematics.clear();
+        flock.clear();
+        flockKinematics.clear();
         int numBoids = 25;
         for (int i = 0; i < numBoids; ++i) {
             sf::Vector2f pos(randomFloat(100, WINDOW_WIDTH - 100),
@@ -754,32 +780,31 @@ int main() {
         }
     };
 
-    // Initialize sets
     initWander();
     initFlocking();
 
-    // Mouse target (for velocity match and arrive)
+    // --- Mouse state ---
     Kinematic mouseTarget;
     sf::Vector2f lastMousePos = sf::Mouse::getPosition(window);
     sf::Clock mouseClock;
 
-    // Font
+    // --- Font / text ---
     sf::Font font;
     font.loadFromFile("/usr/share/fonts/truetype/liberation/LiberationSans-Regular.ttf");
     sf::Text modeText("Case 1: Velocity Match Mouse", font, 20);
     modeText.setPosition(10, 10);
 
-    // Reset helper
+    // --- Reset helper ---
     auto resetCase = [&](int mode) {
         currentMode = mode;
         if (mode == 1) {
-            velMatchChar.setPosition(sf::Vector2f(WINDOW_WIDTH / 2, WINDOW_HEIGHT / 2));
+            velMatchChar.setPosition({WINDOW_WIDTH / 2, WINDOW_HEIGHT / 2});
             velMatchChar.clearBreadcrumbs();
         } else if (mode == 2) {
-            arriveChar.setPosition(sf::Vector2f(WINDOW_WIDTH / 2, WINDOW_HEIGHT / 2));
-            alignChar.setPosition(sf::Vector2f(WINDOW_WIDTH / 2, WINDOW_HEIGHT / 2));
-            arriveChar.clearBreadcrumbs();
-            alignChar.clearBreadcrumbs();
+            cyanAlignChar.setPosition({WINDOW_WIDTH / 2, WINDOW_HEIGHT / 2});
+            yellowArriveChar.setPosition({WINDOW_WIDTH / 2, WINDOW_HEIGHT / 2});
+            cyanAlignChar.clearBreadcrumbs();
+            yellowArriveChar.clearBreadcrumbs();
         } else if (mode == 3) {
             initWander();
         } else if (mode == 4) {
@@ -787,7 +812,7 @@ int main() {
         }
     };
 
-    // Main loop
+    // --- Main loop ---
     while (window.isOpen()) {
         float dt = clock.restart().asSeconds();
         sf::Event event;
@@ -802,7 +827,8 @@ int main() {
             }
             if (event.type == sf::Event::MouseButtonPressed && currentMode == 2) {
                 if (event.mouseButton.button == sf::Mouse::Left) {
-                    mouseTarget.position = sf::Vector2f(event.mouseButton.x, event.mouseButton.y);
+                    mouseTarget.position = {static_cast<float>(event.mouseButton.x),
+                                            static_cast<float>(event.mouseButton.y)};
                     mouseTarget.orientation = randomFloat(-PI, PI);
                 }
             }
@@ -811,10 +837,10 @@ int main() {
         window.clear(sf::Color(30, 30, 40));
 
         switch (currentMode) {
-            // --- Case 1: Velocity Matching (mouse) ---
+            // --- Case 1: Velocity Match (Mouse) ---
             case 1: {
                 modeText.setString("Case 1: Velocity Matching (Mouse)");
-                sf::Vector2f mousePos = sf::Vector2f(sf::Mouse::getPosition(window));
+                sf::Vector2f mousePos(sf::Mouse::getPosition(window));
                 float elapsed = mouseClock.restart().asSeconds();
                 if (elapsed > 0) {
                     mouseTarget.velocity = (mousePos - lastMousePos) / elapsed;
@@ -822,11 +848,11 @@ int main() {
                 mouseTarget.position = mousePos;
                 lastMousePos = mousePos;
 
-                velMatchChar.setBehavior(&velocityMatch);
+                velMatchChar.setBehavior(&fastVelMatch);
+                velMatchChar.setMaxSpeed(250.0f);
                 velMatchChar.update(dt, mouseTarget);
                 velMatchChar.draw(window);
 
-                // Draw mouse as small target
                 sf::CircleShape targetShape(5);
                 targetShape.setFillColor(sf::Color::White);
                 targetShape.setOrigin(5, 5);
@@ -835,17 +861,17 @@ int main() {
                 break;
             }
 
-            // --- Case 2: Arrive + Align (mouse click) ---
+            // --- Case 2: Cyan Align, Yellow Arrive ---
             case 2: {
-                modeText.setString("Case 2: Arrive + Align (Click to Move)");
-                arriveChar.setBehavior(&arriveBehavior);
-                alignChar.setBehavior(&alignBehavior);
+                modeText.setString("Case 2: Align (Cyan) + Arrive (Yellow)");
+                cyanAlignChar.setBehavior(&smoothAlign);
+                yellowArriveChar.setBehavior(&quickArrive);
 
-                arriveChar.update(dt, mouseTarget);
-                alignChar.update(dt, mouseTarget);
+                cyanAlignChar.update(dt, mouseTarget);
+                yellowArriveChar.update(dt, mouseTarget);
 
-                arriveChar.draw(window);
-                alignChar.draw(window);
+                cyanAlignChar.draw(window);
+                yellowArriveChar.draw(window);
                 break;
             }
 
@@ -865,7 +891,7 @@ int main() {
                 break;
             }
 
-            // --- Case 4: Reynolds Boids ---
+            // --- Case 4: Boids ---
             case 4: {
                 modeText.setString("Case 4: Reynolds Boids");
                 for (auto& b : flock) {
