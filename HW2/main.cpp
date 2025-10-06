@@ -640,7 +640,7 @@ private:
 
 public:
     Separation(std::vector<Kinematic *> *b, float thresh = 100.0f, float decay = 5000.0f,
-               float maxAccel = 10.0f)
+               float maxAccel = 100.0f)
         : boids(b), threshold(thresh), decayCoefficient(decay), maxAcceleration(maxAccel) {}
 
     SteeringOutput calculateSteering(const Kinematic &character, const Kinematic &target) override
