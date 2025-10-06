@@ -731,13 +731,13 @@ int main() {
     FastVelocityMatching fastVelMatch;
     SmoothAlign smoothAlign;
     QuickArrive quickArrive;
-    Wander wanderSmooth(60.0f, 40.0f, 0.6f, 40.0f);   // Slightly higher wanderRate
-    Wander wanderErratic(80.0f, 60.0f, 5.0f, 40.f);  // More erratic
+    Wander wanderSmooth(60.0f, 40.0f, 0.6f, 60.0f);   // Slightly higher wanderRate
+    Wander wanderErratic(80.0f, 60.0f, 10.0f, 30.f);  // More erratic
 
     // --- Characters ---
-    Character velMatchChar(sf::Vector2f(WINDOW_WIDTH / 2, WINDOW_HEIGHT / 2), sf::Color(128, 0, 0, 150));
-    Character cyanAlignChar(sf::Vector2f(WINDOW_WIDTH / 2, WINDOW_HEIGHT / 2), sf::Color(128, 128, 0, 150));
-    Character yellowArriveChar(sf::Vector2f(WINDOW_WIDTH / 2, WINDOW_HEIGHT / 2), sf::Color(0, 0, 128, 150));
+    Character velMatchChar(sf::Vector2f(WINDOW_WIDTH / 2, WINDOW_HEIGHT / 2), sf::Color(128, 0, 0, 255));
+    Character cyanAlignChar(sf::Vector2f(WINDOW_WIDTH / 2, WINDOW_HEIGHT / 2), sf::Color(128, 128, 0, 255));
+    Character yellowArriveChar(sf::Vector2f(WINDOW_WIDTH / 2, WINDOW_HEIGHT / 2), sf::Color(0, 0, 128, 255));
 
     // --- Wander groups ---
     std::vector<std::unique_ptr<Character>> wanderSet1, wanderSet2;
