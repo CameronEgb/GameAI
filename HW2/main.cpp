@@ -421,7 +421,7 @@ private:
     float detectionDistance;
     
 public:
-    WallAvoidance(float margin = 50.0f, float maxAccel = 300.0f, float detectDist = 120.0f)
+    WallAvoidance(float margin = 20.0f, float maxAccel = 300.0f, float detectDist = 120.0f)
         : wallMargin(margin), maxAcceleration(maxAccel), detectionDistance(detectDist) {}
     
     SteeringOutput calculateSteering(const Kinematic& character, const Kinematic& target) override {
@@ -746,7 +746,7 @@ public:
         }
         
         // Boundary clamping with smooth reflection
-        const float margin = 10.0f;
+        const float margin = 4.0f;
         bool hitBoundary = false;
         
         if (kinematic.position.x < margin) {
