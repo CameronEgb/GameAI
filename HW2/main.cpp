@@ -585,8 +585,6 @@ public:
         sprite.setTexture(boidTexture);
         sprite.setOrigin(boidTexture.getSize().x / 2.f, boidTexture.getSize().y / 2.f);
         sprite.setScale(0.05f, 0.05f); // scale down from 627x930
-        sprite.setColor(color);
-
     }
     
     void setBehavior(SteeringBehavior* behavior) {
@@ -669,10 +667,6 @@ public:
         sprite.setOrigin(boidSmallTexture.getSize().x / 2.f, boidSmallTexture.getSize().y / 2.f);
         float scaleFactor = 0.5f; // adjust to taste
         sprite.setScale(scaleFactor, scaleFactor);
-
-        // Tint the sprite color
-        sprite.setColor(color);
-
         
         flockingBehavior = nullptr;
     }
