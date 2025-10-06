@@ -11,7 +11,7 @@
 
 const float PI = 3.14159265f;
 const int WINDOW_WIDTH = 600;
-const int WINDOW_HEIGHT = 800;
+const int WINDOW_HEIGHT = 600;
 
 // Forward declarations
 struct Kinematic;
@@ -421,7 +421,7 @@ private:
     float detectionDistance;
     
 public:
-    WallAvoidance(float margin = 60.0f, float maxAccel = 300.0f, float detectDist = 120.0f)
+    WallAvoidance(float margin = 50.0f, float maxAccel = 300.0f, float detectDist = 120.0f)
         : wallMargin(margin), maxAcceleration(maxAccel), detectionDistance(detectDist) {}
     
     SteeringOutput calculateSteering(const Kinematic& character, const Kinematic& target) override {
