@@ -626,7 +626,7 @@ public:
         // Update breadcrumbs
         breadcrumbs.update(kinematic.position);
         
-        // Update shape
+        // Update sprite
         sprite.setPosition(kinematic.position);
         sprite.setRotation(kinematic.orientation * 180 / PI);
     }
@@ -643,7 +643,7 @@ public:
     void setMaxSpeed(float speed) { maxSpeed = speed; }
     void setPosition(sf::Vector2f pos) { 
         kinematic.position = pos;
-        shape.setPosition(pos);
+        sprite.setPosition(pos);
     }
 };
 
