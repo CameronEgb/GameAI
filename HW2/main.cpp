@@ -361,12 +361,6 @@ public:
     SmoothAlign() : Align(2.5f, 1.5f, 0.01f, 0.6f, 0.1f) {}
 };
 
-class QuickArrive : public Arrive
-{
-public:
-    QuickArrive() : Arrive(250.0f, 120.0f, 5.0f, 150.0f, 0.1f) {}
-};
-
 // NEW: Combined Arrive and Align behavior
 class ArriveAndAlign : public SteeringBehavior
 {
@@ -1279,7 +1273,8 @@ int main()
             modeText.setString("Case 2: Arrive + Align (Direction of Motion)");
 
             // Use Arrive for movement
-            QuickArrive quickArrive;
+            Arrive* quickArrive = new Arrive(300.0f, 120.0f, 5.0f, 150.0f, 0.12f);
+            Arrive* slow = new Arrive(200.0f, 100.0f, 7.0f, 150.0f, 0.08f);
             cyanAlignChar.setBehavior(&quickArrive);
             yellowArriveChar.setBehavior(&quickArrive);
 
