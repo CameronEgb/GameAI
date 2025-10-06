@@ -318,6 +318,29 @@ public:
     QuickArrive() : Arrive(250.0f, 120.0f, 5.0f, 150.0f, 0.1f) {}
 };
 
+// NEW: Combined Arrive and Align behavior
+class ArriveAndAlign : public SteeringBehavior {
+private:
+    Arrive arrive;
+    Align align;
+    
+public:
+    ArriveAndAlign() 
+        : arrive(250.0f, 120.0f, 5.0f, 150.0f, 0.1f),
+          align(2.5f, 1.5f, 0.01f, 0.6f, 0.1f) {}
+    
+    SteeringOutput calculateSteering(const Kinematic& character, const Kinematic& target) override {
+        SteeringOutput arriveResult = arrive.calculateSteering(character, target);
+        SteeringOutput alignResult = align.calculateSteering(character, target);
+        
+        SteeringOutput result;
+        result.linear = arriveResult.linear;
+        result.angular = alignResult.angular;
+        
+        return result;
+    }
+};
+
 // Face behavior (align to direction of movement)
 class Face : public SteeringBehavior {
 private:
@@ -357,6 +380,56 @@ public:
         alignTarget.orientation = std::atan2(character.velocity.y, character.velocity.x);
         
         return align.calculateSteering(character, alignTarget);
+    }
+};
+
+// NEW: Wall Avoidance behavior
+class WallAvoidance : public SteeringBehavior {
+private:
+    float wallMargin;
+    float maxAcceleration;
+    float detectionDistance;
+    
+public:
+    WallAvoidance(float margin = 80.0f, float maxAccel = 300.0f, float detectDist = 120.0f)
+        : wallMargin(margin), maxAcceleration(maxAccel), detectionDistance(detectDist) {}
+    
+    SteeringOutput calculateSteering(const Kinematic& character, const Kinematic& target) override {
+        SteeringOutput result;
+        sf::Vector2f avoidanceForce(0, 0);
+        
+        float distToLeft = character.position.x;
+        float distToRight = WINDOW_WIDTH - character.position.x;
+        float distToTop = character.position.y;
+        float distToBottom = WINDOW_HEIGHT - character.position.y;
+        
+        // Check left wall
+        if (distToLeft < detectionDistance) {
+            float strength = (detectionDistance - distToLeft) / detectionDistance;
+            avoidanceForce.x += strength * maxAcceleration;
+        }
+        
+        // Check right wall
+        if (distToRight < detectionDistance) {
+            float strength = (detectionDistance - distToRight) / detectionDistance;
+            avoidanceForce.x -= strength * maxAcceleration;
+        }
+        
+        // Check top wall
+        if (distToTop < detectionDistance) {
+            float strength = (detectionDistance - distToTop) / detectionDistance;
+            avoidanceForce.y += strength * maxAcceleration;
+        }
+        
+        // Check bottom wall
+        if (distToBottom < detectionDistance) {
+            float strength = (detectionDistance - distToBottom) / detectionDistance;
+            avoidanceForce.y -= strength * maxAcceleration;
+        }
+        
+        result.linear = avoidanceForce;
+        
+        return result;
     }
 };
 
@@ -584,9 +657,8 @@ public:
         boidTexture.loadFromFile("boid.png");
         sprite.setTexture(boidTexture);
         sprite.setOrigin(boidTexture.getSize().x / 2.f, boidTexture.getSize().y / 2.f);
-        sprite.setScale(0.05f, 0.05f); // scale down from 627x930
+        sprite.setScale(0.05f, 0.05f);
         sprite.setColor(color);
-
     }
     
     void setBehavior(SteeringBehavior* behavior) {
@@ -598,35 +670,80 @@ public:
         
         SteeringOutput steering = currentBehavior->calculateSteering(kinematic, target);
         
-        // Update position and velocity
         kinematic.position += kinematic.velocity * deltaTime;
         kinematic.orientation += kinematic.rotation * deltaTime;
         
         kinematic.velocity += steering.linear * deltaTime;
         kinematic.rotation += steering.angular * deltaTime;
         
-        // Cap velocity
         float speed = std::sqrt(kinematic.velocity.x * kinematic.velocity.x + 
                                kinematic.velocity.y * kinematic.velocity.y);
         if (speed > maxSpeed) {
             kinematic.velocity = (kinematic.velocity / speed) * maxSpeed;
         }
         
-        // Cap rotation
         if (std::abs(kinematic.rotation) > maxRotation) {
             kinematic.rotation = (kinematic.rotation / std::abs(kinematic.rotation)) * maxRotation;
         }
         
-        // Handle boundaries (wrap around)
-        if (kinematic.position.x < 0) kinematic.position.x = WINDOW_WIDTH;
-        if (kinematic.position.x > WINDOW_WIDTH) kinematic.position.x = 0;
-        if (kinematic.position.y < 0) kinematic.position.y = WINDOW_HEIGHT;
-        if (kinematic.position.y > WINDOW_HEIGHT) kinematic.position.y = 0;
+        kinematic.orientation = mapToRange(kinematic.orientation);
         
-        // Update breadcrumbs
         breadcrumbs.update(kinematic.position);
         
-        // Update sprite
+        sprite.setPosition(kinematic.position);
+        sprite.setRotation(kinematic.orientation * 180 / PI);
+    }
+    
+    void updateWithBoundaryHandling(float deltaTime, const Kinematic& target) {
+        if (!currentBehavior) return;
+        
+        SteeringOutput steering = currentBehavior->calculateSteering(kinematic, target);
+        
+        kinematic.position += kinematic.velocity * deltaTime;
+        kinematic.orientation += kinematic.rotation * deltaTime;
+        
+        kinematic.velocity += steering.linear * deltaTime;
+        kinematic.rotation += steering.angular * deltaTime;
+        
+        float speed = std::sqrt(kinematic.velocity.x * kinematic.velocity.x + 
+                               kinematic.velocity.y * kinematic.velocity.y);
+        if (speed > maxSpeed) {
+            kinematic.velocity = (kinematic.velocity / speed) * maxSpeed;
+        }
+        
+        if (std::abs(kinematic.rotation) > maxRotation) {
+            kinematic.rotation = (kinematic.rotation / std::abs(kinematic.rotation)) * maxRotation;
+        }
+        
+        // Boundary clamping with smooth reflection
+        const float margin = 10.0f;
+        bool hitBoundary = false;
+        
+        if (kinematic.position.x < margin) {
+            kinematic.position.x = margin;
+            kinematic.velocity.x = std::abs(kinematic.velocity.x) * 0.8f;
+            hitBoundary = true;
+        }
+        if (kinematic.position.x > WINDOW_WIDTH - margin) {
+            kinematic.position.x = WINDOW_WIDTH - margin;
+            kinematic.velocity.x = -std::abs(kinematic.velocity.x) * 0.8f;
+            hitBoundary = true;
+        }
+        if (kinematic.position.y < margin) {
+            kinematic.position.y = margin;
+            kinematic.velocity.y = std::abs(kinematic.velocity.y) * 0.8f;
+            hitBoundary = true;
+        }
+        if (kinematic.position.y > WINDOW_HEIGHT - margin) {
+            kinematic.position.y = WINDOW_HEIGHT - margin;
+            kinematic.velocity.y = -std::abs(kinematic.velocity.y) * 0.8f;
+            hitBoundary = true;
+        }
+        
+        kinematic.orientation = mapToRange(kinematic.orientation);
+        
+        breadcrumbs.update(kinematic.position);
+        
         sprite.setPosition(kinematic.position);
         sprite.setRotation(kinematic.orientation * 180 / PI);
     }
@@ -667,12 +784,9 @@ public:
         boidSmallTexture.loadFromFile("boid-sm.png");
         sprite.setTexture(boidSmallTexture);
         sprite.setOrigin(boidSmallTexture.getSize().x / 2.f, boidSmallTexture.getSize().y / 2.f);
-        float scaleFactor = 0.5f; // adjust to taste
+        float scaleFactor = 0.5f;
         sprite.setScale(scaleFactor, scaleFactor);
-
-        // Tint the sprite color
         sprite.setColor(color);
-
         
         flockingBehavior = nullptr;
     }
@@ -719,7 +833,6 @@ int main() {
     sf::Texture boidSmallTexture;
     boidSmallTexture.loadFromFile("boid-sm.png");
 
-
     sf::RenderWindow window(sf::VideoMode(WINDOW_WIDTH, WINDOW_HEIGHT),
                             "Steering Behaviors Demo (1: VelMatchMouse, 2: Align+Arrive, 3: Wander, 4: Boids)");
     window.setFramerateLimit(60);
@@ -729,10 +842,21 @@ int main() {
 
     // --- Behaviors ---
     FastVelocityMatching fastVelMatch;
-    SmoothAlign smoothAlign;
-    QuickArrive quickArrive;
-    Wander wanderSmooth(60.0f, 40.0f, 0.6f, 60.0f);   // Slightly higher wanderRate
-    Wander wanderErratic(80.0f, 60.0f, 10.0f, 30.f);  // More erratic
+    ArriveAndAlign arriveAndAlign;
+    
+    // Wander behaviors with wall avoidance
+    Wander wanderSmooth(60.0f, 40.0f, 0.6f, 60.0f);
+    Wander wanderErratic(80.0f, 60.0f, 30.0f, 30.f);
+    WallAvoidance wallAvoid;
+    
+    // Blended wander behaviors
+    BlendedSteering wanderWithWalls1(200.0f, 5.0f);
+    wanderWithWalls1.addBehavior(&wanderSmooth, 1.0f);
+    wanderWithWalls1.addBehavior(&wallAvoid, 2.0f);
+    
+    BlendedSteering wanderWithWalls2(200.0f, 5.0f);
+    wanderWithWalls2.addBehavior(&wanderErratic, 1.0f);
+    wanderWithWalls2.addBehavior(&wallAvoid, 2.0f);
 
     // --- Characters ---
     Character velMatchChar(sf::Vector2f(WINDOW_WIDTH / 2, WINDOW_HEIGHT / 2), sf::Color(128, 0, 0, 255));
@@ -749,10 +873,8 @@ int main() {
                 sf::Vector2f(randomFloat(100, 1100), randomFloat(100, 700)), sf::Color::Blue);
             auto c2 = std::make_unique<Character>(
                 sf::Vector2f(randomFloat(100, 1100), randomFloat(100, 700)), sf::Color::Magenta);
-            // Random starting orientations
             c1->getKinematic().orientation = randomFloat(-PI, PI);
             c2->getKinematic().orientation = randomFloat(-PI, PI);
-            // Slow movement
             c1->setMaxSpeed(80.0f);
             c2->setMaxSpeed(80.0f);
             wanderSet1.push_back(std::move(c1));
@@ -867,11 +989,12 @@ int main() {
                 break;
             }
 
-            // --- Case 2: Cyan Align, Yellow Arrive ---
+            // --- Case 2: Combined Arrive and Align ---
             case 2: {
-                modeText.setString("Case 2: Align (Cyan) + Arrive (Yellow)");
-                cyanAlignChar.setBehavior(&smoothAlign);
-                yellowArriveChar.setBehavior(&quickArrive);
+                modeText.setString("Case 2: Arrive + Align (Both Characters)");
+                
+                cyanAlignChar.setBehavior(&arriveAndAlign);
+                yellowArriveChar.setBehavior(&arriveAndAlign);
 
                 cyanAlignChar.update(dt, mouseTarget);
                 yellowArriveChar.update(dt, mouseTarget);
@@ -881,17 +1004,17 @@ int main() {
                 break;
             }
 
-            // --- Case 3: Wander ---
+            // --- Case 3: Wander with Wall Avoidance ---
             case 3: {
-                modeText.setString("Case 3: Wander (Two Groups)");
+                modeText.setString("Case 3: Wander (With Wall Avoidance)");
                 for (auto& c : wanderSet1) {
-                    c->setBehavior(&wanderSmooth);
-                    c->update(dt, c->getKinematic());
+                    c->setBehavior(&wanderWithWalls1);
+                    c->updateWithBoundaryHandling(dt, c->getKinematic());
                     c->draw(window);
                 }
                 for (auto& c : wanderSet2) {
-                    c->setBehavior(&wanderErratic);
-                    c->update(dt, c->getKinematic());
+                    c->setBehavior(&wanderWithWalls2);
+                    c->updateWithBoundaryHandling(dt, c->getKinematic());
                     c->draw(window);
                 }
                 break;
