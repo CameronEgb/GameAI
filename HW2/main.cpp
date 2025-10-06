@@ -1,4 +1,6 @@
 #include <SFML/Graphics.hpp>
+#include <cmath>
+
 #include "PositionMatchBehavior.h"
 #include "OrientationMatchBehavior.h"
 #include "VelocityMatchBehavior.h"

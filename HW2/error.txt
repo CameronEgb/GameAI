@@ -1,0 +1,13 @@
+In file included from main.cpp:2:
+PositionMatchBehavior.h: In member function ‘virtual SteeringOutput PositionMatchBehavior::calculateSteering(const Kinematic&, const Kinematic&)’:
+PositionMatchBehavior.h:14:26: error: ‘sqrt’ is not a member of ‘std’; did you mean ‘sort’?
+   14 |         float len = std::sqrt(result.linear.x * result.linear.x + result.linear.y * result.linear.y);
+      |                          ^~~~
+      |                          sort
+In file included from main.cpp:4:
+VelocityMatchBehavior.h: In member function ‘virtual SteeringOutput VelocityMatchBehavior::calculateSteering(const Kinematic&, const Kinematic&)’:
+VelocityMatchBehavior.h:14:26: error: ‘sqrt’ is not a member of ‘std’; did you mean ‘sort’?
+   14 |         float len = std::sqrt(result.linear.x * result.linear.x + result.linear.y * result.linear.y);
+      |                          ^~~~
+      |                          sort
+make: *** [Makefile:18: main.o] Error 1
