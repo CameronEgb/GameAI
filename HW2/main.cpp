@@ -565,7 +565,7 @@ public:
 class Character {
 private:
     Kinematic kinematic;
-    sf::ConvexShape shape;
+    sf::Sprite sprite;
     Breadcrumb breadcrumbs;
     SteeringBehavior* currentBehavior;
     float maxSpeed;
@@ -580,13 +580,11 @@ public:
         kinematic.position = startPos;
         kinematic.orientation = 0;
         
-        // Create triangle shape
-        shape.setPointCount(3);
-        shape.setPoint(0, sf::Vector2f(15, 0));
-        shape.setPoint(1, sf::Vector2f(-10, -8));
-        shape.setPoint(2, sf::Vector2f(-10, 8));
-        shape.setFillColor(color);
-        shape.setOrigin(0, 0);
+        sprite.setTexture(boidTexture);
+        sprite.setOrigin(boidTexture.getSize().x / 2.f, boidTexture.getSize().y / 2.f);
+        sprite.setScale(0.05f, 0.05f); // scale down from 627x930
+        sprite.setColor(color);
+
     }
     
     void setBehavior(SteeringBehavior* behavior) {
@@ -627,13 +625,13 @@ public:
         breadcrumbs.update(kinematic.position);
         
         // Update shape
-        shape.setPosition(kinematic.position);
-        shape.setRotation(kinematic.orientation * 180 / PI);
+        sprite.setPosition(kinematic.position);
+        sprite.setRotation(kinematic.orientation * 180 / PI);
     }
     
     void draw(sf::RenderWindow& window) {
         breadcrumbs.draw(window);
-        window.draw(shape);
+        window.draw(sprite);
     }
     
     Kinematic& getKinematic() { return kinematic; }
@@ -651,7 +649,7 @@ public:
 class Boid {
 public:
     Kinematic kinematic;
-    sf::CircleShape shape;
+    sf::Sprite sprite;
     Breadcrumb breadcrumbs;
     BlendedSteering* flockingBehavior;
     float maxSpeed;
@@ -663,9 +661,14 @@ public:
         kinematic.velocity = sf::Vector2f(randomFloat(-50, 50), randomFloat(-50, 50));
         kinematic.orientation = std::atan2(kinematic.velocity.y, kinematic.velocity.x);
         
-        shape.setRadius(5);
-        shape.setFillColor(color);
-        shape.setOrigin(5, 5);
+        sprite.setTexture(boidSmallTexture);
+        sprite.setOrigin(boidSmallTexture.getSize().x / 2.f, boidSmallTexture.getSize().y / 2.f);
+        float scaleFactor = 0.5f; // adjust to taste
+        sprite.setScale(scaleFactor, scaleFactor);
+
+        // Tint the sprite color
+        sprite.setColor(color);
+
         
         flockingBehavior = nullptr;
     }
@@ -695,25 +698,24 @@ public:
         if (kinematic.position.y > WINDOW_HEIGHT) kinematic.position.y = 0;
         
         breadcrumbs.update(kinematic.position);
-        shape.setPosition(kinematic.position);
+        sprite.setPosition(kinematic.position);
+        sprite.setRotation(kinematic.orientation * 180 / PI);
     }
     
     void draw(sf::RenderWindow& window) {
         breadcrumbs.draw(window);
-        
-        // Draw direction indicator
-        sf::RectangleShape direction(sf::Vector2f(15, 2));
-        direction.setPosition(kinematic.position);
-        direction.setRotation(kinematic.orientation * 180 / PI);
-        direction.setFillColor(sf::Color::Red);
-        window.draw(direction);
-        
-        window.draw(shape);
+        window.draw(sprite);
     }
 };
 
 // Main application
 int main() {
+    sf::Texture boidTexture;
+    boidTexture.loadFromFile("boid.png");
+    sf::Texture boidSmallTexture;
+    boidSmallTexture.loadFromFile("boid-sm.png");
+
+
     sf::RenderWindow window(sf::VideoMode(WINDOW_WIDTH, WINDOW_HEIGHT),
                             "Steering Behaviors Demo (1: VelMatchMouse, 2: Align+Arrive, 3: Wander, 4: Boids)");
     window.setFramerateLimit(60);
@@ -725,8 +727,8 @@ int main() {
     FastVelocityMatching fastVelMatch;
     SmoothAlign smoothAlign;
     QuickArrive quickArrive;
-    Wander wanderSmooth(60.0f, 40.0f, 0.6f);   // Slightly higher wanderRate
-    Wander wanderErratic(80.0f, 60.0f, 1.2f);  // More erratic
+    Wander wanderSmooth(60.0f, 40.0f, 0.6f, 40.0f);   // Slightly higher wanderRate
+    Wander wanderErratic(80.0f, 60.0f, 1.2f, );  // More erratic
 
     // --- Characters ---
     Character velMatchChar(sf::Vector2f(WINDOW_WIDTH / 2, WINDOW_HEIGHT / 2), sf::Color::Red);
