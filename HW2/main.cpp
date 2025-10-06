@@ -754,8 +754,8 @@ public:
             kinematic.velocity.x = std::abs(kinematic.velocity.x) * 0.8f;
             hitBoundary = true;
         }
-        if (kinematic.position.x > WINDOW_WIDTH - margin) {
-            kinematic.position.x = WINDOW_WIDTH - margin;
+        if (kinematic.position.x > WINDOW_WIDTH - 2*margin) {
+            kinematic.position.x = WINDOW_WIDTH - 2*margin;
             kinematic.velocity.x = -std::abs(kinematic.velocity.x) * 0.8f;
             hitBoundary = true;
         }
@@ -764,8 +764,8 @@ public:
             kinematic.velocity.y = std::abs(kinematic.velocity.y) * 0.8f;
             hitBoundary = true;
         }
-        if (kinematic.position.y > WINDOW_HEIGHT - margin) {
-            kinematic.position.y = WINDOW_HEIGHT - margin;
+        if (kinematic.position.y > WINDOW_HEIGHT - 2*margin) {
+            kinematic.position.y = WINDOW_HEIGHT - 2*margin;
             kinematic.velocity.y = -std::abs(kinematic.velocity.y) * 0.8f;
             hitBoundary = true;
         }
@@ -814,7 +814,7 @@ public:
         boidSmallTexture.loadFromFile("boid-sm.png");
         sprite.setTexture(boidSmallTexture);
         sprite.setOrigin(boidSmallTexture.getSize().x / 2.f, boidSmallTexture.getSize().y / 2.f);
-        float scaleFactor = 0.5f;
+        float scaleFactor = 1.5f;
         sprite.setScale(scaleFactor, scaleFactor);
         sprite.setColor(color);
         
