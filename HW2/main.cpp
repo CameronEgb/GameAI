@@ -10,7 +10,7 @@
 #include <algorithm>
 
 const float PI = 3.14159265f;
-const int WINDOW_WIDTH = 1200;
+const int WINDOW_WIDTH = 800;
 const int WINDOW_HEIGHT = 800;
 
 // Forward declarations
@@ -754,7 +754,7 @@ public:
             kinematic.velocity.x = std::abs(kinematic.velocity.x) * 0.8f;
             hitBoundary = true;
         }
-        if (kinematic.position.x > WINDOW_WIDTH - 2*margin) {
+        if (kinematic.position.x > WINDOW_WIDTH - 3*margin) {
             kinematic.position.x = WINDOW_WIDTH - 2*margin;
             kinematic.velocity.x = -std::abs(kinematic.velocity.x) * 0.8f;
             hitBoundary = true;
