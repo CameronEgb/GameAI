@@ -325,10 +325,40 @@ private:
     Align align;
     
 public:
-    ArriveAndAlign() 
-        : arrive(250.0f, 120.0f, 5.0f, 150.0f, 0.1f),
-          align(2.5f, 1.5f, 0.01f, 0.6f, 0.1f) {}
+    // 1. Add parameters for Arrive's and Align's constructors
+    ArriveAndAlign(
+        // Arrive Parameters (from its constructor: Arrive(maxSpeed, radius, timeToTarget, slowRadius, maxAcceleration))
+        float arrive_maxSpeed, 
+        float arrive_radius, 
+        float arrive_timeToTarget, 
+        float arrive_slowRadius, 
+        float arrive_maxAcceleration,
+        
+        // Align Parameters (from its constructor: Align(maxRotation, radius, timeToTarget, slowRadius, maxAngularAcceleration))
+        float align_maxRotation, 
+        float align_radius, 
+        float align_timeToTarget, 
+        float align_slowRadius, 
+        float align_maxAngularAcceleration
+    ) 
+        // 2. Pass the new parameters to the member objects' constructors
+        : arrive(
+            arrive_maxSpeed, 
+            arrive_radius, 
+            arrive_timeToTarget, 
+            arrive_slowRadius, 
+            arrive_maxAcceleration
+          ),
+          align(
+            align_maxRotation, 
+            align_radius, 
+            align_timeToTarget, 
+            align_slowRadius, 
+            align_maxAngularAcceleration
+          ) 
+    {}
     
+    // The rest of the class remains the same
     SteeringOutput calculateSteering(const Kinematic& character, const Kinematic& target) override {
         SteeringOutput arriveResult = arrive.calculateSteering(character, target);
         SteeringOutput alignResult = align.calculateSteering(character, target);
@@ -842,8 +872,40 @@ int main() {
 
     // --- Behaviors ---
     FastVelocityMatching fastVelMatch;
-    ArriveAndAlign arriveAndAlign;
+    // Create an ArriveAndAlign object with custom settings
+    ArriveAndAlign AAA1(
+        // Arrive Parameters
+        300.0f,  // maxSpeed
+        10.0f,   // radius
+        0.5f,    // timeToTarget
+        100.0f,  // slowRadius
+        0.2f,    // maxAcceleration
     
+        // Align Parameters
+        6.0f,    // maxRotation
+        2.0f,    // radius
+        0.05f,   // timeToTarget
+        0.8f,    // slowRadius
+        0.3f    // maxAngularAcceleration
+    );
+    
+    ArriveAndAlign AAA2(
+        // Arrive Parameters
+        100.0f,  // maxSpeed
+        10.0f,   // radius
+        0.5f,    // timeToTarget
+        200.0f,  // slowRadius
+        0.2f,    // maxAcceleration
+    
+        // Align Parameters
+        3.0f,    // maxRotation
+        2.0f,    // radius
+        0.05f,   // timeToTarget
+        0.8f,    // slowRadius
+        0.15f    // maxAngularAcceleration
+    );
+
+
     // Wander behaviors with wall avoidance
     Wander wanderSmooth(60.0f, 40.0f, 0.6f, 60.0f);
     Wander wanderErratic(80.0f, 60.0f, 30.0f, 30.f);
@@ -993,8 +1055,8 @@ int main() {
             case 2: {
                 modeText.setString("Case 2: Arrive + Align (Both Characters)");
                 
-                cyanAlignChar.setBehavior(&arriveAndAlign);
-                yellowArriveChar.setBehavior(&arriveAndAlign);
+                cyanAlignChar.setBehavior(&AAA1);
+                yellowArriveChar.setBehavior(&AAA2);
 
                 cyanAlignChar.update(dt, mouseTarget);
                 yellowArriveChar.update(dt, mouseTarget);
