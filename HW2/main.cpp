@@ -566,6 +566,7 @@ class Character {
 private:
     Kinematic kinematic;
     sf::Sprite sprite;
+    sf::Texture boidTexture;
     Breadcrumb breadcrumbs;
     SteeringBehavior* currentBehavior;
     float maxSpeed;
@@ -580,7 +581,7 @@ public:
         kinematic.position = startPos;
         kinematic.orientation = 0;
         
-        sf::Texture boidTexture;
+        
         boidTexture.loadFromFile("boid.png");
         sprite.setTexture(boidTexture);
         sprite.setOrigin(boidTexture.getSize().x / 2.f, boidTexture.getSize().y / 2.f);
@@ -650,6 +651,7 @@ class Boid {
 public:
     Kinematic kinematic;
     sf::Sprite sprite;
+    sf::Texture boidSmallTexture;
     Breadcrumb breadcrumbs;
     BlendedSteering* flockingBehavior;
     float maxSpeed;
@@ -661,7 +663,6 @@ public:
         kinematic.velocity = sf::Vector2f(randomFloat(-50, 50), randomFloat(-50, 50));
         kinematic.orientation = std::atan2(kinematic.velocity.y, kinematic.velocity.x);
         
-        sf::Texture boidSmallTexture;
         boidSmallTexture.loadFromFile("boid-sm.png");
         sprite.setTexture(boidSmallTexture);
         sprite.setOrigin(boidSmallTexture.getSize().x / 2.f, boidSmallTexture.getSize().y / 2.f);
