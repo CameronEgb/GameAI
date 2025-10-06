@@ -877,7 +877,7 @@ int main() {
         // Arrive Parameters
         300.0f,  // maxSpeed
         120.0f,   // radius
-        5f,    // timeToTarget
+        5.0f,    // timeToTarget
         100.0f,  // slowRadius
         0.2f,    // maxAcceleration
     
@@ -893,7 +893,7 @@ int main() {
         // Arrive Parameters
         100.0f,  // maxSpeed
         120.0f,   // radius
-        5f,    // timeToTarget
+        5.0f,    // timeToTarget
         200.0f,  // slowRadius
         0.2f,    // maxAcceleration
     
