@@ -1158,9 +1158,9 @@ int main()
             auto coh = new Cohesion(&flockKinematics, 100.0f, 80.0f);
             auto ali = new Alignment(&flockKinematics, 80.0f, 100.0f);
             boid->flockingBehavior = new BlendedSteering();
-            boid->flockingBehavior->addBehavior(sep, 2.0f);
-            boid->flockingBehavior->addBehavior(coh, 0.8f);
-            boid->flockingBehavior->addBehavior(ali, 1.0f);
+            boid->flockingBehavior->addBehavior(sep, 3.2f);
+            boid->flockingBehavior->addBehavior(coh, 0.7f);
+            boid->flockingBehavior->addBehavior(ali, 0.9f);
         }
     };
 
@@ -1274,9 +1274,9 @@ int main()
 
             // Use Arrive for movement
             Arrive* quickArrive = new Arrive(300.0f, 120.0f, 5.0f, 150.0f, 0.12f);
-            Arrive* slow = new Arrive(200.0f, 100.0f, 7.0f, 150.0f, 0.08f);
-            cyanAlignChar.setBehavior(&quickArrive);
-            yellowArriveChar.setBehavior(&quickArrive);
+            Arrive* slowArrive = new Arrive(200.0f, 100.0f, 7.0f, 150.0f, 0.08f);
+            cyanAlignChar.setBehavior(quickArrive);
+            yellowArriveChar.setBehavior(slowArrive);
 
             // Update positions first
             cyanAlignChar.update(dt, mouseTarget);
@@ -1301,7 +1301,7 @@ int main()
         // --- Case 3: Wander with Wall Avoidance ---
         case 3:
         {
-            modeText.setString("Case 3: Wander (Blue: LookWhere, Magenta/Green: Kinematic)");
+            modeText.setString("Case 3: Wander (Blue: Circle+LookWhereYoureGoing, Magenta/Green: Direct Kinematic Rotation)");
             // Blue: Uses LookWhereYoureGoing
             for (auto &c : wanderSet1)
             {
