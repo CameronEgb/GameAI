@@ -971,7 +971,7 @@ public:
     float maxSpeed;
 
     Boid(sf::Vector2f startPos, sf::Color color = sf::Color::Blue)
-        : breadcrumbs(20, 10, color), maxSpeed(120.0f)
+        : breadcrumbs(20, 10, color), maxSpeed(200.0f)
     {
 
         kinematic.position = startPos;
