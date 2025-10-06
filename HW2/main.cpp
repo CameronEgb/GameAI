@@ -75,7 +75,7 @@ public:
         if (counter >= dropInterval) {
             counter = 0;
             positions.push(pos);
-            if (positions.size() > maxCrumbs) {
+            if ((int)positions.size() > maxCrumbs) {
                 positions.pop();
             }
         }
@@ -781,7 +781,7 @@ int main() {
             boid->flockingBehavior = new BlendedSteering();
             boid->flockingBehavior->addBehavior(sep, 2.0f);    // Highest weight for separation
             boid->flockingBehavior->addBehavior(coh, 0.8f);
-            boid->flockingBehavior->addBehavior(ali, 1.0boid->flockingBehavior->addBehavior(ali, 1.0f);
+            boid->flockingBehavior->addBehavior(ali, 1.0f);
         }
     };
 

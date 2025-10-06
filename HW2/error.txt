@@ -1,13 +1,66 @@
-In file included from main.cpp:2:
-PositionMatchBehavior.h: In member function ‘virtual SteeringOutput PositionMatchBehavior::calculateSteering(const Kinematic&, const Kinematic&)’:
-PositionMatchBehavior.h:14:26: error: ‘sqrt’ is not a member of ‘std’; did you mean ‘sort’?
-   14 |         float len = std::sqrt(result.linear.x * result.linear.x + result.linear.y * result.linear.y);
-      |                          ^~~~
-      |                          sort
-In file included from main.cpp:4:
-VelocityMatchBehavior.h: In member function ‘virtual SteeringOutput VelocityMatchBehavior::calculateSteering(const Kinematic&, const Kinematic&)’:
-VelocityMatchBehavior.h:14:26: error: ‘sqrt’ is not a member of ‘std’; did you mean ‘sort’?
-   14 |         float len = std::sqrt(result.linear.x * result.linear.x + result.linear.y * result.linear.y);
-      |                          ^~~~
-      |                          sort
-make: *** [Makefile:18: main.o] Error 1
+main.cpp: In member function ‘void Breadcrumb::update(const Vector2f&)’:
+main.cpp:78:34: warning: comparison of integer expressions of different signedness: ‘std::queue<sf::Vector2<float> >::size_type’ {aka ‘long unsigned int’} and ‘int’ [-Wsign-compare]
+   78 |             if (positions.size() > maxCrumbs) {
+      |                 ~~~~~~~~~~~~~~~~~^~~~~~~~~~~
+main.cpp: In member function ‘virtual SteeringOutput LookWhereYoureGoing::calculateSteering(const Kinematic&, const Kinematic&)’:
+main.cpp:337:83: warning: unused parameter ‘target’ [-Wunused-parameter]
+  337 |     SteeringOutput calculateSteering(const Kinematic& character, const Kinematic& target) override {
+      |                                                                  ~~~~~~~~~~~~~~~~~^~~~~~
+main.cpp: In constructor ‘Wander::Wander(float, float, float, float)’:
+main.cpp:356:11: warning: ‘Wander::maxAcceleration’ will be initialized after [-Wreorder]
+  356 |     float maxAcceleration;
+      |           ^~~~~~~~~~~~~~~
+main.cpp:355:11: warning:   ‘float Wander::wanderOrientation’ [-Wreorder]
+  355 |     float wanderOrientation;
+      |           ^~~~~~~~~~~~~~~~~
+main.cpp:360:5: warning:   when initialized here [-Wreorder]
+  360 |     Wander(float offset = 60.0f, float radius = 40.0f, float rate = 0.5f, float maxAccel = 80.0f)
+      |     ^~~~~~
+main.cpp: In constructor ‘Separation::Separation(std::vector<Kinematic*>*, float, float, float)’:
+main.cpp:398:30: warning: ‘Separation::boids’ will be initialized after [-Wreorder]
+  398 |     std::vector<Kinematic*>* boids;
+      |                              ^~~~~
+main.cpp:395:11: warning:   ‘float Separation::threshold’ [-Wreorder]
+  395 |     float threshold;
+      |           ^~~~~~~~~
+main.cpp:401:5: warning:   when initialized here [-Wreorder]
+  401 |     Separation(std::vector<Kinematic*>* b, float thresh = 50.0f, float decay = 5000.0f,
+      |     ^~~~~~~~~~
+main.cpp: In member function ‘virtual SteeringOutput Separation::calculateSteering(const Kinematic&, const Kinematic&)’:
+main.cpp:405:83: warning: unused parameter ‘target’ [-Wunused-parameter]
+  405 |     SteeringOutput calculateSteering(const Kinematic& character, const Kinematic& target) override {
+      |                                                                  ~~~~~~~~~~~~~~~~~^~~~~~
+main.cpp: In constructor ‘Cohesion::Cohesion(std::vector<Kinematic*>*, float, float)’:
+main.cpp:434:30: warning: ‘Cohesion::boids’ will be initialized after [-Wreorder]
+  434 |     std::vector<Kinematic*>* boids;
+      |                              ^~~~~
+main.cpp:432:11: warning:   ‘float Cohesion::neighborhoodRadius’ [-Wreorder]
+  432 |     float neighborhoodRadius;
+      |           ^~~~~~~~~~~~~~~~~~
+main.cpp:438:5: warning:   when initialized here [-Wreorder]
+  438 |     Cohesion(std::vector<Kinematic*>* b, float radius = 150.0f, float maxAccel = 100.0f)
+      |     ^~~~~~~~
+main.cpp: In member function ‘virtual SteeringOutput Cohesion::calculateSteering(const Kinematic&, const Kinematic&)’:
+main.cpp:442:83: warning: unused parameter ‘target’ [-Wunused-parameter]
+  442 |     SteeringOutput calculateSteering(const Kinematic& character, const Kinematic& target) override {
+      |                                                                  ~~~~~~~~~~~~~~~~~^~~~~~
+main.cpp: In constructor ‘Alignment::Alignment(std::vector<Kinematic*>*, float, float)’:
+main.cpp:473:30: warning: ‘Alignment::boids’ will be initialized after [-Wreorder]
+  473 |     std::vector<Kinematic*>* boids;
+      |                              ^~~~~
+main.cpp:471:11: warning:   ‘float Alignment::neighborhoodRadius’ [-Wreorder]
+  471 |     float neighborhoodRadius;
+      |           ^~~~~~~~~~~~~~~~~~
+main.cpp:477:5: warning:   when initialized here [-Wreorder]
+  477 |     Alignment(std::vector<Kinematic*>* b, float radius = 100.0f, float maxAccel = 50.0f)
+      |     ^~~~~~~~~
+main.cpp: In member function ‘virtual SteeringOutput Alignment::calculateSteering(const Kinematic&, const Kinematic&)’:
+main.cpp:481:83: warning: unused parameter ‘target’ [-Wunused-parameter]
+  481 |     SteeringOutput calculateSteering(const Kinematic& character, const Kinematic& target) override {
+      |                                                                  ~~~~~~~~~~~~~~~~~^~~~~~
+main.cpp: In lambda function:
+main.cpp:784:54: error: unable to find numeric literal operator ‘operator""boid’
+  784 |             boid->flockingBehavior->addBehavior(ali, 1.0boid->flockingBehavior->addBehavior(ali, 1.0f);
+      |                                                      ^~~~~~~
+main.cpp:784:54: note: use ‘-fext-numeric-literals’ to enable more built-in suffixes
+make: *** [Makefile:21: steering] Error 1
