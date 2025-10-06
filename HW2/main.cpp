@@ -735,9 +735,9 @@ int main() {
     Wander wanderErratic(80.0f, 60.0f, 5.0f, 40.f);  // More erratic
 
     // --- Characters ---
-    Character velMatchChar(sf::Vector2f(WINDOW_WIDTH / 2, WINDOW_HEIGHT / 2), sf::Color::Red);
-    Character cyanAlignChar(sf::Vector2f(WINDOW_WIDTH / 2, WINDOW_HEIGHT / 2), sf::Color::Cyan);
-    Character yellowArriveChar(sf::Vector2f(WINDOW_WIDTH / 2, WINDOW_HEIGHT / 2), sf::Color::Yellow);
+    Character velMatchChar(sf::Vector2f(WINDOW_WIDTH / 2, WINDOW_HEIGHT / 2), sf::Color(128, 0, 0, 150));
+    Character cyanAlignChar(sf::Vector2f(WINDOW_WIDTH / 2, WINDOW_HEIGHT / 2), sf::Color(128, 128, 0, 150));
+    Character yellowArriveChar(sf::Vector2f(WINDOW_WIDTH / 2, WINDOW_HEIGHT / 2), sf::Color(0, 0, 128, 150));
 
     // --- Wander groups ---
     std::vector<std::unique_ptr<Character>> wanderSet1, wanderSet2;
