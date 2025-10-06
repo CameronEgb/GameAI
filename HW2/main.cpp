@@ -1,4 +1,3 @@
-// main.cpp - Complete Steering Behaviors Implementation
 // CSC 584/484 Fall 25 Homework 2
 
 #include <SFML/Graphics.hpp>
@@ -10,7 +9,6 @@
 #include <random>
 #include <algorithm>
 
-// (Everything from your previous main.cpp up to:)
 const float PI = 3.14159265f;
 const int WINDOW_WIDTH = 1200;
 const int WINDOW_HEIGHT = 800;
@@ -700,193 +698,147 @@ public:
 
 // Main application
 int main() {
-    sf::RenderWindow window(sf::VideoMode(WINDOW_WIDTH, WINDOW_HEIGHT), 
-                           "Steering Behaviors - Press 1-7 for different demos");
+    sf::RenderWindow window(sf::VideoMode(WINDOW_WIDTH, WINDOW_HEIGHT),
+                            "Steering Behaviors Demo (1: VelMatch, 2: Arrive+Align, 3: Wander, 4: Boids)");
     window.setFramerateLimit(60);
-    
-    // Clock for delta time
+
     sf::Clock clock;
-    
-    // Current mode
     int currentMode = 1;
-    
-    // Create character
-    Character character(sf::Vector2f(600, 400), sf::Color::Red);
-    
-    // Create behaviors
-    PositionMatching positionMatch;
+
+    // Common behaviors
     VelocityMatching velocityMatch;
-    OrientationMatching orientationMatch;
-    RotationMatching rotationMatch;
-    
-    Arrive arrive1(200.0f, 100.0f, 10.0f, 100.0f);  // Standard arrive
-    Arrive arrive2(300.0f, 150.0f, 5.0f, 150.0f);   // Aggressive arrive
-    Align align;
-    Face face;
-    LookWhereYoureGoing lookWhereGoing;
-    
-    Wander wander1(60.0f, 40.0f, 0.5f);  // Standard wander
-    Wander wander2(80.0f, 60.0f, 1.0f);  // More erratic wander
-    
-    // Target kinematic (for mouse)
-    Kinematic mouseTarget;
-    sf::Vector2f lastMousePos;
-    sf::Clock mouseClock;
-    
-    // Flocking
+    Arrive arriveBehavior;
+    Align alignBehavior;
+    Wander wanderSmooth(60.0f, 40.0f, 0.5f);
+    Wander wanderErratic(80.0f, 60.0f, 1.0f);
+
+    // Characters for cases 1–3
+    Character follower(sf::Vector2f(600, 400), sf::Color::Red);
+    Character leader(sf::Vector2f(300, 400), sf::Color::Green);
+
+    // Characters for arrive/align case
+    Character arriveChar(sf::Vector2f(600, 400), sf::Color::Cyan);
+    Character alignChar(sf::Vector2f(600, 400), sf::Color::Yellow);
+
+    // Wander sets (two groups of 5)
+    std::vector<std::unique_ptr<Character>> wanderSet1;
+    std::vector<std::unique_ptr<Character>> wanderSet2;
+    for (int i = 0; i < 5; ++i) {
+        wanderSet1.push_back(std::make_unique<Character>(
+            sf::Vector2f(randomFloat(100, 1100), randomFloat(100, 700)), sf::Color::Blue));
+        wanderSet2.push_back(std::make_unique<Character>(
+            sf::Vector2f(randomFloat(100, 1100), randomFloat(100, 700)), sf::Color::Magenta));
+    }
+
+    // Boids
     std::vector<std::unique_ptr<Boid>> flock;
     std::vector<Kinematic*> flockKinematics;
-    
-    // Text for mode display
-    sf::Font font;
-    if (!font.loadFromFile("/usr/share/fonts/truetype/liberation/LiberationSans-Regular.ttf")) {
-        // Try alternative paths
-        if (!font.loadFromFile("C:/Windows/Fonts/arial.ttf")) {
-            if (!font.loadFromFile("/System/Library/Fonts/Helvetica.ttc")) {
-                std::cerr << "Warning: Could not load font" << std::endl;
-            }
-        }
-    }
-    
-    sf::Text modeText;
-    modeText.setFont(font);
-    modeText.setCharacterSize(20);
-    modeText.setFillColor(sf::Color::White);
-    modeText.setPosition(10, 10);
-    
     auto initFlocking = [&]() {
         flock.clear();
         flockKinematics.clear();
-        
         int numBoids = 25;
         for (int i = 0; i < numBoids; ++i) {
             sf::Vector2f pos(randomFloat(100, WINDOW_WIDTH - 100),
-                           randomFloat(100, WINDOW_HEIGHT - 100));
-            
+                             randomFloat(100, WINDOW_HEIGHT - 100));
             sf::Color color;
             if (i % 3 == 0) color = sf::Color::Cyan;
             else if (i % 3 == 1) color = sf::Color::Magenta;
             else color = sf::Color::Yellow;
-            
             flock.push_back(std::make_unique<Boid>(pos, color));
             flockKinematics.push_back(&flock.back()->kinematic);
         }
-        
-        // Create flocking behaviors for each boid
         for (auto& boid : flock) {
             auto sep = new Separation(&flockKinematics, 40.0f, 5000.0f, 250.0f);
             auto coh = new Cohesion(&flockKinematics, 100.0f, 80.0f);
             auto ali = new Alignment(&flockKinematics, 80.0f, 100.0f);
-            
             boid->flockingBehavior = new BlendedSteering();
-            boid->flockingBehavior->addBehavior(sep, 2.0f);    // Highest weight for separation
+            boid->flockingBehavior->addBehavior(sep, 2.0f);
             boid->flockingBehavior->addBehavior(coh, 0.8f);
             boid->flockingBehavior->addBehavior(ali, 1.0f);
         }
     };
-
     initFlocking();
 
-    // Main Loop
-    while (window.isOpen()) {
-        float deltaTime = clock.restart().asSeconds();
+    // Font/text
+    sf::Font font;
+    font.loadFromFile("/usr/share/fonts/truetype/liberation/LiberationSans-Regular.ttf");
+    sf::Text modeText("Mode 1: Velocity Matching", font, 20);
+    modeText.setPosition(10, 10);
 
+    while (window.isOpen()) {
+        float dt = clock.restart().asSeconds();
         sf::Event event;
         while (window.pollEvent(event)) {
             if (event.type == sf::Event::Closed) window.close();
-
             if (event.type == sf::Event::KeyPressed) {
                 if (event.key.code == sf::Keyboard::Escape) window.close();
-
-                // Switch demos
-                if (event.key.code == sf::Keyboard::Num1) { currentMode = 1; character.clearBreadcrumbs(); }
-                if (event.key.code == sf::Keyboard::Num2) { currentMode = 2; character.clearBreadcrumbs(); }
-                if (event.key.code == sf::Keyboard::Num3) { currentMode = 3; character.clearBreadcrumbs(); }
-                if (event.key.code == sf::Keyboard::Num4) { currentMode = 4; character.clearBreadcrumbs(); }
-                if (event.key.code == sf::Keyboard::Num5) { currentMode = 5; character.clearBreadcrumbs(); }
-                if (event.key.code == sf::Keyboard::Num6) { currentMode = 6; character.clearBreadcrumbs(); }
-                if (event.key.code == sf::Keyboard::Num7) { currentMode = 7; }
-
-                // Reset flock if re-entering mode 7
-                if (currentMode == 7) initFlocking();
-            }
-
-            // Mouse click for arrive demo
-            if (event.type == sf::Event::MouseButtonPressed && currentMode == 4) {
-                if (event.mouseButton.button == sf::Mouse::Left) {
-                    mouseTarget.position = sf::Vector2f(event.mouseButton.x, event.mouseButton.y);
+                if (event.key.code == sf::Keyboard::Num1) currentMode = 1;
+                if (event.key.code == sf::Keyboard::Num2) currentMode = 2;
+                if (event.key.code == sf::Keyboard::Num3) currentMode = 3;
+                if (event.key.code == sf::Keyboard::Num4) {
+                    currentMode = 4;
+                    initFlocking();
                 }
             }
         }
 
-        // Update target velocity for velocity match demo
-        if (currentMode == 2) {
-            sf::Vector2f mousePos(sf::Mouse::getPosition(window));
-            float elapsed = mouseClock.restart().asSeconds();
-            if (elapsed > 0) {
-                mouseTarget.velocity = (mousePos - lastMousePos) / elapsed;
-            }
-            mouseTarget.position = mousePos;
-            lastMousePos = mousePos;
-        }
-
-        // Update text
-        switch (currentMode) {
-            case 1: modeText.setString("Mode 1: Position Matching"); break;
-            case 2: modeText.setString("Mode 2: Velocity Matching (Mouse)"); break;
-            case 3: modeText.setString("Mode 3: Orientation/Rotation Matching"); break;
-            case 4: modeText.setString("Mode 4: Arrive + Align (Click to Move)"); break;
-            case 5: modeText.setString("Mode 5: Wander (Smooth)"); break;
-            case 6: modeText.setString("Mode 6: Wander (Erratic)"); break;
-            case 7: modeText.setString("Mode 7: Flocking"); break;
-        }
-
-        // Clear screen
         window.clear(sf::Color(30, 30, 40));
 
-        // Run modes
-        if (currentMode >= 1 && currentMode <= 6) {
-            Kinematic dummy;
-            switch (currentMode) {
-                case 1:
-                    character.setBehavior(&positionMatch);
-                    mouseTarget.position = sf::Vector2f(WINDOW_WIDTH / 2, WINDOW_HEIGHT / 2);
-                    break;
-                case 2:
-                    character.setBehavior(&velocityMatch);
-                    break;
-                case 3:
-                    character.setBehavior(&orientationMatch);
-                    dummy.orientation = randomFloat(-PI, PI);
-                    mouseTarget = dummy;
-                    break;
-                case 4:
-                    character.setBehavior(&arrive1);
-                    break;
-                case 5:
-                    character.setBehavior(&wander1);
-                    break;
-                case 6:
-                    character.setBehavior(&wander2);
-                    break;
+        switch (currentMode) {
+            case 1: {
+                modeText.setString("Case 1: Velocity Matching");
+                // Leader moves in a circle
+                float t = clock.getElapsedTime().asSeconds();
+                leader.getKinematic().position = {600 + 200 * std::cos(t), 400 + 200 * std::sin(t)};
+                leader.getKinematic().velocity = {-200 * std::sin(t), 200 * std::cos(t)};
+                follower.setBehavior(&velocityMatch);
+                follower.update(dt, leader.getKinematic());
+                leader.draw(window);
+                follower.draw(window);
+                break;
             }
+            case 2: {
+                modeText.setString("Case 2: Arrive and Align");
+                Kinematic target;
+                target.position = sf::Vector2f(WINDOW_WIDTH / 2, WINDOW_HEIGHT / 2);
+                target.orientation = std::sin(clock.getElapsedTime().asSeconds()) * PI;
 
-            character.update(deltaTime, mouseTarget);
-            character.draw(window);
-        }
-        else if (currentMode == 7) {
-            for (auto& boid : flock) {
-                boid->update(deltaTime);
-                boid->draw(window);
+                arriveChar.setBehavior(&arriveBehavior);
+                alignChar.setBehavior(&alignBehavior);
+
+                arriveChar.update(dt, target);
+                alignChar.update(dt, target);
+
+                arriveChar.draw(window);
+                alignChar.draw(window);
+                break;
+            }
+            case 3: {
+                modeText.setString("Case 3: Wander (Two Groups)");
+                for (auto& c : wanderSet1) {
+                    c->setBehavior(&wanderSmooth);
+                    c->update(dt, c->getKinematic());
+                    c->draw(window);
+                }
+                for (auto& c : wanderSet2) {
+                    c->setBehavior(&wanderErratic);
+                    c->update(dt, c->getKinematic());
+                    c->draw(window);
+                }
+                break;
+            }
+            case 4: {
+                modeText.setString("Case 4: Reynolds Boids");
+                for (auto& b : flock) {
+                    b->update(dt);
+                    b->draw(window);
+                }
+                break;
             }
         }
 
-        // Draw HUD
         window.draw(modeText);
-
-        // Display
         window.display();
     }
-
     return 0;
 }
