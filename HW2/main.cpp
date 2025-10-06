@@ -580,6 +580,8 @@ public:
         kinematic.position = startPos;
         kinematic.orientation = 0;
         
+        sf::Texture boidTexture;
+        boidTexture.loadFromFile("boid.png");
         sprite.setTexture(boidTexture);
         sprite.setOrigin(boidTexture.getSize().x / 2.f, boidTexture.getSize().y / 2.f);
         sprite.setScale(0.05f, 0.05f); // scale down from 627x930
@@ -661,6 +663,8 @@ public:
         kinematic.velocity = sf::Vector2f(randomFloat(-50, 50), randomFloat(-50, 50));
         kinematic.orientation = std::atan2(kinematic.velocity.y, kinematic.velocity.x);
         
+        sf::Texture boidSmallTexture;
+        boidSmallTexture.loadFromFile("boid-sm.png");
         sprite.setTexture(boidSmallTexture);
         sprite.setOrigin(boidSmallTexture.getSize().x / 2.f, boidSmallTexture.getSize().y / 2.f);
         float scaleFactor = 0.5f; // adjust to taste
@@ -728,7 +732,7 @@ int main() {
     SmoothAlign smoothAlign;
     QuickArrive quickArrive;
     Wander wanderSmooth(60.0f, 40.0f, 0.6f, 40.0f);   // Slightly higher wanderRate
-    Wander wanderErratic(80.0f, 60.0f, 1.2f, );  // More erratic
+    Wander wanderErratic(80.0f, 60.0f, 5.0f, 40.f);  // More erratic
 
     // --- Characters ---
     Character velMatchChar(sf::Vector2f(WINDOW_WIDTH / 2, WINDOW_HEIGHT / 2), sf::Color::Red);
@@ -787,7 +791,7 @@ int main() {
 
     // --- Mouse state ---
     Kinematic mouseTarget;
-    sf::Vector2f lastMousePos = sf::Mouse::getPosition(window);
+    sf::Vector2f lastMousePos(sf::Mouse::getPosition(window));
     sf::Clock mouseClock;
 
     // --- Font / text ---
