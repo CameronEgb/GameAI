@@ -946,7 +946,7 @@ int main() {
     auto initFlocking = [&]() {
         flock.clear();
         flockKinematics.clear();
-        int numBoids = 25;
+        int numBoids = 13;
         for (int i = 0; i < numBoids; ++i) {
             sf::Vector2f pos(randomFloat(100, WINDOW_WIDTH - 100),
                              randomFloat(100, WINDOW_HEIGHT - 100));
