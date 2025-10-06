@@ -876,32 +876,32 @@ int main() {
     ArriveAndAlign AAA1(
         // Arrive Parameters
         300.0f,  // maxSpeed
-        10.0f,   // radius
-        0.5f,    // timeToTarget
+        120.0f,   // radius
+        5f,    // timeToTarget
         100.0f,  // slowRadius
         0.2f,    // maxAcceleration
     
         // Align Parameters
-        6.0f,    // maxRotation
-        2.0f,    // radius
-        0.05f,   // timeToTarget
-        0.8f,    // slowRadius
+        3.0f,    // maxRotation
+        1.0f,    // radius
+        0.01f,   // timeToTarget
+        0.6f,    // slowRadius
         0.3f    // maxAngularAcceleration
     );
-    
+
     ArriveAndAlign AAA2(
         // Arrive Parameters
         100.0f,  // maxSpeed
-        10.0f,   // radius
-        0.5f,    // timeToTarget
+        120.0f,   // radius
+        5f,    // timeToTarget
         200.0f,  // slowRadius
         0.2f,    // maxAcceleration
     
         // Align Parameters
-        3.0f,    // maxRotation
+        2.0f,    // maxRotation
         2.0f,    // radius
-        0.05f,   // timeToTarget
-        0.8f,    // slowRadius
+        0.01f,   // timeToTarget
+        0.6f,    // slowRadius
         0.15f    // maxAngularAcceleration
     );
 
