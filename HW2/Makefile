@@ -1,26 +1,34 @@
-# Simple Makefile for HW2 Part 1 (no CMake)
-# Tested on Ubuntu 20.04 / 22.04 with SFML 3.0.0
+# CSC 584/484 Fall 2025 - Homework 2: Steering Behaviors
+# Author: [Your Name]
+# Description:
+#   Makefile for compiling and running the SFML steering behavior demos.
 
+# === Compiler and Flags ===
 CXX := g++
 CXXFLAGS := -std=c++17 -Wall -Wextra -O2
-LDFLAGS := -lsfml-graphics -lsfml-window -lsfml-system
 
+# === SFML Linking (adjust if SFML is in a custom path) ===
+SFML_LIBS := -lsfml-graphics -lsfml-window -lsfml-system
+
+# === Files and Output ===
 SRC := main.cpp
-OBJ := $(SRC:.cpp=.o)
-BIN := steering_demo
+TARGET := steering
 
-all: $(BIN)
+# === Default Target ===
+all: $(TARGET)
 
-$(BIN): $(OBJ)
-	$(CXX) $(CXXFLAGS) -o $@ $^ $(LDFLAGS)
+$(TARGET): $(SRC)
+	$(CXX) $(CXXFLAGS) $(SRC) -o $(TARGET) $(SFML_LIBS)
 
-%.o: %.cpp
-	$(CXX) $(CXXFLAGS) -c $<
+# === Run Program ===
+run: $(TARGET)
+	./$(TARGET)
 
-run: $(BIN)
-	./$(BIN)
-
+# === Clean ===
 clean:
-	rm -f $(OBJ) $(BIN)
+	rm -f $(TARGET)
 
-.PHONY: all run clean
+# === Rebuild ===
+rebuild: clean all
+
+.PHONY: all run clean rebuild
