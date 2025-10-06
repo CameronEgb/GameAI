@@ -10,8 +10,8 @@
 #include <algorithm>
 
 const float PI = 3.14159265f;
-const int WINDOW_WIDTH = 800;
-const int WINDOW_HEIGHT = 800;
+const int WINDOW_WIDTH = 400;
+const int WINDOW_HEIGHT = 400;
 
 // Forward declarations
 struct Kinematic;
