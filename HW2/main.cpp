@@ -639,8 +639,8 @@ private:
     std::vector<Kinematic *> *boids;
 
 public:
-    Separation(std::vector<Kinematic *> *b, float thresh = 50.0f, float decay = 5000.0f,
-               float maxAccel = 200.0f)
+    Separation(std::vector<Kinematic *> *b, float thresh = 100.0f, float decay = 5000.0f,
+               float maxAccel = 10.0f)
         : boids(b), threshold(thresh), decayCoefficient(decay), maxAcceleration(maxAccel) {}
 
     SteeringOutput calculateSteering(const Kinematic &character, const Kinematic &target) override
@@ -682,7 +682,7 @@ private:
     Arrive arrive;
 
 public:
-    Cohesion(std::vector<Kinematic *> *b, float radius = 150.0f, float maxAccel = 100.0f)
+    Cohesion(std::vector<Kinematic *> *b, float radius = 150.0f, float maxAccel = 10.0f)
         : boids(b), neighborhoodRadius(radius), maxAcceleration(maxAccel),
           arrive(maxAccel, 100.0f, 10.0f, 50.0f) {}
 
@@ -1158,9 +1158,9 @@ int main()
             auto coh = new Cohesion(&flockKinematics, 100.0f, 80.0f);
             auto ali = new Alignment(&flockKinematics, 80.0f, 100.0f);
             boid->flockingBehavior = new BlendedSteering();
-            boid->flockingBehavior->addBehavior(sep, 3.2f);
+            boid->flockingBehavior->addBehavior(sep, 5.0f);
             boid->flockingBehavior->addBehavior(coh, 0.7f);
-            boid->flockingBehavior->addBehavior(ali, 0.9f);
+            boid->flockingBehavior->addBehavior(ali, 0.7f);
         }
     };
 
