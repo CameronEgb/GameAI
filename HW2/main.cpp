@@ -1101,8 +1101,8 @@ int main()
 
     // --- Characters ---
     Character velMatchChar(sf::Vector2f(WINDOW_WIDTH / 2, WINDOW_HEIGHT / 2), sf::Color(128, 0, 0, 255));
-    Character cyanAlignChar(sf::Vector2f(WINDOW_WIDTH / 2, WINDOW_HEIGHT / 2), sf::Color(128, 128, 0, 255));
-    Character yellowArriveChar(sf::Vector2f(WINDOW_WIDTH / 2, WINDOW_HEIGHT / 2), sf::Color(0, 0, 128, 255));
+    Character cyanAlignChar(sf::Vector2f(WINDOW_WIDTH / 2, WINDOW_HEIGHT / 2), sf::Color(0, 0, 128, 255));
+    Character yellowArriveChar(sf::Vector2f(WINDOW_WIDTH / 2, WINDOW_HEIGHT / 2), sf::Color(128, 128, 0, 255));
 
     // --- Wander groups ---
     std::vector<std::unique_ptr<Character>> wanderSet1, wanderSet2, wanderSet3;
@@ -1280,7 +1280,7 @@ int main()
             modeText.setString("Case 2: Arrive + Align (Direction of Motion)");
 
             // Use Arrive for movement
-            Arrive* quickArrive = new Arrive(300.0f, 120.0f, 5.0f, 150.0f, 0.12f);
+            Arrive* quickArrive = new Arrive(500.0f, 120.0f, 5.0f, 150.0f, 0.12f);
             Arrive* slowArrive = new Arrive(200.0f, 100.0f, 7.0f, 150.0f, 0.08f);
             cyanAlignChar.setBehavior(quickArrive);
             yellowArriveChar.setBehavior(slowArrive);
