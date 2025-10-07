@@ -1,4 +1,5 @@
 // CSC 584/484 Fall 25 Homework 2
+// This script is AI generated
 
 #include <SFML/Graphics.hpp>
 #include <iostream>
@@ -1172,6 +1173,8 @@ int main()
     sf::Vector2f lastMousePos(sf::Mouse::getPosition(window));
     sf::Clock mouseClock;
 
+    Breadcrumb mouseBreadcrumbs(40, 3, sf::Color::White);
+
     // --- Font / text ---
     sf::Font font;
     font.loadFromFile("/usr/share/fonts/truetype/liberation/LiberationSans-Regular.ttf");
@@ -1254,10 +1257,14 @@ int main()
             mouseTarget.position = mousePos;
             lastMousePos = mousePos;
 
+            mouseBreadcrumbs.update(mousePos);
+
             velMatchChar.setBehavior(&fastVelMatch);
             velMatchChar.setMaxSpeed(250.0f);
             velMatchChar.update(dt, mouseTarget);
             velMatchChar.draw(window);
+
+            mouseBreadcrumbs.draw(window);
 
             sf::CircleShape targetShape(5);
             targetShape.setFillColor(sf::Color::White);
