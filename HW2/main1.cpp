@@ -1,10 +1,5 @@
-// SFML 3.0.0 compatible port of the provided main.cpp
-// Full steering behaviors demo ported to SFML 3.0 API changes:
-// - sf::RenderWindow constructor uses {width, height}
-// - mouse positions are read as Vector2i and converted to Vector2f explicitly
-// - sf::Text uses setFont / setCharacterSize / setString / setPosition
-// - color alpha uses sf::Uint8 casts
-// - event.key.scancode is used for key comparisons (SFML 3 scancodes)
+// CSC 584/484 Fall 25 Homework 2
+// This script is AI generated
 
 #include <SFML/Graphics.hpp>
 #include <iostream>
@@ -107,7 +102,7 @@ public:
             sf::CircleShape crumb(3);
             crumb.setPosition(temp.front() - sf::Vector2f(3, 3));
             sf::Color c = color;
-            c.a = static_cast<sf::Uint8>(std::min(255.0f, alpha));
+            c.a = std::min(255.0f, alpha);
             crumb.setFillColor(c);
             window.draw(crumb);
             temp.pop();
@@ -375,23 +370,38 @@ private:
     Align align;
 
 public:
+    // 1. Add parameters for Arrive's and Align's constructors
     ArriveAndAlign(
+        // Arrive Parameters (from its constructor: Arrive(maxSpeed, radius, timeToTarget, slowRadius, maxAcceleration))
         float arrive_maxSpeed,
         float arrive_radius,
         float arrive_timeToTarget,
         float arrive_slowRadius,
         float arrive_maxAcceleration,
 
+        // Align Parameters (from its constructor: Align(maxRotation, radius, timeToTarget, slowRadius, maxAngularAcceleration))
         float align_maxRotation,
         float align_radius,
         float align_timeToTarget,
         float align_slowRadius,
         float align_maxAngularAcceleration)
-        : arrive(arrive_maxSpeed, arrive_radius, arrive_timeToTarget, arrive_slowRadius, arrive_maxAcceleration),
-          align(align_maxAngularAcceleration, align_maxRotation, align_timeToTarget, align_slowRadius, align_maxAngularAcceleration)
+        // 2. Pass the new parameters to the member objects' constructors
+        : arrive(
+              arrive_maxSpeed,
+              arrive_radius,
+              arrive_timeToTarget,
+              arrive_slowRadius,
+              arrive_maxAcceleration),
+          align(
+              align_maxRotation,
+              align_radius,
+              align_timeToTarget,
+              align_slowRadius,
+              align_maxAngularAcceleration)
     {
     }
 
+    // The rest of the class remains the same
     SteeringOutput calculateSteering(const Kinematic &character, const Kinematic &target) override
     {
         SteeringOutput arriveResult = arrive.calculateSteering(character, target);
@@ -475,24 +485,28 @@ public:
         float distToTop = character.position.y;
         float distToBottom = WINDOW_HEIGHT - character.position.y;
 
+        // Check left wall
         if (distToLeft < detectionDistance)
         {
             float strength = (detectionDistance - distToLeft) / detectionDistance;
             avoidanceForce.x += strength * maxAcceleration;
         }
 
+        // Check right wall
         if (distToRight < detectionDistance)
         {
             float strength = (detectionDistance - distToRight) / detectionDistance;
             avoidanceForce.x -= strength * maxAcceleration;
         }
 
+        // Check top wall
         if (distToTop < detectionDistance)
         {
             float strength = (detectionDistance - distToTop) / detectionDistance;
             avoidanceForce.y += strength * maxAcceleration;
         }
 
+        // Check bottom wall
         if (distToBottom < detectionDistance)
         {
             float strength = (detectionDistance - distToBottom) / detectionDistance;
@@ -570,20 +584,25 @@ public:
 
     SteeringOutput calculateSteering(const Kinematic &character, const Kinematic &target) override
     {
+        // Update wander orientation
         wanderOrientation += randomBinomial() * wanderRate;
 
+        // Calculate target orientation on the wander circle
         float targetOrientation = wanderOrientation + character.orientation;
 
+        // Calculate wander circle center
         sf::Vector2f characterOrientationVec(std::cos(character.orientation),
                                              std::sin(character.orientation));
         sf::Vector2f wanderCircleCenter = character.position + characterOrientationVec * wanderOffset;
 
+        // Calculate wander target point on the circle
         sf::Vector2f wanderTarget;
         wanderTarget.x = wanderCircleCenter.x + wanderRadius * std::cos(targetOrientation);
         wanderTarget.y = wanderCircleCenter.y + wanderRadius * std::sin(targetOrientation);
 
         SteeringOutput result;
 
+        // Linear acceleration toward wander target
         result.linear = wanderTarget - character.position;
         float length = std::sqrt(result.linear.x * result.linear.x +
                                  result.linear.y * result.linear.y);
@@ -592,13 +611,16 @@ public:
             result.linear = (result.linear / length) * maxAcceleration;
         }
 
+        // Direct kinematic rotation: rotate toward the wander target
         sf::Vector2f toTarget = wanderTarget - character.position;
         float desiredOrientation = std::atan2(toTarget.y, toTarget.x);
         float rotationDiff = desiredOrientation - character.orientation;
         rotationDiff = mapToRange(rotationDiff);
 
-        result.angular = rotationDiff * 3.0f; // Gain factor
+        // Apply rotation directly (proportional control)
+        result.angular = rotationDiff * 3.0f; // Gain factor for responsiveness
 
+        // Clamp angular velocity
         if (std::abs(result.angular) > maxRotation)
         {
             result.angular = (result.angular / std::abs(result.angular)) * maxRotation;
@@ -809,20 +831,11 @@ public:
         : breadcrumbs(breadcrumbMax, breadcrumbInterval, color),
           currentBehavior(nullptr), maxSpeed(150.0f), maxRotation(3.0f)
     {
+
         kinematic.position = startPos;
         kinematic.orientation = 0;
 
-        if (!boidTexture.loadFromFile("boid.png"))
-        {
-            // fallback: create a simple circle texture if the file isn't available
-            sf::Image img;
-            img.create(32, 32, sf::Color::Transparent);
-            for (unsigned y = 0; y < 32; ++y)
-                for (unsigned x = 0; x < 32; ++x)
-                    img.setPixel(x, y, sf::Color(200, 200, 200));
-            boidTexture.loadFromImage(img);
-        }
-
+        boidTexture.loadFromFile("boid.png");
         sprite.setTexture(boidTexture);
         sprite.setOrigin(boidTexture.getSize().x / 2.f, boidTexture.getSize().y / 2.f);
         sprite.setScale(0.05f, 0.05f);
@@ -892,6 +905,7 @@ public:
             kinematic.rotation = (kinematic.rotation / std::abs(kinematic.rotation)) * maxRotation;
         }
 
+        // Boundary clamping with smooth reflection
         const float margin = 4.0f;
         bool hitBoundary = false;
 
@@ -965,16 +979,7 @@ public:
         kinematic.velocity = sf::Vector2f(randomFloat(-50, 50), randomFloat(-50, 50));
         kinematic.orientation = std::atan2(kinematic.velocity.y, kinematic.velocity.x);
 
-        if (!boidSmallTexture.loadFromFile("boid-sm.png"))
-        {
-            sf::Image img;
-            img.create(16, 16, sf::Color::Transparent);
-            for (unsigned y = 0; y < 16; ++y)
-                for (unsigned x = 0; x < 16; ++x)
-                    img.setPixel(x, y, sf::Color(180, 180, 180));
-            boidSmallTexture.loadFromImage(img);
-        }
-
+        boidSmallTexture.loadFromFile("boid-sm.png");
         sprite.setTexture(boidSmallTexture);
         sprite.setOrigin(boidSmallTexture.getSize().x / 2.f, boidSmallTexture.getSize().y / 2.f);
         float scaleFactor = 1.5f;
@@ -1006,6 +1011,7 @@ public:
             kinematic.orientation = std::atan2(kinematic.velocity.y, kinematic.velocity.x);
         }
 
+        // Wrap around boundaries
         if (kinematic.position.x < 0)
             kinematic.position.x = WINDOW_WIDTH;
         if (kinematic.position.x > WINDOW_WIDTH)
@@ -1030,7 +1036,9 @@ public:
 // Main application
 int main()
 {
-    sf::RenderWindow window({WINDOW_WIDTH, WINDOW_HEIGHT}, "Steering Behaviors Demo (1: VelMatchMouse, 2: Align+Arrive, 3: Wander, 4: Boids)");
+
+    sf::RenderWindow window(sf::VideoMode(WINDOW_WIDTH, WINDOW_HEIGHT),
+                            "Steering Behaviors Demo (1: VelMatchMouse, 2: Align+Arrive, 3: Wander, 4: Boids)");
     window.setFramerateLimit(60);
 
     sf::Clock clock;
@@ -1038,43 +1046,51 @@ int main()
 
     // --- Behaviors ---
     FastVelocityMatching fastVelMatch;
-
+    // Create an ArriveAndAlign object with custom settings
     ArriveAndAlign AAA1(
-        300.0f, // arrive_maxSpeed
-        120.0f, // arrive_radius
-        5.0f,   // arrive_timeToTarget
-        100.0f, // arrive_slowRadius
-        0.2f,   // arrive_maxAcceleration
+        // Arrive Parameters
+        300.0f, // maxSpeed
+        120.0f, // radius
+        5.0f,   // timeToTarget
+        100.0f, // slowRadius
+        0.2f,   // maxAcceleration
 
-        3.0f,  // align_maxRotation
-        1.0f,  // align_radius
-        0.01f, // align_timeToTarget
-        0.6f,  // align_slowRadius
-        0.3f   // align_maxAngularAcceleration
+        // Align Parameters
+        3.0f,  // maxRotation
+        1.0f,  // radius
+        0.01f, // timeToTarget
+        0.6f,  // slowRadius
+        0.3f   // maxAngularAcceleration
     );
 
     ArriveAndAlign AAA2(
-        100.0f,
-        120.0f,
-        5.0f,
-        200.0f,
-        0.2f,
+        // Arrive Parameters
+        100.0f, // maxSpeed
+        120.0f, // radius
+        5.0f,   // timeToTarget
+        200.0f, // slowRadius
+        0.2f,   // maxAcceleration
 
-        2.0f,
-        2.0f,
-        0.01f,
-        0.6f,
-        0.15f);
+        // Align Parameters
+        2.0f,  // maxRotation
+        2.0f,  // radius
+        0.01f, // timeToTarget
+        0.6f,  // slowRadius
+        0.15f  // maxAngularAcceleration
+    );
 
-    Wander wanderSmooth(60.0f, 40.0f, 0.6f, 60.0f);
-    WanderKinematic wanderKinematic1(60.0f, 40.0f, 0.6f, 60.0f, 2.5f);
-    WanderKinematic wanderKinematic2(80.0f, 60.0f, 1.2f, 80.0f, 3.0f);
+    // Wander behaviors with wall avoidance
+    Wander wanderSmooth(60.0f, 40.0f, 0.6f, 60.0f);                    // Uses LookWhereYoureGoing
+    WanderKinematic wanderKinematic1(60.0f, 40.0f, 0.6f, 60.0f, 2.5f); // Uses direct rotation
+    WanderKinematic wanderKinematic2(80.0f, 60.0f, 1.2f, 80.0f, 3.0f); // More erratic
     WallAvoidance wallAvoid;
 
+    // Blended wander with LookWhereYoureGoing
     BlendedSteering wanderWithWalls1(200.0f, 5.0f);
     wanderWithWalls1.addBehavior(&wanderSmooth, 1.0f);
     wanderWithWalls1.addBehavior(&wallAvoid, 2.0f);
 
+    // Blended wander with direct kinematic rotation
     BlendedSteering wanderWithWalls2(200.0f, 5.0f);
     wanderWithWalls2.addBehavior(&wanderKinematic1, 1.0f);
     wanderWithWalls2.addBehavior(&wallAvoid, 2.0f);
@@ -1154,21 +1170,15 @@ int main()
 
     // --- Mouse state ---
     Kinematic mouseTarget;
-    sf::Vector2i mousePosI = sf::Mouse::getPosition(window);
-    sf::Vector2f lastMousePos(static_cast<float>(mousePosI.x), static_cast<float>(mousePosI.y));
+    sf::Vector2f lastMousePos(sf::Mouse::getPosition(window));
     sf::Clock mouseClock;
 
     Breadcrumb mouseBreadcrumbs(40, 3, sf::Color::White);
 
     // --- Font / text ---
     sf::Font font;
-    if (!font.loadFromFile("/usr/share/fonts/truetype/liberation/LiberationSans-Regular.ttf"))
-    {
-        std::cerr << "Failed to load font. Text will be empty." << std::endl;
-    }
-    sf::Text modeText;
-    modeText.setFont(font);
-    modeText.setCharacterSize(14);
+    font.loadFromFile("/usr/share/fonts/truetype/liberation/LiberationSans-Regular.ttf");
+    sf::Text modeText("Case 1: Velocity Match Mouse", font, 20);
     modeText.setPosition(10, 10);
 
     // --- Reset helper ---
@@ -1208,21 +1218,20 @@ int main()
                 window.close();
             if (event.type == sf::Event::KeyPressed)
             {
-                // Use scancodes for SFML 3; falls back to code if needed by the user's build
-                if (event.key.scancode == sf::Keyboard::Scancode::Escape)
+                if (event.key.code == sf::Keyboard::Escape)
                     window.close();
-                if (event.key.scancode == sf::Keyboard::Scancode::Num1)
+                if (event.key.code == sf::Keyboard::Num1)
                     resetCase(1);
-                if (event.key.scancode == sf::Keyboard::Scancode::Num2)
+                if (event.key.code == sf::Keyboard::Num2)
                     resetCase(2);
-                if (event.key.scancode == sf::Keyboard::Scancode::Num3)
+                if (event.key.code == sf::Keyboard::Num3)
                     resetCase(3);
-                if (event.key.scancode == sf::Keyboard::Scancode::Num4)
+                if (event.key.code == sf::Keyboard::Num4)
                     resetCase(4);
             }
             if (event.type == sf::Event::MouseButtonPressed && currentMode == 2)
             {
-                if (event.mouseButton.button == sf::Mouse::Button::Left)
+                if (event.mouseButton.button == sf::Mouse::Left)
                 {
                     mouseTarget.position = {static_cast<float>(event.mouseButton.x),
                                             static_cast<float>(event.mouseButton.y)};
@@ -1235,12 +1244,11 @@ int main()
 
         switch (currentMode)
         {
+        // --- Case 1: Velocity Match (Mouse) ---
         case 1:
         {
             modeText.setString("Case 1: Velocity Matching (Mouse)");
-
-            sf::Vector2i mousePosInt = sf::Mouse::getPosition(window);
-            sf::Vector2f mousePos(static_cast<float>(mousePosInt.x), static_cast<float>(mousePosInt.y));
+            sf::Vector2f mousePos(sf::Mouse::getPosition(window));
             float elapsed = mouseClock.restart().asSeconds();
             if (elapsed > 0)
             {
@@ -1266,18 +1274,22 @@ int main()
             break;
         }
 
+        // --- Case 2: Combined Arrive and Align ---
         case 2:
         {
             modeText.setString("Case 2: Arrive + Align (Direction of Motion)");
 
+            // Use Arrive for movement
             Arrive* quickArrive = new Arrive(500.0f, 120.0f, 5.0f, 150.0f, 0.12f);
             Arrive* slowArrive = new Arrive(200.0f, 100.0f, 7.0f, 150.0f, 0.08f);
             cyanAlignChar.setBehavior(quickArrive);
             yellowArriveChar.setBehavior(slowArrive);
 
+            // Update positions first
             cyanAlignChar.update(dt, mouseTarget);
             yellowArriveChar.update(dt, mouseTarget);
 
+            // Now apply LookWhereYoureGoing for orientation
             LookWhereYoureGoing lookWhere;
             SteeringOutput cyanOrient = lookWhere.calculateSteering(cyanAlignChar.getKinematic(), mouseTarget);
             SteeringOutput yellowOrient = lookWhere.calculateSteering(yellowArriveChar.getKinematic(), mouseTarget);
@@ -1290,27 +1302,28 @@ int main()
 
             cyanAlignChar.draw(window);
             yellowArriveChar.draw(window);
-
-            delete quickArrive;
-            delete slowArrive;
             break;
         }
 
+        // --- Case 3: Wander with Wall Avoidance ---
         case 3:
         {
             modeText.setString("Case 3: Wander (Blue: Circle+LookWhereYoureGoing, Magenta/Green: Direct Kinematic Rotation)");
+            // Blue: Uses LookWhereYoureGoing
             for (auto &c : wanderSet1)
             {
                 c->setBehavior(&wanderWithWalls1);
                 c->updateWithBoundaryHandling(dt, c->getKinematic());
                 c->draw(window);
             }
+            // Magenta: Uses direct kinematic rotation (smooth)
             for (auto &c : wanderSet2)
             {
                 c->setBehavior(&wanderWithWalls2);
                 c->updateWithBoundaryHandling(dt, c->getKinematic());
                 c->draw(window);
             }
+            // Green: Uses direct kinematic rotation (erratic)
             for (auto &c : wanderSet3)
             {
                 c->setBehavior(&wanderWithWalls3);
@@ -1320,6 +1333,7 @@ int main()
             break;
         }
 
+        // --- Case 4: Boids ---
         case 4:
         {
             modeText.setString("Case 4: Reynolds Boids");

@@ -8,7 +8,7 @@ CXX := g++
 CXXFLAGS := -std=c++17 -Wall -Wextra -O2
 
 # === SFML Linking (adjust if SFML is in a custom path) ===
-SFML_LIBS := -lsfml-graphics -lsfml-window -lsfml-system
+SFML_LIBS := -Lusr/local/lib/cmake -lsfml-graphics -lsfml-window -lsfml-system
 
 # === Files and Output ===
 SRC := main.cpp
