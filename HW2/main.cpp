@@ -1,5 +1,5 @@
-// main.cpp - SFML 3.0.0 compatible full steering behaviors demo
-// Ported/patched for SFML 3 API changes.
+// main.cpp - SFML 3.0.0 port of user's SFML 2.5.x main1.cpp
+// All SFML 3.0 API changes applied.
 
 #include <SFML/Graphics.hpp>
 #include <SFML/Window.hpp>
@@ -19,11 +19,11 @@ const float PI = 3.14159265f;
 const int WINDOW_WIDTH = 600;
 const int WINDOW_HEIGHT = 600;
 
-// Forward declarations
+// Forward
 struct Kinematic;
 struct SteeringOutput;
 
-// Util
+// Utilities
 float mapToRange(float rotation)
 {
     while (rotation > PI) rotation -= 2 * PI;
@@ -47,22 +47,21 @@ float randomFloat(float min, float max)
     return dis(gen);
 }
 
-// Data
+// Data structures
 struct Kinematic
 {
     sf::Vector2f position;
     float orientation;
     sf::Vector2f velocity;
     float rotation;
-
-    Kinematic() : position(0.f, 0.f), orientation(0.f), velocity(0.f, 0.f), rotation(0.f) {}
+    Kinematic() : position(0.f,0.f), orientation(0.f), velocity(0.f,0.f), rotation(0.f) {}
 };
 
 struct SteeringOutput
 {
     sf::Vector2f linear;
     float angular;
-    SteeringOutput() : linear(0.f, 0.f), angular(0.f) {}
+    SteeringOutput() : linear(0.f,0.f), angular(0.f) {}
 };
 
 // Breadcrumbs
@@ -115,7 +114,7 @@ public:
     }
 };
 
-// Steering interface
+// SteeringBehavior interface
 class SteeringBehavior
 {
 public:
@@ -123,12 +122,12 @@ public:
     virtual SteeringOutput calculateSteering(const Kinematic &character, const Kinematic &target) = 0;
 };
 
-// PositionMatching
+// --- Basic steering implementations (port from your SFML2 code) ---
+
 class PositionMatching : public SteeringBehavior
 {
 private:
     float maxAcceleration;
-
 public:
     PositionMatching(float maxAccel = 100.0f) : maxAcceleration(maxAccel) {}
     SteeringOutput calculateSteering(const Kinematic &character, const Kinematic &target) override
@@ -145,17 +144,13 @@ public:
     }
 };
 
-// VelocityMatching
 class VelocityMatching : public SteeringBehavior
 {
 private:
     float maxAcceleration;
     float timeToTarget;
-
 public:
-    VelocityMatching(float maxAccel = 100.0f, float time = 0.1f)
-        : maxAcceleration(maxAccel), timeToTarget(time) {}
-
+    VelocityMatching(float maxAccel = 100.0f, float time = 0.1f) : maxAcceleration(maxAccel), timeToTarget(time) {}
     SteeringOutput calculateSteering(const Kinematic &character, const Kinematic &target) override
     {
         SteeringOutput result;
@@ -167,13 +162,9 @@ public:
     }
 };
 
-class FastVelocityMatching : public VelocityMatching
-{
-public:
-    FastVelocityMatching() : VelocityMatching(400.0f, 0.05f) {}
-};
+class FastVelocityMatching : public VelocityMatching { public: FastVelocityMatching() : VelocityMatching(400.f, 0.05f) {} };
 
-// OrientationMatching
+// Orientation / Rotation matching
 class OrientationMatching : public SteeringBehavior
 {
 private:
@@ -182,12 +173,10 @@ private:
     float targetRadius;
     float slowRadius;
     float timeToTarget;
-
 public:
-    OrientationMatching(float maxAngAccel = 5.0f, float maxRot = 2.0f)
+    OrientationMatching(float maxAngAccel = 5.f, float maxRot = 2.f)
         : maxAngularAcceleration(maxAngAccel), maxRotation(maxRot),
           targetRadius(0.01f), slowRadius(0.5f), timeToTarget(0.1f) {}
-
     SteeringOutput calculateSteering(const Kinematic &character, const Kinematic &target) override
     {
         SteeringOutput result;
@@ -195,30 +184,25 @@ public:
         rotation = mapToRange(rotation);
         float rotationSize = std::abs(rotation);
         if (rotationSize < targetRadius) return result;
-        float targetRotation;
-        if (rotationSize > slowRadius) targetRotation = maxRotation;
-        else targetRotation = maxRotation * rotationSize / slowRadius;
+        float targetRotation = (rotationSize > slowRadius) ? maxRotation : maxRotation * rotationSize / slowRadius;
         targetRotation *= rotation / rotationSize;
         result.angular = (targetRotation - character.rotation) / timeToTarget;
         float angularAcceleration = std::abs(result.angular);
         if (angularAcceleration > maxAngularAcceleration)
         {
-            result.angular /= angularAcceleration;
-            result.angular *= maxAngularAcceleration;
+            result.angular = (result.angular / angularAcceleration) * maxAngularAcceleration;
         }
         return result;
     }
 };
 
-// RotationMatching
 class RotationMatching : public SteeringBehavior
 {
 private:
     float maxAngularAcceleration;
     float timeToTarget;
 public:
-    RotationMatching(float maxAngAccel = 5.0f, float time = 0.1f)
-        : maxAngularAcceleration(maxAngAccel), timeToTarget(time) {}
+    RotationMatching(float maxAngAccel = 5.f, float time = 0.1f) : maxAngularAcceleration(maxAngAccel), timeToTarget(time) {}
     SteeringOutput calculateSteering(const Kinematic &character, const Kinematic &target) override
     {
         SteeringOutput result;
@@ -233,17 +217,10 @@ public:
 class Arrive : public SteeringBehavior
 {
 private:
-    float maxAcceleration;
-    float maxSpeed;
-    float targetRadius;
-    float slowRadius;
-    float timeToTarget;
-
+    float maxAcceleration, maxSpeed, targetRadius, slowRadius, timeToTarget;
 public:
-    Arrive(float maxAccel = 200.0f, float maxSpd = 100.0f, float targetRad = 5.0f,
-           float slowRad = 100.0f, float time = 0.1f)
+    Arrive(float maxAccel = 200.f, float maxSpd = 100.f, float targetRad = 5.f, float slowRad = 100.f, float time = 0.1f)
         : maxAcceleration(maxAccel), maxSpeed(maxSpd), targetRadius(targetRad), slowRadius(slowRad), timeToTarget(time) {}
-
     SteeringOutput calculateSteering(const Kinematic &character, const Kinematic &target) override
     {
         SteeringOutput result;
@@ -251,8 +228,7 @@ public:
         float distance = std::sqrt(direction.x*direction.x + direction.y*direction.y);
         if (distance < targetRadius) return result;
         float targetSpeed = (distance > slowRadius) ? maxSpeed : maxSpeed * distance / slowRadius;
-        sf::Vector2f targetVelocity = direction;
-        if (distance > 0.0001f) targetVelocity = (targetVelocity / distance) * targetSpeed;
+        sf::Vector2f targetVelocity = (distance > 0.0001f) ? (direction / distance) * targetSpeed : sf::Vector2f(0.f,0.f);
         result.linear = targetVelocity - character.velocity;
         result.linear /= timeToTarget;
         float length = std::sqrt(result.linear.x*result.linear.x + result.linear.y*result.linear.y);
@@ -265,18 +241,11 @@ public:
 class Align : public SteeringBehavior
 {
 private:
-    float maxAngularAcceleration;
-    float maxRotation;
-    float targetRadius;
-    float slowRadius;
-    float timeToTarget;
-
+    float maxAngularAcceleration, maxRotation, targetRadius, slowRadius, timeToTarget;
 public:
-    Align(float maxAngAccel = 5.0f, float maxRot = 2.0f, float targetRad = 0.01f,
-          float slowRad = 0.5f, float time = 0.1f)
+    Align(float maxAngAccel = 5.f, float maxRot = 2.f, float targetRad = 0.01f, float slowRad = 0.5f, float time = 0.1f)
         : maxAngularAcceleration(maxAngAccel), maxRotation(maxRot),
           targetRadius(targetRad), slowRadius(slowRad), timeToTarget(time) {}
-
     SteeringOutput calculateSteering(const Kinematic &character, const Kinematic &target) override
     {
         SteeringOutput result;
@@ -288,83 +257,39 @@ public:
         targetRotation *= rotation / rotationSize;
         result.angular = (targetRotation - character.rotation) / timeToTarget;
         float angularAcceleration = std::abs(result.angular);
-        if (angularAcceleration > maxAngularAcceleration)
-        {
-            result.angular /= angularAcceleration;
-            result.angular *= maxAngularAcceleration;
-        }
+        if (angularAcceleration > maxAngularAcceleration) result.angular = (result.angular / angularAcceleration) * maxAngularAcceleration;
         return result;
     }
 };
 
-class SmoothAlign : public Align
-{
-public:
-    SmoothAlign() : Align(2.5f, 1.5f, 0.01f, 0.6f, 0.1f) {}
-};
+class SmoothAlign : public Align { public: SmoothAlign() : Align(2.5f,1.5f,0.01f,0.6f,0.1f) {} };
 
-// ArriveAndAlign
+// ArriveAndAlign (composed)
 class ArriveAndAlign : public SteeringBehavior
 {
 private:
     Arrive arrive;
     Align align;
-
 public:
-    ArriveAndAlign(
-        // Arrive params
-        float arrive_maxSpeed, float arrive_radius, float arrive_timeToTarget, float arrive_slowRadius, float arrive_maxAcceleration,
-        // Align params
-        float align_maxRotation, float align_radius, float align_timeToTarget, float align_slowRadius, float align_maxAngularAcceleration)
-        // Note: Align ctor order is (maxAngAccel, maxRot, targetRadius, slowRadius, timeToTarget)
+    ArriveAndAlign(float arrive_maxSpeed, float arrive_radius, float arrive_timeToTarget, float arrive_slowRadius, float arrive_maxAcceleration,
+                   float align_maxRotation, float align_radius, float align_timeToTarget, float align_slowRadius, float align_maxAngularAcceleration)
         : arrive(arrive_maxAcceleration, arrive_maxSpeed, arrive_radius, arrive_slowRadius, arrive_timeToTarget),
           align(align_maxAngularAcceleration, align_maxRotation, align_radius, align_slowRadius, align_timeToTarget)
-    {
-    }
-
+    {}
     SteeringOutput calculateSteering(const Kinematic &character, const Kinematic &target) override
     {
-        SteeringOutput arriveResult = arrive.calculateSteering(character, target);
-        SteeringOutput alignResult = align.calculateSteering(character, target);
-        SteeringOutput result;
-        result.linear = arriveResult.linear;
-        result.angular = alignResult.angular;
-        return result;
+        SteeringOutput a = arrive.calculateSteering(character, target);
+        SteeringOutput b = align.calculateSteering(character, target);
+        SteeringOutput r;
+        r.linear = a.linear;
+        r.angular = b.angular;
+        return r;
     }
 };
 
-// Face
-class Face : public SteeringBehavior
-{
-private:
-    Align align;
-public:
-    Face() : align() {}
-    SteeringOutput calculateSteering(const Kinematic &character, const Kinematic &target) override
-    {
-        sf::Vector2f direction = target.position - character.position;
-        if (direction.x == 0.f && direction.y == 0.f) return SteeringOutput();
-        Kinematic faceTarget;
-        faceTarget.orientation = std::atan2(direction.y, direction.x);
-        return align.calculateSteering(character, faceTarget);
-    }
-};
-
-// LookWhereYoureGoing
-class LookWhereYoureGoing : public SteeringBehavior
-{
-private:
-    Align align;
-public:
-    LookWhereYoureGoing() : align() {}
-    SteeringOutput calculateSteering(const Kinematic &character, const Kinematic & /*target*/) override
-    {
-        if (character.velocity.x == 0.f && character.velocity.y == 0.f) return SteeringOutput();
-        Kinematic alignTarget;
-        alignTarget.orientation = std::atan2(character.velocity.y, character.velocity.x);
-        return align.calculateSteering(character, alignTarget);
-    }
-};
+// Face & LookWhereYoureGoing
+class Face : public SteeringBehavior { Align align; public: Face():align(){} SteeringOutput calculateSteering(const Kinematic &c,const Kinematic &t) override { sf::Vector2f dir = t.position - c.position; if (dir.x==0 && dir.y==0) return SteeringOutput(); Kinematic targ; targ.orientation = std::atan2(dir.y, dir.x); return align.calculateSteering(c,targ); } };
+class LookWhereYoureGoing : public SteeringBehavior { Align align; public: LookWhereYoureGoing():align(){} SteeringOutput calculateSteering(const Kinematic &c,const Kinematic &t) override { if (c.velocity.x==0 && c.velocity.y==0) return SteeringOutput(); Kinematic targ; targ.orientation = std::atan2(c.velocity.y, c.velocity.x); return align.calculateSteering(c,targ); } };
 
 // WallAvoidance
 class WallAvoidance : public SteeringBehavior
@@ -374,259 +299,191 @@ private:
     float maxAcceleration;
     float detectionDistance;
 public:
-    WallAvoidance(float margin = 20.0f, float maxAccel = 300.0f, float detectDist = 120.0f)
+    WallAvoidance(float margin = 20.f, float maxAccel = 300.f, float detectDist = 120.f)
         : wallMargin(margin), maxAcceleration(maxAccel), detectionDistance(detectDist) {}
     SteeringOutput calculateSteering(const Kinematic &character, const Kinematic & /*target*/) override
     {
-        SteeringOutput result;
-        sf::Vector2f avoidanceForce(0.f, 0.f);
-        float distToLeft = character.position.x;
-        float distToRight = WINDOW_WIDTH - character.position.x;
-        float distToTop = character.position.y;
-        float distToBottom = WINDOW_HEIGHT - character.position.y;
-
-        if (distToLeft < detectionDistance)
-        {
-            float strength = (detectionDistance - distToLeft) / detectionDistance;
-            avoidanceForce.x += strength * maxAcceleration;
-        }
-        if (distToRight < detectionDistance)
-        {
-            float strength = (detectionDistance - distToRight) / detectionDistance;
-            avoidanceForce.x -= strength * maxAcceleration;
-        }
-        if (distToTop < detectionDistance)
-        {
-            float strength = (detectionDistance - distToTop) / detectionDistance;
-            avoidanceForce.y += strength * maxAcceleration;
-        }
-        if (distToBottom < detectionDistance)
-        {
-            float strength = (detectionDistance - distToBottom) / detectionDistance;
-            avoidanceForce.y -= strength * maxAcceleration;
-        }
-        result.linear = avoidanceForce;
-        return result;
+        SteeringOutput r;
+        sf::Vector2f avoidance(0.f,0.f);
+        float dl = character.position.x;
+        float dr = WINDOW_WIDTH - character.position.x;
+        float dt = character.position.y;
+        float db = WINDOW_HEIGHT - character.position.y;
+        if (dl < detectionDistance) avoidance.x += (detectionDistance - dl)/detectionDistance * maxAcceleration;
+        if (dr < detectionDistance) avoidance.x -= (detectionDistance - dr)/detectionDistance * maxAcceleration;
+        if (dt < detectionDistance) avoidance.y += (detectionDistance - dt)/detectionDistance * maxAcceleration;
+        if (db < detectionDistance) avoidance.y -= (detectionDistance - db)/detectionDistance * maxAcceleration;
+        r.linear = avoidance;
+        return r;
     }
 };
 
-// Wander
+// Wander & WanderKinematic
 class Wander : public SteeringBehavior
 {
 private:
-    float wanderOffset;
-    float wanderRadius;
-    float wanderRate;
-    float wanderOrientation;
-    float maxAcceleration;
-    LookWhereYoureGoing lookWhereGoing;
-
+    float wanderOffset, wanderRadius, wanderRate, wanderOrientation, maxAcceleration;
+    LookWhereYoureGoing lookWhere;
 public:
-    Wander(float offset = 60.0f, float radius = 40.0f, float rate = 0.5f, float maxAccel = 80.0f)
-        : wanderOffset(offset), wanderRadius(radius), wanderRate(rate), wanderOrientation(0.f), maxAcceleration(maxAccel), lookWhereGoing() {}
-
-    SteeringOutput calculateSteering(const Kinematic &character, const Kinematic &target) override
+    Wander(float offset=60.f,float radius=40.f,float rate=0.5f,float maxAccel=80.f)
+        : wanderOffset(offset),wanderRadius(radius),wanderRate(rate),wanderOrientation(0.f),maxAcceleration(maxAccel) {}
+    SteeringOutput calculateSteering(const Kinematic &c,const Kinematic &t) override
     {
-        wanderOrientation += randomBinomial() * wanderRate;
-        float targetOrientation = wanderOrientation + character.orientation;
-
-        sf::Vector2f characterOrientationVec(std::cos(character.orientation), std::sin(character.orientation));
-        sf::Vector2f wanderCircleCenter = character.position + characterOrientationVec * wanderOffset;
-
-        sf::Vector2f wanderTarget;
-        wanderTarget.x = wanderCircleCenter.x + wanderRadius * std::cos(targetOrientation);
-        wanderTarget.y = wanderCircleCenter.y + wanderRadius * std::sin(targetOrientation);
-
-        SteeringOutput result;
-        result.linear = wanderTarget - character.position;
-        float length = std::sqrt(result.linear.x*result.linear.x + result.linear.y*result.linear.y);
-        if (length > 0.f) result.linear = (result.linear / length) * maxAcceleration;
-
-        SteeringOutput lookSteering = lookWhereGoing.calculateSteering(character, target);
-        result.angular = lookSteering.angular;
-        return result;
+        wanderOrientation += randomBinomial()*wanderRate;
+        float targetOrientation = wanderOrientation + c.orientation;
+        sf::Vector2f orientVec(std::cos(c.orientation), std::sin(c.orientation));
+        sf::Vector2f center = c.position + orientVec * wanderOffset;
+        sf::Vector2f wanderTarget(center.x + wanderRadius*std::cos(targetOrientation), center.y + wanderRadius*std::sin(targetOrientation));
+        SteeringOutput r;
+        r.linear = wanderTarget - c.position;
+        float len = std::sqrt(r.linear.x*r.linear.x + r.linear.y*r.linear.y);
+        if (len>0) r.linear = (r.linear / len) * maxAcceleration;
+        SteeringOutput look = lookWhere.calculateSteering(c,t);
+        r.angular = look.angular;
+        return r;
     }
 };
 
-// WanderKinematic
 class WanderKinematic : public SteeringBehavior
 {
 private:
-    float wanderOffset;
-    float wanderRadius;
-    float wanderRate;
-    float wanderOrientation;
-    float maxAcceleration;
-    float maxRotation;
-
+    float wanderOffset, wanderRadius, wanderRate, wanderOrientation, maxAcceleration, maxRotation;
 public:
-    WanderKinematic(float offset = 60.0f, float radius = 40.0f, float rate = 0.5f, float maxAccel = 80.0f, float maxRot = 2.0f)
-        : wanderOffset(offset), wanderRadius(radius), wanderRate(rate), wanderOrientation(0.f), maxAcceleration(maxAccel), maxRotation(maxRot) {}
-
-    SteeringOutput calculateSteering(const Kinematic &character, const Kinematic & /*target*/) override
+    WanderKinematic(float offset=60.f,float radius=40.f,float rate=0.5f,float maxAccel=80.f,float maxRot=2.f)
+        : wanderOffset(offset),wanderRadius(radius),wanderRate(rate),wanderOrientation(0.f),maxAcceleration(maxAccel),maxRotation(maxRot) {}
+    SteeringOutput calculateSteering(const Kinematic &c,const Kinematic & /*t*/) override
     {
-        wanderOrientation += randomBinomial() * wanderRate;
-        float targetOrientation = wanderOrientation + character.orientation;
-
-        sf::Vector2f characterOrientationVec(std::cos(character.orientation), std::sin(character.orientation));
-        sf::Vector2f wanderCircleCenter = character.position + characterOrientationVec * wanderOffset;
-
-        sf::Vector2f wanderTarget;
-        wanderTarget.x = wanderCircleCenter.x + wanderRadius * std::cos(targetOrientation);
-        wanderTarget.y = wanderCircleCenter.y + wanderRadius * std::sin(targetOrientation);
-
-        SteeringOutput result;
-        result.linear = wanderTarget - character.position;
-        float length = std::sqrt(result.linear.x*result.linear.x + result.linear.y*result.linear.y);
-        if (length > 0.f) result.linear = (result.linear / length) * maxAcceleration;
-
-        sf::Vector2f toTarget = wanderTarget - character.position;
-        float desiredOrientation = std::atan2(toTarget.y, toTarget.x);
-        float rotationDiff = desiredOrientation - character.orientation;
-        rotationDiff = mapToRange(rotationDiff);
-
-        result.angular = rotationDiff * 3.0f;
-        if (std::abs(result.angular) > maxRotation)
-            result.angular = (result.angular / std::abs(result.angular)) * maxRotation;
-
-        return result;
+        wanderOrientation += randomBinomial()*wanderRate;
+        float targetOrientation = wanderOrientation + c.orientation;
+        sf::Vector2f orientVec(std::cos(c.orientation), std::sin(c.orientation));
+        sf::Vector2f center = c.position + orientVec * wanderOffset;
+        sf::Vector2f wanderTarget(center.x + wanderRadius*std::cos(targetOrientation), center.y + wanderRadius*std::sin(targetOrientation));
+        SteeringOutput r;
+        r.linear = wanderTarget - c.position;
+        float len = std::sqrt(r.linear.x*r.linear.x + r.linear.y*r.linear.y);
+        if (len>0) r.linear = (r.linear / len) * maxAcceleration;
+        sf::Vector2f toTarget = wanderTarget - c.position;
+        float desiredOrientation = std::atan2(toTarget.y,toTarget.x);
+        float diff = mapToRange(desiredOrientation - c.orientation);
+        r.angular = diff * 3.0f;
+        if (std::abs(r.angular) > maxRotation) r.angular = (r.angular / std::abs(r.angular)) * maxRotation;
+        return r;
     }
 };
 
-// Separation
+// Flocking: Separation, Cohesion, Alignment, BlendedSteering
 class Separation : public SteeringBehavior
 {
 private:
-    float threshold;
-    float decayCoefficient;
-    float maxAcceleration;
-    std::vector<Kinematic *> *boids;
-
+    float threshold, decayCoefficient, maxAcceleration;
+    std::vector<Kinematic*> *boids;
 public:
-    Separation(std::vector<Kinematic *> *b, float thresh = 100.0f, float decay = 5000.0f, float maxAccel = 100.0f)
+    Separation(std::vector<Kinematic*> *b, float thresh=100.f, float decay=5000.f, float maxAccel=100.f)
         : threshold(thresh), decayCoefficient(decay), maxAcceleration(maxAccel), boids(b) {}
-
-    SteeringOutput calculateSteering(const Kinematic &character, const Kinematic & /*target*/) override
+    SteeringOutput calculateSteering(const Kinematic &c,const Kinematic & /*t*/) override
     {
-        SteeringOutput result;
-        for (auto &boid : *boids)
+        SteeringOutput r;
+        for (auto &b : *boids)
         {
-            if (boid->position == character.position) continue;
-            sf::Vector2f direction = character.position - boid->position;
-            float distance = std::sqrt(direction.x*direction.x + direction.y*direction.y);
-            if (distance < threshold && distance > 0.f)
+            if (b->position == c.position) continue;
+            sf::Vector2f dir = c.position - b->position;
+            float dist = std::sqrt(dir.x*dir.x + dir.y*dir.y);
+            if (dist < threshold && dist > 0.f)
             {
-                float strength = std::min(decayCoefficient / (distance * distance), maxAcceleration);
-                direction = (direction / distance) * strength;
-                result.linear += direction;
+                float strength = std::min(decayCoefficient / (dist*dist), maxAcceleration);
+                dir = (dir / dist) * strength;
+                r.linear += dir;
             }
         }
-        float length = std::sqrt(result.linear.x*result.linear.x + result.linear.y*result.linear.y);
-        if (length > maxAcceleration) result.linear = (result.linear / length) * maxAcceleration;
-        return result;
+        float len = std::sqrt(r.linear.x*r.linear.x + r.linear.y*r.linear.y);
+        if (len > maxAcceleration) r.linear = (r.linear / len) * maxAcceleration;
+        return r;
     }
 };
 
-// Cohesion
 class Cohesion : public SteeringBehavior
 {
 private:
-    float neighborhoodRadius;
-    float maxAcceleration;
-    std::vector<Kinematic *> *boids;
+    float neighborhoodRadius, maxAcceleration;
+    std::vector<Kinematic*> *boids;
     Arrive arrive;
-
 public:
-    Cohesion(std::vector<Kinematic *> *b, float radius = 150.0f, float maxAccel = 10.0f)
-        : neighborhoodRadius(radius), maxAcceleration(maxAccel), boids(b),
-          arrive(maxAccel, 100.0f, 10.0f, 50.0f) {}
-
-    SteeringOutput calculateSteering(const Kinematic &character, const Kinematic & /*target*/) override
+    Cohesion(std::vector<Kinematic*> *b, float radius=150.f, float maxAccel=10.f)
+        : neighborhoodRadius(radius), maxAcceleration(maxAccel), boids(b), arrive(maxAccel,100.f,10.f,50.f) {}
+    SteeringOutput calculateSteering(const Kinematic &c,const Kinematic & /*t*/) override
     {
-        sf::Vector2f centerOfMass(0.f, 0.f);
-        int count = 0;
-        for (auto &boid : *boids)
+        sf::Vector2f com(0.f,0.f); int count=0;
+        for (auto &b : *boids)
         {
-            if (boid->position == character.position) continue;
-            sf::Vector2f direction = boid->position - character.position;
-            float distance = std::sqrt(direction.x*direction.x + direction.y*direction.y);
-            if (distance < neighborhoodRadius) { centerOfMass += boid->position; ++count; }
+            if (b->position == c.position) continue;
+            sf::Vector2f dir = b->position - c.position;
+            float dist = std::sqrt(dir.x*dir.x + dir.y*dir.y);
+            if (dist < neighborhoodRadius) { com += b->position; ++count; }
         }
-        if (count == 0) return SteeringOutput();
-        centerOfMass /= static_cast<float>(count);
-        Kinematic cohesionTarget;
-        cohesionTarget.position = centerOfMass;
-        return arrive.calculateSteering(character, cohesionTarget);
+        if (count==0) return SteeringOutput();
+        com /= static_cast<float>(count);
+        Kinematic target; target.position = com;
+        return arrive.calculateSteering(c,target);
     }
 };
 
-// Alignment
 class Alignment : public SteeringBehavior
 {
 private:
-    float neighborhoodRadius;
-    float maxAcceleration;
-    std::vector<Kinematic *> *boids;
+    float neighborhoodRadius, maxAcceleration;
+    std::vector<Kinematic*> *boids;
     VelocityMatching velocityMatch;
-
 public:
-    Alignment(std::vector<Kinematic *> *b, float radius = 100.0f, float maxAccel = 50.0f)
+    Alignment(std::vector<Kinematic*> *b, float radius=100.f, float maxAccel=50.f)
         : neighborhoodRadius(radius), maxAcceleration(maxAccel), boids(b), velocityMatch(maxAccel) {}
-
-    SteeringOutput calculateSteering(const Kinematic &character, const Kinematic & /*target*/) override
+    SteeringOutput calculateSteering(const Kinematic &c,const Kinematic & /*t*/) override
     {
-        sf::Vector2f averageVelocity(0.f, 0.f);
-        int count = 0;
-        for (auto &boid : *boids)
+        sf::Vector2f avg(0.f,0.f); int count=0;
+        for (auto &b : *boids)
         {
-            if (boid->position == character.position) continue;
-            sf::Vector2f direction = boid->position - character.position;
-            float distance = std::sqrt(direction.x*direction.x + direction.y*direction.y);
-            if (distance < neighborhoodRadius) { averageVelocity += boid->velocity; ++count; }
+            if (b->position == c.position) continue;
+            sf::Vector2f dir = b->position - c.position;
+            float dist = std::sqrt(dir.x*dir.x + dir.y*dir.y);
+            if (dist < neighborhoodRadius) { avg += b->velocity; ++count; }
         }
-        if (count == 0) return SteeringOutput();
-        averageVelocity /= static_cast<float>(count);
-        Kinematic alignTarget;
-        alignTarget.velocity = averageVelocity;
-        return velocityMatch.calculateSteering(character, alignTarget);
+        if (count==0) return SteeringOutput();
+        avg /= static_cast<float>(count);
+        Kinematic target; target.velocity = avg;
+        return velocityMatch.calculateSteering(c,target);
     }
 };
 
-// BlendedSteering
 class BlendedSteering : public SteeringBehavior
 {
 private:
-    struct BehaviorAndWeight { SteeringBehavior *behavior; float weight; };
-    std::vector<BehaviorAndWeight> behaviors;
-    float maxAcceleration;
-    float maxAngular;
-
+    struct BW { SteeringBehavior *behavior; float weight; };
+    std::vector<BW> behaviors;
+    float maxAcceleration, maxAngular;
 public:
-    BlendedSteering(float maxAccel = 200.0f, float maxAng = 5.0f) : maxAcceleration(maxAccel), maxAngular(maxAng) {}
-    void addBehavior(SteeringBehavior *behavior, float weight) { behaviors.push_back({behavior, weight}); }
-    SteeringOutput calculateSteering(const Kinematic &character, const Kinematic &target) override
+    BlendedSteering(float maxAccel=200.f, float maxAng=5.f) : maxAcceleration(maxAccel), maxAngular(maxAng) {}
+    void addBehavior(SteeringBehavior *b, float w) { behaviors.push_back({b,w}); }
+    SteeringOutput calculateSteering(const Kinematic &c,const Kinematic &t) override
     {
-        SteeringOutput result;
+        SteeringOutput r;
         for (auto &bw : behaviors)
         {
-            SteeringOutput steering = bw.behavior->calculateSteering(character, target);
-            result.linear += steering.linear * bw.weight;
-            result.angular += steering.angular * bw.weight;
+            SteeringOutput s = bw.behavior->calculateSteering(c,t);
+            r.linear += s.linear * bw.weight;
+            r.angular += s.angular * bw.weight;
         }
-        float length = std::sqrt(result.linear.x*result.linear.x + result.linear.y*result.linear.y);
-        if (length > maxAcceleration) result.linear = (result.linear / length) * maxAcceleration;
-        if (std::abs(result.angular) > maxAngular)
-            result.angular = (result.angular / std::abs(result.angular)) * maxAngular;
-        return result;
+        float len = std::sqrt(r.linear.x*r.linear.x + r.linear.y*r.linear.y);
+        if (len > maxAcceleration) r.linear = (r.linear / len) * maxAcceleration;
+        if (std::abs(r.angular) > maxAngular) r.angular = (r.angular / std::abs(r.angular)) * maxAngular;
+        return r;
     }
 };
 
-// Character
-class Character
+// Character (full) - adapted for SFML 3
+class CharacterFull
 {
 private:
     Kinematic kinematic;
-    sf::Sprite sprite;
+    sf::Sprite sprite;          // will be assigned after texture load
     sf::Texture boidTexture;
     Breadcrumb breadcrumbs;
     SteeringBehavior *currentBehavior;
@@ -634,35 +491,40 @@ private:
     float maxRotation;
 
 public:
-    Character(sf::Vector2f startPos = sf::Vector2f(400.f, 300.f), sf::Color color = sf::Color::Red,
-              int breadcrumbMax = 30, int breadcrumbInterval = 5)
-        : breadcrumbs(breadcrumbMax, breadcrumbInterval, color), currentBehavior(nullptr), maxSpeed(150.0f), maxRotation(3.0f)
+    CharacterFull(sf::Vector2f startPos = sf::Vector2f(400.f,300.f), sf::Color color = sf::Color::Red,
+                  int breadcrumbMax = 30, int breadcrumbInterval = 5)
+        : breadcrumbs(breadcrumbMax, breadcrumbInterval, color),
+          currentBehavior(nullptr), maxSpeed(150.f), maxRotation(3.f)
     {
         kinematic.position = startPos;
         kinematic.orientation = 0.f;
 
-        // Try load texture; if failed, generate a tiny fallback image
+        // Attempt to load texture; if missing, create fallback image
         if (!boidTexture.loadFromFile("boid.png"))
         {
-            sf::Image img({32u, 32u}, sf::Color::Transparent);
-            for (unsigned y = 0; y < 32; ++y)
-                for (unsigned x = 0; x < 32; ++x)
-                    img.setPixel({x, y}, sf::Color(200, 200, 200));
-            boidTexture.loadFromImage(img);
+            sf::Image img({32u,32u}, sf::Color::Transparent);
+            for (unsigned y=0;y<32;++y)
+                for (unsigned x=0;x<32;++x)
+                    img.setPixel({x,y}, sf::Color(200,200,200));
+            (void)boidTexture.loadFromImage(img);
         }
 
+        // Construct sprite with texture (SFML 3 requires texture at construction)
         sprite = sf::Sprite(boidTexture);
-        sprite.setOrigin({static_cast<float>(boidTexture.getSize().x) / 2.f, static_cast<float>(boidTexture.getSize().y) / 2.f});
+        sprite.setOrigin({ static_cast<float>(boidTexture.getSize().x)/2.f, static_cast<float>(boidTexture.getSize().y)/2.f });
         sprite.setScale({0.05f, 0.05f});
         sprite.setColor(color);
     }
 
-    void setBehavior(SteeringBehavior *behavior) { currentBehavior = behavior; }
+    void setBehavior(SteeringBehavior *b) { currentBehavior = b; }
+    Kinematic &getKinematic() { return kinematic; }
+    void clearBreadcrumbs() { breadcrumbs.clear(); }
+    void setMaxSpeed(float s) { maxSpeed = s; }
+    void setPosition(sf::Vector2f p) { kinematic.position = p; sprite.setPosition(p); }
 
     void update(float deltaTime, const Kinematic &target)
     {
         if (!currentBehavior) return;
-
         SteeringOutput steering = currentBehavior->calculateSteering(kinematic, target);
 
         kinematic.position += kinematic.velocity * deltaTime;
@@ -688,7 +550,6 @@ public:
     void updateWithBoundaryHandling(float deltaTime, const Kinematic &target)
     {
         if (!currentBehavior) return;
-
         SteeringOutput steering = currentBehavior->calculateSteering(kinematic, target);
 
         kinematic.position += kinematic.velocity * deltaTime;
@@ -703,7 +564,7 @@ public:
         if (std::abs(kinematic.rotation) > maxRotation)
             kinematic.rotation = (kinematic.rotation / std::abs(kinematic.rotation)) * maxRotation;
 
-        const float margin = 4.0f;
+        const float margin = 4.f;
         if (kinematic.position.x < margin) { kinematic.position.x = margin; kinematic.velocity.x = std::abs(kinematic.velocity.x) * 0.8f; }
         if (kinematic.position.x > WINDOW_WIDTH - margin) { kinematic.position.x = WINDOW_WIDTH - margin; kinematic.velocity.x = -std::abs(kinematic.velocity.x) * 0.8f; }
         if (kinematic.position.y < margin) { kinematic.position.y = margin; kinematic.velocity.y = std::abs(kinematic.velocity.y) * 0.8f; }
@@ -722,14 +583,9 @@ public:
         breadcrumbs.draw(window);
         window.draw(sprite);
     }
-
-    Kinematic &getKinematic() { return kinematic; }
-    void clearBreadcrumbs() { breadcrumbs.clear(); }
-    void setMaxSpeed(float speed) { maxSpeed = speed; }
-    void setPosition(sf::Vector2f pos) { kinematic.position = pos; sprite.setPosition(pos); }
 };
 
-// Boid
+// Boid (flocking)
 class Boid
 {
 public:
@@ -741,24 +597,22 @@ public:
     float maxSpeed;
 
     Boid(sf::Vector2f startPos, sf::Color color = sf::Color::Blue)
-        : breadcrumbs(20, 10, color), flockingBehavior(nullptr), maxSpeed(200.0f)
+        : breadcrumbs(20,10,color), flockingBehavior(nullptr), maxSpeed(200.f)
     {
         kinematic.position = startPos;
-        kinematic.velocity = sf::Vector2f(randomFloat(-50.f, 50.f), randomFloat(-50.f, 50.f));
+        kinematic.velocity = sf::Vector2f(randomFloat(-50.f,50.f), randomFloat(-50.f,50.f));
         kinematic.orientation = std::atan2(kinematic.velocity.y, kinematic.velocity.x);
 
         if (!boidSmallTexture.loadFromFile("boid-sm.png"))
         {
-            sf::Image img({16u, 16u}, sf::Color::Transparent);
-            for (unsigned y = 0; y < 16; ++y)
-                for (unsigned x = 0; x < 16; ++x)
-                    img.setPixel({x, y}, sf::Color(180, 180, 180));
-            boidSmallTexture.loadFromImage(img);
+            sf::Image img({16u,16u}, sf::Color::Transparent);
+            for (unsigned y=0;y<16;++y) for (unsigned x=0;x<16;++x) img.setPixel({x,y}, sf::Color(180,180,180));
+            (void)boidSmallTexture.loadFromImage(img);
         }
 
         sprite = sf::Sprite(boidSmallTexture);
-        sprite.setOrigin({static_cast<float>(boidSmallTexture.getSize().x) / 2.f, static_cast<float>(boidSmallTexture.getSize().y) / 2.f});
-        sprite.setScale({1.5f, 1.5f});
+        sprite.setOrigin({static_cast<float>(boidSmallTexture.getSize().x)/2.f, static_cast<float>(boidSmallTexture.getSize().y)/2.f});
+        sprite.setScale({1.5f,1.5f});
         sprite.setColor(color);
     }
 
@@ -775,7 +629,6 @@ public:
 
         if (speed > 0.01f) kinematic.orientation = std::atan2(kinematic.velocity.y, kinematic.velocity.x);
 
-        // wrap
         if (kinematic.position.x < 0.f) kinematic.position.x = WINDOW_WIDTH;
         if (kinematic.position.x > WINDOW_WIDTH) kinematic.position.x = 0.f;
         if (kinematic.position.y < 0.f) kinematic.position.y = WINDOW_HEIGHT;
@@ -793,11 +646,13 @@ public:
     }
 };
 
-// Main
+// ----------------- main -----------------
+
 int main()
 {
-    // Create window with SFML 3 API (VideoMode + title)
-    sf::RenderWindow window(sf::VideoMode(WINDOW_WIDTH, WINDOW_HEIGHT), "Steering Behaviors Demo (SFML 3)");
+    // VideoMode needs Vector2u in SFML 3
+    sf::RenderWindow window(sf::VideoMode(sf::Vector2u(WINDOW_WIDTH, WINDOW_HEIGHT)),
+                            "Steering Behaviors Demo (1: VelMatchMouse, 2: Align+Arrive, 3: Wander, 4: Boids)");
     window.setFramerateLimit(60);
 
     sf::Clock clock;
@@ -805,123 +660,97 @@ int main()
 
     // Behaviors
     FastVelocityMatching fastVelMatch;
-
-    ArriveAndAlign AAA1(
-        300.0f, 120.0f, 5.0f, 100.0f, 0.2f,
-        3.0f, 1.0f, 0.01f, 0.6f, 0.3f
-    );
-
-    ArriveAndAlign AAA2(
-        100.0f, 120.0f, 5.0f, 200.0f, 0.2f,
-        2.0f, 2.0f, 0.01f, 0.6f, 0.15f
-    );
-
-    Wander wanderSmooth(60.0f, 40.0f, 0.6f, 60.0f);
-    WanderKinematic wanderKinematic1(60.0f, 40.0f, 0.6f, 60.0f, 2.5f);
-    WanderKinematic wanderKinematic2(80.0f, 60.0f, 1.2f, 80.0f, 3.0f);
+    ArriveAndAlign AAA1(300.f,120.f,5.f,100.f,0.2f, 3.f,1.f,0.01f,0.6f,0.3f);
+    ArriveAndAlign AAA2(100.f,120.f,5.f,200.f,0.2f, 2.f,2.f,0.01f,0.6f,0.15f);
+    Wander wanderSmooth(60.f,40.f,0.6f,60.f);
+    WanderKinematic wanderKinematic1(60.f,40.f,0.6f,60.f,2.5f);
+    WanderKinematic wanderKinematic2(80.f,60.f,1.2f,80.f,3.0f);
     WallAvoidance wallAvoid;
 
-    BlendedSteering wanderWithWalls1(200.0f, 5.0f);
-    wanderWithWalls1.addBehavior(&wanderSmooth, 1.0f);
-    wanderWithWalls1.addBehavior(&wallAvoid, 2.0f);
-
-    BlendedSteering wanderWithWalls2(200.0f, 5.0f);
-    wanderWithWalls2.addBehavior(&wanderKinematic1, 1.0f);
-    wanderWithWalls2.addBehavior(&wallAvoid, 2.0f);
-
-    BlendedSteering wanderWithWalls3(200.0f, 5.0f);
-    wanderWithWalls3.addBehavior(&wanderKinematic2, 1.0f);
-    wanderWithWalls3.addBehavior(&wallAvoid, 2.0f);
+    BlendedSteering wanderWithWalls1(200.f,5.f);
+    wanderWithWalls1.addBehavior(&wanderSmooth, 1.f); wanderWithWalls1.addBehavior(&wallAvoid, 2.f);
+    BlendedSteering wanderWithWalls2(200.f,5.f);
+    wanderWithWalls2.addBehavior(&wanderKinematic1, 1.f); wanderWithWalls2.addBehavior(&wallAvoid, 2.f);
+    BlendedSteering wanderWithWalls3(200.f,5.f);
+    wanderWithWalls3.addBehavior(&wanderKinematic2, 1.f); wanderWithWalls3.addBehavior(&wallAvoid, 2.f);
 
     // Characters
-    Character velMatchChar({WINDOW_WIDTH/2.f, WINDOW_HEIGHT/2.f}, sf::Color(128,0,0,255));
-    Character cyanAlignChar({WINDOW_WIDTH/2.f, WINDOW_HEIGHT/2.f}, sf::Color(0,0,128,255));
-    Character yellowArriveChar({WINDOW_WIDTH/2.f, WINDOW_HEIGHT/2.f}, sf::Color(128,128,0,255));
+    CharacterFull velMatchChar({WINDOW_WIDTH/2.f, WINDOW_HEIGHT/2.f}, sf::Color(128,0,0,255));
+    CharacterFull cyanAlignChar({WINDOW_WIDTH/2.f, WINDOW_HEIGHT/2.f}, sf::Color(0,0,128,255));
+    CharacterFull yellowArriveChar({WINDOW_WIDTH/2.f, WINDOW_HEIGHT/2.f}, sf::Color(128,128,0,255));
 
-    // Wander groups
-    std::vector<std::unique_ptr<Character>> wanderSet1, wanderSet2, wanderSet3;
+    // Wander groups init
+    std::vector<std::unique_ptr<CharacterFull>> wanderSet1, wanderSet2, wanderSet3;
     auto initWander = [&]()
     {
         wanderSet1.clear(); wanderSet2.clear(); wanderSet3.clear();
-        float centerX = WINDOW_WIDTH/2.f, centerY = WINDOW_HEIGHT/2.f;
+        float cx = WINDOW_WIDTH/2.f, cy = WINDOW_HEIGHT/2.f;
         for (int i=0;i<3;++i)
         {
-            auto c1 = std::make_unique<Character>(sf::Vector2f(centerX + randomFloat(-100.f,100.f), centerY + randomFloat(-100.f,100.f)), sf::Color::Blue);
-            auto c2 = std::make_unique<Character>(sf::Vector2f(centerX + randomFloat(-100.f,100.f), centerY + randomFloat(-100.f,100.f)), sf::Color::Magenta);
-            auto c3 = std::make_unique<Character>(sf::Vector2f(centerX + randomFloat(-100.f,100.f), centerY + randomFloat(-100.f,100.f)), sf::Color::Green);
-            c1->getKinematic().orientation = randomFloat(-PI, PI);
-            c2->getKinematic().orientation = randomFloat(-PI, PI);
-            c3->getKinematic().orientation = randomFloat(-PI, PI);
+            auto c1 = std::make_unique<CharacterFull>(sf::Vector2f(cx + randomFloat(-100.f,100.f), cy + randomFloat(-100.f,100.f)), sf::Color::Blue);
+            auto c2 = std::make_unique<CharacterFull>(sf::Vector2f(cx + randomFloat(-100.f,100.f), cy + randomFloat(-100.f,100.f)), sf::Color::Magenta);
+            auto c3 = std::make_unique<CharacterFull>(sf::Vector2f(cx + randomFloat(-100.f,100.f), cy + randomFloat(-100.f,100.f)), sf::Color::Green);
+            c1->getKinematic().orientation = randomFloat(-PI,PI);
+            c2->getKinematic().orientation = randomFloat(-PI,PI);
+            c3->getKinematic().orientation = randomFloat(-PI,PI);
             c1->setMaxSpeed(80.f); c2->setMaxSpeed(80.f); c3->setMaxSpeed(80.f);
-            wanderSet1.push_back(std::move(c1));
-            // wanderSet2.push_back(std::move(c2));
+            wanderSet1.push_back(std::move(c1)); //c2 unused in original; kept for completeness
+            //wanderSet2.push_back(std::move(c2));
             wanderSet3.push_back(std::move(c3));
         }
     };
 
-    // Flocking
+    // Flocking init
     std::vector<std::unique_ptr<Boid>> flock;
-    std::vector<Kinematic *> flockKinematics;
+    std::vector<Kinematic*> flockKinematics;
     auto initFlocking = [&]()
     {
         flock.clear(); flockKinematics.clear();
         int numBoids = 13;
         for (int i=0;i<numBoids;++i)
         {
-            sf::Vector2f pos(randomFloat(100, WINDOW_WIDTH-100), randomFloat(100, WINDOW_HEIGHT-100));
+            sf::Vector2f p(randomFloat(100.f, WINDOW_WIDTH-100.f), randomFloat(100.f, WINDOW_HEIGHT-100.f));
             sf::Color color = (i%3==0) ? sf::Color::Cyan : (i%3==1) ? sf::Color::Magenta : sf::Color::Yellow;
-            flock.push_back(std::make_unique<Boid>(pos, color));
+            flock.push_back(std::make_unique<Boid>(p,color));
             flockKinematics.push_back(&flock.back()->kinematic);
         }
-        for (auto &boid : flock)
+        for (auto &b : flock)
         {
-            auto sep = new Separation(&flockKinematics, 40.0f, 5000.0f, 250.0f);
-            auto coh = new Cohesion(&flockKinematics, 100.0f, 80.0f);
-            auto ali = new Alignment(&flockKinematics, 80.0f, 100.0f);
-            boid->flockingBehavior = new BlendedSteering();
-            boid->flockingBehavior->addBehavior(sep, 5.0f);
-            boid->flockingBehavior->addBehavior(coh, 0.7f);
-            boid->flockingBehavior->addBehavior(ali, 0.7f);
+            auto sep = new Separation(&flockKinematics, 40.f, 5000.f, 250.f);
+            auto coh = new Cohesion(&flockKinematics, 100.f, 80.f);
+            auto ali = new Alignment(&flockKinematics, 80.f, 100.f);
+            b->flockingBehavior = new BlendedSteering();
+            b->flockingBehavior->addBehavior(sep, 5.f);
+            b->flockingBehavior->addBehavior(coh, 0.7f);
+            b->flockingBehavior->addBehavior(ali, 0.7f);
         }
     };
 
     initWander();
     initFlocking();
 
-    // Mouse
+    // Mouse state
     Kinematic mouseTarget;
-    sf::Vector2i mpos = sf::Mouse::getPosition(window);
-    sf::Vector2f lastMousePos(static_cast<float>(mpos.x), static_cast<float>(mpos.y));
+    sf::Vector2i mposI = sf::Mouse::getPosition(window);
+    sf::Vector2f lastMousePos(static_cast<float>(mposI.x), static_cast<float>(mposI.y));
     sf::Clock mouseClock;
-    Breadcrumb mouseBreadcrumbs(40, 3, sf::Color::White);
+    Breadcrumb mouseBreadcrumbs(40,3,sf::Color::White);
 
     // Font / text
     sf::Font font;
     if (!font.openFromFile("/usr/share/fonts/truetype/liberation/LiberationSans-Regular.ttf"))
-    {
-        std::cerr << "Failed to load font; text might be empty.\n";
-    }
-    sf::Text modeText(font, "Case 1: Velocity Match Mouse", 14);
-    modeText.setPosition({10.f, 10.f});
+        std::cerr << "Failed to load font; text may be empty\n";
+    sf::Text modeText(font, "Case 1: Velocity Match Mouse", 20);
+    modeText.setPosition({10.f,10.f});
 
     // Reset helper
     auto resetCase = [&](int mode)
     {
         currentMode = mode;
-        if (mode == 1)
-        {
-            velMatchChar.setPosition({WINDOW_WIDTH/2.f, WINDOW_HEIGHT/2.f});
-            velMatchChar.clearBreadcrumbs();
-        }
-        else if (mode == 2)
-        {
-            cyanAlignChar.setPosition({WINDOW_WIDTH/2.f, WINDOW_HEIGHT/2.f});
-            yellowArriveChar.setPosition({WINDOW_WIDTH/2.f, WINDOW_HEIGHT/2.f});
-            cyanAlignChar.clearBreadcrumbs();
-            yellowArriveChar.clearBreadcrumbs();
-        }
-        else if (mode == 3) initWander();
-        else if (mode == 4) initFlocking();
+        if (mode==1) { velMatchChar.setPosition({WINDOW_WIDTH/2.f, WINDOW_HEIGHT/2.f}); velMatchChar.clearBreadcrumbs(); }
+        else if (mode==2) { cyanAlignChar.setPosition({WINDOW_WIDTH/2.f, WINDOW_HEIGHT/2.f}); yellowArriveChar.setPosition({WINDOW_WIDTH/2.f, WINDOW_HEIGHT/2.f}); cyanAlignChar.clearBreadcrumbs(); yellowArriveChar.clearBreadcrumbs(); }
+        else if (mode==3) initWander();
+        else if (mode==4) initFlocking();
     };
 
     // Main loop
@@ -929,7 +758,7 @@ int main()
     {
         float dt = clock.restart().asSeconds();
 
-        // Poll events (SFML 3 returns optional<Event>)
+        // SFML3: pollEvent returns optional<sf::Event>
         while (true)
         {
             std::optional<sf::Event> opt = window.pollEvent();
@@ -937,34 +766,33 @@ int main()
             const sf::Event &event = *opt;
 
             if (event.is<sf::Event::Closed>()) window.close();
-
-            if (event.is<sf::Event::KeyPressed>())
+            else if (event.is<sf::Event::KeyPressed>())
             {
-                const auto &kp = event.get<sf::Event::KeyPressed>();
-                // scancode enum
-                if (kp.scancode == sf::Keyboard::Scancode::Escape) window.close();
-                if (kp.scancode == sf::Keyboard::Scancode::Num1) resetCase(1);
-                if (kp.scancode == sf::Keyboard::Scancode::Num2) resetCase(2);
-                if (kp.scancode == sf::Keyboard::Scancode::Num3) resetCase(3);
-                if (kp.scancode == sf::Keyboard::Scancode::Num4) resetCase(4);
-            }
-
-            if (event.is<sf::Event::MouseButtonPressed>() && currentMode == 2)
-            {
-                const auto &mb = event.get<sf::Event::MouseButtonPressed>();
-                if (mb.button == sf::Mouse::Button::Left)
+                const auto *kp = event.getIf<sf::Event::KeyPressed>();
+                if (kp)
                 {
-                    mouseTarget.position = {static_cast<float>(mb.x), static_cast<float>(mb.y)};
+                    if (kp->scancode == sf::Keyboard::Scancode::Escape) window.close();
+                    if (kp->scancode == sf::Keyboard::Scancode::Num1) resetCase(1);
+                    if (kp->scancode == sf::Keyboard::Scancode::Num2) resetCase(2);
+                    if (kp->scancode == sf::Keyboard::Scancode::Num3) resetCase(3);
+                    if (kp->scancode == sf::Keyboard::Scancode::Num4) resetCase(4);
+                }
+            }
+            else if (event.is<sf::Event::MouseButtonPressed>() && currentMode==2)
+            {
+                const auto *mb = event.getIf<sf::Event::MouseButtonPressed>();
+                if (mb && mb->button == sf::Mouse::Button::Left)
+                {
+                    mouseTarget.position = sf::Vector2f(static_cast<float>(mb->position.x), static_cast<float>(mb->position.y));
                     mouseTarget.orientation = randomFloat(-PI, PI);
                 }
             }
-        }
+        } // end events
 
-        window.clear(sf::Color(30, 30, 40));
+        window.clear(sf::Color(30,30,40));
 
         switch (currentMode)
         {
-            // Case 1: Velocity match mouse
             case 1:
             {
                 modeText.setString("Case 1: Velocity Matching (Mouse)");
@@ -978,7 +806,7 @@ int main()
                 mouseBreadcrumbs.update(mousePos);
 
                 velMatchChar.setBehavior(&fastVelMatch);
-                velMatchChar.setMaxSpeed(250.0f);
+                velMatchChar.setMaxSpeed(250.f);
                 velMatchChar.update(dt, mouseTarget);
                 velMatchChar.draw(window);
 
@@ -986,20 +814,17 @@ int main()
 
                 sf::CircleShape targetShape(5.f);
                 targetShape.setFillColor(sf::Color::White);
-                targetShape.setOrigin({5.f, 5.f});
+                targetShape.setOrigin({5.f,5.f});
                 targetShape.setPosition(mousePos);
                 window.draw(targetShape);
                 break;
             }
 
-            // Case 2: Arrive + Align
             case 2:
             {
                 modeText.setString("Case 2: Arrive + Align (Direction of Motion)");
-
-                // allocate arrivers (as before - freed after)
-                Arrive* quickArrive = new Arrive(500.0f, 120.0f, 5.0f, 150.0f, 0.12f);
-                Arrive* slowArrive = new Arrive(200.0f, 100.0f, 7.0f, 150.0f, 0.08f);
+                Arrive* quickArrive = new Arrive(500.f,120.f,5.f,150.f,0.12f);
+                Arrive* slowArrive  = new Arrive(200.f,100.f,7.f,150.f,0.08f);
                 cyanAlignChar.setBehavior(quickArrive);
                 yellowArriveChar.setBehavior(slowArrive);
 
@@ -1007,13 +832,13 @@ int main()
                 yellowArriveChar.update(dt, mouseTarget);
 
                 LookWhereYoureGoing lookWhere;
-                SteeringOutput cyanOrient = lookWhere.calculateSteering(cyanAlignChar.getKinematic(), mouseTarget);
-                SteeringOutput yellowOrient = lookWhere.calculateSteering(yellowArriveChar.getKinematic(), mouseTarget);
+                SteeringOutput co = lookWhere.calculateSteering(cyanAlignChar.getKinematic(), mouseTarget);
+                SteeringOutput yo = lookWhere.calculateSteering(yellowArriveChar.getKinematic(), mouseTarget);
 
-                cyanAlignChar.getKinematic().rotation += cyanOrient.angular * dt;
+                cyanAlignChar.getKinematic().rotation += co.angular * dt;
                 cyanAlignChar.getKinematic().orientation += cyanAlignChar.getKinematic().rotation * dt;
 
-                yellowArriveChar.getKinematic().rotation += yellowOrient.angular * dt;
+                yellowArriveChar.getKinematic().rotation += yo.angular * dt;
                 yellowArriveChar.getKinematic().orientation += yellowArriveChar.getKinematic().rotation * dt;
 
                 cyanAlignChar.draw(window);
@@ -1024,40 +849,19 @@ int main()
                 break;
             }
 
-            // Case 3: Wander
             case 3:
             {
                 modeText.setString("Case 3: Wander (Blue: Circle+LookWhereYoureGoing, Magenta/Green: Direct Kinematic Rotation)");
-                for (auto &c : wanderSet1)
-                {
-                    c->setBehavior(&wanderWithWalls1);
-                    c->updateWithBoundaryHandling(dt, c->getKinematic());
-                    c->draw(window);
-                }
-                for (auto &c : wanderSet2)
-                {
-                    c->setBehavior(&wanderWithWalls2);
-                    c->updateWithBoundaryHandling(dt, c->getKinematic());
-                    c->draw(window);
-                }
-                for (auto &c : wanderSet3)
-                {
-                    c->setBehavior(&wanderWithWalls3);
-                    c->updateWithBoundaryHandling(dt, c->getKinematic());
-                    c->draw(window);
-                }
+                for (auto &c : wanderSet1) { c->setBehavior(&wanderWithWalls1); c->updateWithBoundaryHandling(dt, c->getKinematic()); c->draw(window); }
+                for (auto &c : wanderSet2) { c->setBehavior(&wanderWithWalls2); c->updateWithBoundaryHandling(dt, c->getKinematic()); c->draw(window); }
+                for (auto &c : wanderSet3) { c->setBehavior(&wanderWithWalls3); c->updateWithBoundaryHandling(dt, c->getKinematic()); c->draw(window); }
                 break;
             }
 
-            // Case 4: Boids
             case 4:
             {
                 modeText.setString("Case 4: Reynolds Boids");
-                for (auto &b : flock)
-                {
-                    b->update(dt);
-                    b->draw(window);
-                }
+                for (auto &b : flock) { b->update(dt); b->draw(window); }
                 break;
             }
         }
