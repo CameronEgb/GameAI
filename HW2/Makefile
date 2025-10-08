@@ -5,11 +5,12 @@
 
 # === Compiler and Flags ===
 CXX := g++
-CXXFLAGS := -std=c++17 -Wall -Wextra -O2
+CXXFLAGS := -std=c++17 -Wall -Wextra -O2 -I/usr/local/include -DSFML_STATIC
 
 # === SFML Linking (adjust if SFML is in a custom path) ===
-SFML_LIBS := -Lusr/local/lib/cmake -lsfml-graphics -lsfml-window -lsfml-system
-
+#SFML_LIBS := -Lusr/local/lib/cmake -lsfml-graphics -lsfml-window -lsfml-system
+SFML_LIBS := -L/usr/local/lib -lsfml-graphics-s -lsfml-window-s -lsfml-system-s \
+             -lX11 -lXrandr -lXcursor -lXi -lXinerama -lfreetype -lGL -ludev -lpthread -ldl
 # === Files and Output ===
 SRC := main.cpp
 TARGET := steering
