@@ -1,7 +1,11 @@
-main.cpp: In constructor ‘Character::Character(sf::Vector2f, sf::Color, int, int)’:
-main.cpp:639:126: error: no matching function for call to ‘sf::Sprite::Sprite()’
-  639 |         : breadcrumbs(breadcrumbMax, breadcrumbInterval, color), currentBehavior(nullptr), maxSpeed(150.0f), maxRotation(3.0f)
-      |                                                                                                                              ^
+main.cpp: In member function ‘virtual SteeringOutput LookWhereYoureGoing::calculateSteering(const Kinematic&, const Kinematic&)’:
+main.cpp:292:177: warning: unused parameter ‘t’ [-Wunused-parameter]
+  292 | class LookWhereYoureGoing : public SteeringBehavior { Align align; public: LookWhereYoureGoing():align(){} SteeringOutput calculateSteering(const Kinematic &c,const Kinematic &t) override { if (c.velocity.x==0 && c.velocity.y==0) return SteeringOutput(); Kinematic targ; targ.orientation = std::atan2(c.velocity.y, c.velocity.x); return align.calculateSteering(c,targ); } };
+      |                                                                                                                                                                ~~~~~~~~~~~~~~~~~^
+main.cpp: In constructor ‘CharacterFull::CharacterFull(sf::Vector2f, sf::Color, int, int)’:
+main.cpp:497:69: error: no matching function for call to ‘sf::Sprite::Sprite()’
+  497 |           currentBehavior(nullptr), maxSpeed(150.f), maxRotation(3.f)
+      |                                                                     ^
 In file included from /usr/local/include/SFML/Graphics.hpp:48,
                  from main.cpp:4:
 /usr/local/include/SFML/Graphics/Sprite.hpp:78:5: note: candidate: ‘sf::Sprite::Sprite(const sf::Texture&, const IntRect&)’
@@ -18,19 +22,10 @@ In file included from /usr/local/include/SFML/Graphics.hpp:48,
 /usr/local/include/SFML/Graphics/Sprite.hpp:50:25: note:   candidate expects 1 argument, 0 provided
 /usr/local/include/SFML/Graphics/Sprite.hpp:50:25: note: candidate: ‘constexpr sf::Sprite::Sprite(sf::Sprite&&)’
 /usr/local/include/SFML/Graphics/Sprite.hpp:50:25: note:   candidate expects 1 argument, 0 provided
-main.cpp:651:38: warning: ignoring return value of ‘bool sf::Texture::loadFromImage(const sf::Image&, bool, const IntRect&)’, declared with attribute nodiscard [-Wunused-result]
-  651 |             boidTexture.loadFromImage(img);
-      |             ~~~~~~~~~~~~~~~~~~~~~~~~~^~~~~
-In file included from /usr/local/include/SFML/Graphics/Font.hpp:34,
-                 from /usr/local/include/SFML/Graphics.hpp:36,
-                 from main.cpp:4:
-/usr/local/include/SFML/Graphics/Texture.hpp:380:24: note: declared here
-  380 |     [[nodiscard]] bool loadFromImage(const Image& image, bool sRgb = false, const IntRect& area = {});
-      |                        ^~~~~~~~~~~~~
 main.cpp: In constructor ‘Boid::Boid(sf::Vector2f, sf::Color)’:
-main.cpp:744:81: error: no matching function for call to ‘sf::Sprite::Sprite()’
-  744 |         : breadcrumbs(20, 10, color), flockingBehavior(nullptr), maxSpeed(200.0f)
-      |                                                                                 ^
+main.cpp:600:78: error: no matching function for call to ‘sf::Sprite::Sprite()’
+  600 |         : breadcrumbs(20,10,color), flockingBehavior(nullptr), maxSpeed(200.f)
+      |                                                                              ^
 In file included from /usr/local/include/SFML/Graphics.hpp:48,
                  from main.cpp:4:
 /usr/local/include/SFML/Graphics/Sprite.hpp:78:5: note: candidate: ‘sf::Sprite::Sprite(const sf::Texture&, const IntRect&)’
@@ -47,70 +42,4 @@ In file included from /usr/local/include/SFML/Graphics.hpp:48,
 /usr/local/include/SFML/Graphics/Sprite.hpp:50:25: note:   candidate expects 1 argument, 0 provided
 /usr/local/include/SFML/Graphics/Sprite.hpp:50:25: note: candidate: ‘constexpr sf::Sprite::Sprite(sf::Sprite&&)’
 /usr/local/include/SFML/Graphics/Sprite.hpp:50:25: note:   candidate expects 1 argument, 0 provided
-main.cpp:756:43: warning: ignoring return value of ‘bool sf::Texture::loadFromImage(const sf::Image&, bool, const IntRect&)’, declared with attribute nodiscard [-Wunused-result]
-  756 |             boidSmallTexture.loadFromImage(img);
-      |             ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~^~~~~
-In file included from /usr/local/include/SFML/Graphics/Font.hpp:34,
-                 from /usr/local/include/SFML/Graphics.hpp:36,
-                 from main.cpp:4:
-/usr/local/include/SFML/Graphics/Texture.hpp:380:24: note: declared here
-  380 |     [[nodiscard]] bool loadFromImage(const Image& image, bool sRgb = false, const IntRect& area = {});
-      |                        ^~~~~~~~~~~~~
-main.cpp: In function ‘int main()’:
-main.cpp:800:70: error: no matching function for call to ‘sf::VideoMode::VideoMode(const int&, const int&)’
-  800 |     sf::RenderWindow window(sf::VideoMode(WINDOW_WIDTH, WINDOW_HEIGHT), "Steering Behaviors Demo (SFML 3)");
-      |                                                                      ^
-In file included from /usr/local/include/SFML/Graphics/RenderWindow.hpp:35,
-                 from /usr/local/include/SFML/Graphics.hpp:45,
-                 from main.cpp:4:
-/usr/local/include/SFML/Window/VideoMode.hpp:61:14: note: candidate: ‘sf::VideoMode::VideoMode(sf::Vector2u, unsigned int)’
-   61 |     explicit VideoMode(Vector2u modeSize, unsigned int modeBitsPerPixel = 32);
-      |              ^~~~~~~~~
-/usr/local/include/SFML/Window/VideoMode.hpp:61:33: note:   no known conversion for argument 1 from ‘const int’ to ‘sf::Vector2u’ {aka ‘sf::Vector2<unsigned int>’}
-   61 |     explicit VideoMode(Vector2u modeSize, unsigned int modeBitsPerPixel = 32);
-      |                        ~~~~~~~~~^~~~~~~~
-/usr/local/include/SFML/Window/VideoMode.hpp:52:5: note: candidate: ‘constexpr sf::VideoMode::VideoMode()’
-   52 |     VideoMode() = default;
-      |     ^~~~~~~~~
-/usr/local/include/SFML/Window/VideoMode.hpp:52:5: note:   candidate expects 0 arguments, 2 provided
-/usr/local/include/SFML/Window/VideoMode.hpp:43:23: note: candidate: ‘constexpr sf::VideoMode::VideoMode(const sf::VideoMode&)’
-   43 | class SFML_WINDOW_API VideoMode
-      |                       ^~~~~~~~~
-/usr/local/include/SFML/Window/VideoMode.hpp:43:23: note:   candidate expects 1 argument, 2 provided
-/usr/local/include/SFML/Window/VideoMode.hpp:43:23: note: candidate: ‘constexpr sf::VideoMode::VideoMode(sf::VideoMode&&)’
-/usr/local/include/SFML/Window/VideoMode.hpp:43:23: note:   candidate expects 1 argument, 2 provided
-main.cpp:943:40: error: ‘const class sf::Event’ has no member named ‘get’; did you mean ‘getIf’?
-  943 |                 const auto &kp = event.get<sf::Event::KeyPressed>();
-      |                                        ^~~
-      |                                        getIf
-main.cpp:943:65: error: expected primary-expression before ‘>’ token
-  943 |                 const auto &kp = event.get<sf::Event::KeyPressed>();
-      |                                                                 ^
-main.cpp:943:67: error: expected primary-expression before ‘)’ token
-  943 |                 const auto &kp = event.get<sf::Event::KeyPressed>();
-      |                                                                   ^
-main.cpp:954:40: error: ‘const class sf::Event’ has no member named ‘get’; did you mean ‘getIf’?
-  954 |                 const auto &mb = event.get<sf::Event::MouseButtonPressed>();
-      |                                        ^~~
-      |                                        getIf
-main.cpp:954:73: error: expected primary-expression before ‘>’ token
-  954 |                 const auto &mb = event.get<sf::Event::MouseButtonPressed>();
-      |                                                                         ^
-main.cpp:954:75: error: expected primary-expression before ‘)’ token
-  954 |                 const auto &mb = event.get<sf::Event::MouseButtonPressed>();
-      |                                                                           ^
-main.cpp:957:95: error: no match for ‘operator=’ (operand types are ‘sf::Vector2f’ {aka ‘sf::Vector2<float>’} and ‘<brace-enclosed initializer list>’)
-  957 |                     mouseTarget.position = {static_cast<float>(mb.x), static_cast<float>(mb.y)};
-      |                                                                                               ^
-In file included from /usr/local/include/SFML/Graphics/Rect.hpp:30,
-                 from /usr/local/include/SFML/Graphics/Shape.hpp:35,
-                 from /usr/local/include/SFML/Graphics/CircleShape.hpp:32,
-                 from /usr/local/include/SFML/Graphics.hpp:32,
-                 from main.cpp:4:
-/usr/local/include/SFML/System/Vector2.hpp:40:7: note: candidate: ‘constexpr sf::Vector2<float>& sf::Vector2<float>::operator=(const sf::Vector2<float>&)’
-   40 | class Vector2
-      |       ^~~~~~~
-/usr/local/include/SFML/System/Vector2.hpp:40:7: note:   no known conversion for argument 1 from ‘<brace-enclosed initializer list>’ to ‘const sf::Vector2<float>&’
-/usr/local/include/SFML/System/Vector2.hpp:40:7: note: candidate: ‘constexpr sf::Vector2<float>& sf::Vector2<float>::operator=(sf::Vector2<float>&&)’
-/usr/local/include/SFML/System/Vector2.hpp:40:7: note:   no known conversion for argument 1 from ‘<brace-enclosed initializer list>’ to ‘sf::Vector2<float>&&’
 make: *** [Makefile:21: steering] Error 1
