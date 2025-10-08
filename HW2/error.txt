@@ -1,0 +1,414 @@
+main.cpp: In member function ‘void Breadcrumb::draw(sf::RenderWindow&)’:
+main.cpp:110:35: error: ‘Uint8’ in namespace ‘sf’ does not name a type
+  110 |             c.a = static_cast<sf::Uint8>(std::min(255.0f, alpha));
+      |                                   ^~~~~
+main.cpp: In constructor ‘ArriveAndAlign::ArriveAndAlign(float, float, float, float, float, float, float, float, float, float)’:
+main.cpp:386:15: warning: unused parameter ‘align_radius’ [-Wunused-parameter]
+  386 |         float align_radius,
+      |         ~~~~~~^~~~~~~~~~~~
+main.cpp: In member function ‘virtual SteeringOutput LookWhereYoureGoing::calculateSteering(const Kinematic&, const Kinematic&)’:
+main.cpp:442:83: warning: unused parameter ‘target’ [-Wunused-parameter]
+  442 |     SteeringOutput calculateSteering(const Kinematic &character, const Kinematic &target) override
+      |                                                                  ~~~~~~~~~~~~~~~~~^~~~~~
+main.cpp: In member function ‘virtual SteeringOutput WallAvoidance::calculateSteering(const Kinematic&, const Kinematic&)’:
+main.cpp:468:83: warning: unused parameter ‘target’ [-Wunused-parameter]
+  468 |     SteeringOutput calculateSteering(const Kinematic &character, const Kinematic &target) override
+      |                                                                  ~~~~~~~~~~~~~~~~~^~~~~~
+main.cpp: In constructor ‘Wander::Wander(float, float, float, float)’:
+main.cpp:516:11: warning: ‘Wander::maxAcceleration’ will be initialized after [-Wreorder]
+  516 |     float maxAcceleration;
+      |           ^~~~~~~~~~~~~~~
+main.cpp:515:11: warning:   ‘float Wander::wanderOrientation’ [-Wreorder]
+  515 |     float wanderOrientation;
+      |           ^~~~~~~~~~~~~~~~~
+main.cpp:520:5: warning:   when initialized here [-Wreorder]
+  520 |     Wander(float offset = 60.0f, float radius = 40.0f, float rate = 0.5f, float maxAccel = 80.0f)
+      |     ^~~~~~
+main.cpp: In constructor ‘WanderKinematic::WanderKinematic(float, float, float, float, float)’:
+main.cpp:563:11: warning: ‘WanderKinematic::maxRotation’ will be initialized after [-Wreorder]
+  563 |     float maxRotation;
+      |           ^~~~~~~~~~~
+main.cpp:561:11: warning:   ‘float WanderKinematic::wanderOrientation’ [-Wreorder]
+  561 |     float wanderOrientation;
+      |           ^~~~~~~~~~~~~~~~~
+main.cpp:566:5: warning:   when initialized here [-Wreorder]
+  566 |     WanderKinematic(float offset = 60.0f, float radius = 40.0f, float rate = 0.5f,
+      |     ^~~~~~~~~~~~~~~
+main.cpp: In member function ‘virtual SteeringOutput WanderKinematic::calculateSteering(const Kinematic&, const Kinematic&)’:
+main.cpp:571:83: warning: unused parameter ‘target’ [-Wunused-parameter]
+  571 |     SteeringOutput calculateSteering(const Kinematic &character, const Kinematic &target) override
+      |                                                                  ~~~~~~~~~~~~~~~~~^~~~~~
+main.cpp: In constructor ‘Separation::Separation(std::vector<Kinematic*>*, float, float, float)’:
+main.cpp:618:31: warning: ‘Separation::boids’ will be initialized after [-Wreorder]
+  618 |     std::vector<Kinematic *> *boids;
+      |                               ^~~~~
+main.cpp:615:11: warning:   ‘float Separation::threshold’ [-Wreorder]
+  615 |     float threshold;
+      |           ^~~~~~~~~
+main.cpp:621:5: warning:   when initialized here [-Wreorder]
+  621 |     Separation(std::vector<Kinematic *> *b, float thresh = 100.0f, float decay = 5000.0f,
+      |     ^~~~~~~~~~
+main.cpp: In member function ‘virtual SteeringOutput Separation::calculateSteering(const Kinematic&, const Kinematic&)’:
+main.cpp:625:83: warning: unused parameter ‘target’ [-Wunused-parameter]
+  625 |     SteeringOutput calculateSteering(const Kinematic &character, const Kinematic &target) override
+      |                                                                  ~~~~~~~~~~~~~~~~~^~~~~~
+main.cpp: In constructor ‘Cohesion::Cohesion(std::vector<Kinematic*>*, float, float)’:
+main.cpp:660:31: warning: ‘Cohesion::boids’ will be initialized after [-Wreorder]
+  660 |     std::vector<Kinematic *> *boids;
+      |                               ^~~~~
+main.cpp:658:11: warning:   ‘float Cohesion::neighborhoodRadius’ [-Wreorder]
+  658 |     float neighborhoodRadius;
+      |           ^~~~~~~~~~~~~~~~~~
+main.cpp:664:5: warning:   when initialized here [-Wreorder]
+  664 |     Cohesion(std::vector<Kinematic *> *b, float radius = 150.0f, float maxAccel = 10.0f)
+      |     ^~~~~~~~
+main.cpp: In member function ‘virtual SteeringOutput Cohesion::calculateSteering(const Kinematic&, const Kinematic&)’:
+main.cpp:668:83: warning: unused parameter ‘target’ [-Wunused-parameter]
+  668 |     SteeringOutput calculateSteering(const Kinematic &character, const Kinematic &target) override
+      |                                                                  ~~~~~~~~~~~~~~~~~^~~~~~
+main.cpp: In constructor ‘Alignment::Alignment(std::vector<Kinematic*>*, float, float)’:
+main.cpp:705:31: warning: ‘Alignment::boids’ will be initialized after [-Wreorder]
+  705 |     std::vector<Kinematic *> *boids;
+      |                               ^~~~~
+main.cpp:703:11: warning:   ‘float Alignment::neighborhoodRadius’ [-Wreorder]
+  703 |     float neighborhoodRadius;
+      |           ^~~~~~~~~~~~~~~~~~
+main.cpp:709:5: warning:   when initialized here [-Wreorder]
+  709 |     Alignment(std::vector<Kinematic *> *b, float radius = 100.0f, float maxAccel = 50.0f)
+      |     ^~~~~~~~~
+main.cpp: In member function ‘virtual SteeringOutput Alignment::calculateSteering(const Kinematic&, const Kinematic&)’:
+main.cpp:713:83: warning: unused parameter ‘target’ [-Wunused-parameter]
+  713 |     SteeringOutput calculateSteering(const Kinematic &character, const Kinematic &target) override
+      |                                                                  ~~~~~~~~~~~~~~~~~^~~~~~
+main.cpp: In constructor ‘Character::Character(sf::Vector2f, sf::Color, int, int)’:
+main.cpp:810:71: error: no matching function for call to ‘sf::Sprite::Sprite()’
+  810 |           currentBehavior(nullptr), maxSpeed(150.0f), maxRotation(3.0f)
+      |                                                                       ^
+In file included from /usr/local/include/SFML/Graphics.hpp:48,
+                 from main.cpp:9:
+/usr/local/include/SFML/Graphics/Sprite.hpp:78:5: note: candidate: ‘sf::Sprite::Sprite(const sf::Texture&, const IntRect&)’
+   78 |     Sprite(const Texture& texture, const IntRect& rectangle);
+      |     ^~~~~~
+/usr/local/include/SFML/Graphics/Sprite.hpp:78:5: note:   candidate expects 2 arguments, 0 provided
+/usr/local/include/SFML/Graphics/Sprite.hpp:61:14: note: candidate: ‘sf::Sprite::Sprite(const sf::Texture&)’
+   61 |     explicit Sprite(const Texture& texture);
+      |              ^~~~~~
+/usr/local/include/SFML/Graphics/Sprite.hpp:61:14: note:   candidate expects 1 argument, 0 provided
+/usr/local/include/SFML/Graphics/Sprite.hpp:50:25: note: candidate: ‘constexpr sf::Sprite::Sprite(const sf::Sprite&)’
+   50 | class SFML_GRAPHICS_API Sprite : public Drawable, public Transformable
+      |                         ^~~~~~
+/usr/local/include/SFML/Graphics/Sprite.hpp:50:25: note:   candidate expects 1 argument, 0 provided
+/usr/local/include/SFML/Graphics/Sprite.hpp:50:25: note: candidate: ‘constexpr sf::Sprite::Sprite(sf::Sprite&&)’
+/usr/local/include/SFML/Graphics/Sprite.hpp:50:25: note:   candidate expects 1 argument, 0 provided
+main.cpp:819:17: error: ‘class sf::Image’ has no member named ‘create’
+  819 |             img.create(32, 32, sf::Color::Transparent);
+      |                 ^~~~~~
+main.cpp:822:64: error: no matching function for call to ‘sf::Image::setPixel(unsigned int&, unsigned int&, sf::Color)’
+  822 |                     img.setPixel(x, y, sf::Color(200, 200, 200));
+      |                                                                ^
+In file included from /usr/local/include/SFML/Graphics.hpp:38,
+                 from main.cpp:9:
+/usr/local/include/SFML/Graphics/Image.hpp:315:10: note: candidate: ‘void sf::Image::setPixel(sf::Vector2u, sf::Color)’
+  315 |     void setPixel(Vector2u coords, Color color);
+      |          ^~~~~~~~
+/usr/local/include/SFML/Graphics/Image.hpp:315:10: note:   candidate expects 2 arguments, 3 provided
+main.cpp:823:38: warning: ignoring return value of ‘bool sf::Texture::loadFromImage(const sf::Image&, bool, const IntRect&)’, declared with attribute nodiscard [-Wunused-result]
+  823 |             boidTexture.loadFromImage(img);
+      |             ~~~~~~~~~~~~~~~~~~~~~~~~~^~~~~
+In file included from /usr/local/include/SFML/Graphics/Font.hpp:34,
+                 from /usr/local/include/SFML/Graphics.hpp:36,
+                 from main.cpp:9:
+/usr/local/include/SFML/Graphics/Texture.hpp:380:24: note: declared here
+  380 |     [[nodiscard]] bool loadFromImage(const Image& image, bool sRgb = false, const IntRect& area = {});
+      |                        ^~~~~~~~~~~~~
+main.cpp:827:86: error: no matching function for call to ‘sf::Sprite::setOrigin(float, float)’
+  827 |         sprite.setOrigin(boidTexture.getSize().x / 2.f, boidTexture.getSize().y / 2.f);
+      |                                                                                      ^
+In file included from /usr/local/include/SFML/Graphics/Shape.hpp:37,
+                 from /usr/local/include/SFML/Graphics/CircleShape.hpp:32,
+                 from /usr/local/include/SFML/Graphics.hpp:32,
+                 from main.cpp:9:
+/usr/local/include/SFML/Graphics/Transformable.hpp:115:10: note: candidate: ‘void sf::Transformable::setOrigin(sf::Vector2f)’
+  115 |     void setOrigin(Vector2f origin);
+      |          ^~~~~~~~~
+/usr/local/include/SFML/Graphics/Transformable.hpp:115:10: note:   candidate expects 1 argument, 2 provided
+main.cpp:828:37: error: no matching function for call to ‘sf::Sprite::setScale(float, float)’
+  828 |         sprite.setScale(0.05f, 0.05f);
+      |                                     ^
+In file included from /usr/local/include/SFML/Graphics/Shape.hpp:37,
+                 from /usr/local/include/SFML/Graphics/CircleShape.hpp:32,
+                 from /usr/local/include/SFML/Graphics.hpp:32,
+                 from main.cpp:9:
+/usr/local/include/SFML/Graphics/Transformable.hpp:98:10: note: candidate: ‘void sf::Transformable::setScale(sf::Vector2f)’
+   98 |     void setScale(Vector2f factors);
+      |          ^~~~~~~~
+/usr/local/include/SFML/Graphics/Transformable.hpp:98:10: note:   candidate expects 1 argument, 2 provided
+main.cpp: In member function ‘void Character::update(float, const Kinematic&)’:
+main.cpp:867:56: error: cannot convert ‘float’ to ‘sf::Angle’
+  867 |         sprite.setRotation(kinematic.orientation * 180 / PI);
+      |                            ~~~~~~~~~~~~~~~~~~~~~~~~~~~~^~~~
+      |                                                        |
+      |                                                        float
+In file included from /usr/local/include/SFML/Graphics/Shape.hpp:37,
+                 from /usr/local/include/SFML/Graphics/CircleShape.hpp:32,
+                 from /usr/local/include/SFML/Graphics.hpp:32,
+                 from main.cpp:9:
+/usr/local/include/SFML/Graphics/Transformable.hpp:84:28: note:   initializing argument 1 of ‘void sf::Transformable::setRotation(sf::Angle)’
+   84 |     void setRotation(Angle angle);
+      |                      ~~~~~~^~~~~
+main.cpp: In member function ‘void Character::updateWithBoundaryHandling(float, const Kinematic&)’:
+main.cpp:928:56: error: cannot convert ‘float’ to ‘sf::Angle’
+  928 |         sprite.setRotation(kinematic.orientation * 180 / PI);
+      |                            ~~~~~~~~~~~~~~~~~~~~~~~~~~~~^~~~
+      |                                                        |
+      |                                                        float
+In file included from /usr/local/include/SFML/Graphics/Shape.hpp:37,
+                 from /usr/local/include/SFML/Graphics/CircleShape.hpp:32,
+                 from /usr/local/include/SFML/Graphics.hpp:32,
+                 from main.cpp:9:
+/usr/local/include/SFML/Graphics/Transformable.hpp:84:28: note:   initializing argument 1 of ‘void sf::Transformable::setRotation(sf::Angle)’
+   84 |     void setRotation(Angle angle);
+      |                      ~~~~~~^~~~~
+main.cpp: In constructor ‘Boid::Boid(sf::Vector2f, sf::Color)’:
+main.cpp:961:54: error: no matching function for call to ‘sf::Sprite::Sprite()’
+  961 |         : breadcrumbs(20, 10, color), maxSpeed(200.0f)
+      |                                                      ^
+In file included from /usr/local/include/SFML/Graphics.hpp:48,
+                 from main.cpp:9:
+/usr/local/include/SFML/Graphics/Sprite.hpp:78:5: note: candidate: ‘sf::Sprite::Sprite(const sf::Texture&, const IntRect&)’
+   78 |     Sprite(const Texture& texture, const IntRect& rectangle);
+      |     ^~~~~~
+/usr/local/include/SFML/Graphics/Sprite.hpp:78:5: note:   candidate expects 2 arguments, 0 provided
+/usr/local/include/SFML/Graphics/Sprite.hpp:61:14: note: candidate: ‘sf::Sprite::Sprite(const sf::Texture&)’
+   61 |     explicit Sprite(const Texture& texture);
+      |              ^~~~~~
+/usr/local/include/SFML/Graphics/Sprite.hpp:61:14: note:   candidate expects 1 argument, 0 provided
+/usr/local/include/SFML/Graphics/Sprite.hpp:50:25: note: candidate: ‘constexpr sf::Sprite::Sprite(const sf::Sprite&)’
+   50 | class SFML_GRAPHICS_API Sprite : public Drawable, public Transformable
+      |                         ^~~~~~
+/usr/local/include/SFML/Graphics/Sprite.hpp:50:25: note:   candidate expects 1 argument, 0 provided
+/usr/local/include/SFML/Graphics/Sprite.hpp:50:25: note: candidate: ‘constexpr sf::Sprite::Sprite(sf::Sprite&&)’
+/usr/local/include/SFML/Graphics/Sprite.hpp:50:25: note:   candidate expects 1 argument, 0 provided
+main.cpp:971:17: error: ‘class sf::Image’ has no member named ‘create’
+  971 |             img.create(16, 16, sf::Color::Transparent);
+      |                 ^~~~~~
+main.cpp:974:64: error: no matching function for call to ‘sf::Image::setPixel(unsigned int&, unsigned int&, sf::Color)’
+  974 |                     img.setPixel(x, y, sf::Color(180, 180, 180));
+      |                                                                ^
+In file included from /usr/local/include/SFML/Graphics.hpp:38,
+                 from main.cpp:9:
+/usr/local/include/SFML/Graphics/Image.hpp:315:10: note: candidate: ‘void sf::Image::setPixel(sf::Vector2u, sf::Color)’
+  315 |     void setPixel(Vector2u coords, Color color);
+      |          ^~~~~~~~
+/usr/local/include/SFML/Graphics/Image.hpp:315:10: note:   candidate expects 2 arguments, 3 provided
+main.cpp:975:43: warning: ignoring return value of ‘bool sf::Texture::loadFromImage(const sf::Image&, bool, const IntRect&)’, declared with attribute nodiscard [-Wunused-result]
+  975 |             boidSmallTexture.loadFromImage(img);
+      |             ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~^~~~~
+In file included from /usr/local/include/SFML/Graphics/Font.hpp:34,
+                 from /usr/local/include/SFML/Graphics.hpp:36,
+                 from main.cpp:9:
+/usr/local/include/SFML/Graphics/Texture.hpp:380:24: note: declared here
+  380 |     [[nodiscard]] bool loadFromImage(const Image& image, bool sRgb = false, const IntRect& area = {});
+      |                        ^~~~~~~~~~~~~
+main.cpp:979:96: error: no matching function for call to ‘sf::Sprite::setOrigin(float, float)’
+  979 |         sprite.setOrigin(boidSmallTexture.getSize().x / 2.f, boidSmallTexture.getSize().y / 2.f);
+      |                                                                                                ^
+In file included from /usr/local/include/SFML/Graphics/Shape.hpp:37,
+                 from /usr/local/include/SFML/Graphics/CircleShape.hpp:32,
+                 from /usr/local/include/SFML/Graphics.hpp:32,
+                 from main.cpp:9:
+/usr/local/include/SFML/Graphics/Transformable.hpp:115:10: note: candidate: ‘void sf::Transformable::setOrigin(sf::Vector2f)’
+  115 |     void setOrigin(Vector2f origin);
+      |          ^~~~~~~~~
+/usr/local/include/SFML/Graphics/Transformable.hpp:115:10: note:   candidate expects 1 argument, 2 provided
+main.cpp:981:49: error: no matching function for call to ‘sf::Sprite::setScale(float&, float&)’
+  981 |         sprite.setScale(scaleFactor, scaleFactor);
+      |                                                 ^
+In file included from /usr/local/include/SFML/Graphics/Shape.hpp:37,
+                 from /usr/local/include/SFML/Graphics/CircleShape.hpp:32,
+                 from /usr/local/include/SFML/Graphics.hpp:32,
+                 from main.cpp:9:
+/usr/local/include/SFML/Graphics/Transformable.hpp:98:10: note: candidate: ‘void sf::Transformable::setScale(sf::Vector2f)’
+   98 |     void setScale(Vector2f factors);
+      |          ^~~~~~~~
+/usr/local/include/SFML/Graphics/Transformable.hpp:98:10: note:   candidate expects 1 argument, 2 provided
+main.cpp: In member function ‘void Boid::update(float)’:
+main.cpp:1020:56: error: cannot convert ‘float’ to ‘sf::Angle’
+ 1020 |         sprite.setRotation(kinematic.orientation * 180 / PI);
+      |                            ~~~~~~~~~~~~~~~~~~~~~~~~~~~~^~~~
+      |                                                        |
+      |                                                        float
+In file included from /usr/local/include/SFML/Graphics/Shape.hpp:37,
+                 from /usr/local/include/SFML/Graphics/CircleShape.hpp:32,
+                 from /usr/local/include/SFML/Graphics.hpp:32,
+                 from main.cpp:9:
+/usr/local/include/SFML/Graphics/Transformable.hpp:84:28: note:   initializing argument 1 of ‘void sf::Transformable::setRotation(sf::Angle)’
+   84 |     void setRotation(Angle angle);
+      |                      ~~~~~~^~~~~
+main.cpp: In function ‘int main()’:
+main.cpp:1033:142: error: no matching function for call to ‘sf::RenderWindow::RenderWindow(<brace-enclosed initializer list>, const char [81])’
+ 1033 |     sf::RenderWindow window({WINDOW_WIDTH, WINDOW_HEIGHT}, "Steering Behaviors Demo (1: VelMatchMouse, 2: Align+Arrive, 3: Wander, 4: Boids)");
+      |                                                                                                                                              ^
+In file included from /usr/local/include/SFML/Graphics.hpp:45,
+                 from main.cpp:9:
+/usr/local/include/SFML/Graphics/RenderWindow.hpp:127:14: note: candidate: ‘sf::RenderWindow::RenderWindow(sf::WindowHandle, const sf::ContextSettings&)’
+  127 |     explicit RenderWindow(WindowHandle handle, const ContextSettings& settings = {});
+      |              ^~~~~~~~~~~~
+/usr/local/include/SFML/Graphics/RenderWindow.hpp:127:40: note:   no known conversion for argument 1 from ‘<brace-enclosed initializer list>’ to ‘sf::WindowHandle’ {aka ‘long unsigned int’}
+  127 |     explicit RenderWindow(WindowHandle handle, const ContextSettings& settings = {});
+      |                           ~~~~~~~~~~~~~^~~~~~
+/usr/local/include/SFML/Graphics/RenderWindow.hpp:109:5: note: candidate: ‘sf::RenderWindow::RenderWindow(sf::VideoMode, const sf::String&, sf::State, const sf::ContextSettings&)’
+  109 |     RenderWindow(VideoMode mode, const String& title, State state, const ContextSettings& settings = {});
+      |     ^~~~~~~~~~~~
+/usr/local/include/SFML/Graphics/RenderWindow.hpp:109:5: note:   candidate expects 4 arguments, 2 provided
+/usr/local/include/SFML/Graphics/RenderWindow.hpp:86:5: note: candidate: ‘sf::RenderWindow::RenderWindow(sf::VideoMode, const sf::String&, uint32_t, sf::State, const sf::ContextSettings&)’
+   86 |     RenderWindow(VideoMode              mode,
+      |     ^~~~~~~~~~~~
+/usr/local/include/SFML/Graphics/RenderWindow.hpp:86:41: note:   no known conversion for argument 1 from ‘<brace-enclosed initializer list>’ to ‘sf::VideoMode’
+   86 |     RenderWindow(VideoMode              mode,
+      |                  ~~~~~~~~~~~~~~~~~~~~~~~^~~~
+/usr/local/include/SFML/Graphics/RenderWindow.hpp:64:5: note: candidate: ‘sf::RenderWindow::RenderWindow()’
+   64 |     RenderWindow() = default;
+      |     ^~~~~~~~~~~~
+/usr/local/include/SFML/Graphics/RenderWindow.hpp:64:5: note:   candidate expects 0 arguments, 2 provided
+/usr/local/include/SFML/Graphics/RenderWindow.hpp:54:25: note: candidate: ‘sf::RenderWindow::RenderWindow(sf::RenderWindow&&)’
+   54 | class SFML_GRAPHICS_API RenderWindow : public Window, public RenderTarget
+      |                         ^~~~~~~~~~~~
+/usr/local/include/SFML/Graphics/RenderWindow.hpp:54:25: note:   candidate expects 1 argument, 2 provided
+main.cpp:1165:15: error: ‘class sf::Font’ has no member named ‘loadFromFile’; did you mean ‘openFromFile’?
+ 1165 |     if (!font.loadFromFile("/usr/share/fonts/truetype/liberation/LiberationSans-Regular.ttf"))
+      |               ^~~~~~~~~~~~
+      |               openFromFile
+main.cpp:1169:14: error: no matching function for call to ‘sf::Text::Text()’
+ 1169 |     sf::Text modeText;
+      |              ^~~~~~~~
+In file included from /usr/local/include/SFML/Graphics.hpp:50,
+                 from main.cpp:9:
+/usr/local/include/SFML/Graphics/Text.hpp:87:5: note: candidate: ‘sf::Text::Text(const sf::Font&, sf::String, unsigned int)’
+   87 |     Text(const Font& font, String string = "", unsigned int characterSize = 30);
+      |     ^~~~
+/usr/local/include/SFML/Graphics/Text.hpp:87:5: note:   candidate expects 3 arguments, 0 provided
+/usr/local/include/SFML/Graphics/Text.hpp:56:25: note: candidate: ‘sf::Text::Text(const sf::Text&)’
+   56 | class SFML_GRAPHICS_API Text : public Drawable, public Transformable
+      |                         ^~~~
+/usr/local/include/SFML/Graphics/Text.hpp:56:25: note:   candidate expects 1 argument, 0 provided
+/usr/local/include/SFML/Graphics/Text.hpp:56:25: note: candidate: ‘sf::Text::Text(sf::Text&&)’
+/usr/local/include/SFML/Graphics/Text.hpp:56:25: note:   candidate expects 1 argument, 0 provided
+main.cpp:1172:32: error: no matching function for call to ‘sf::Text::setPosition(int, int)’
+ 1172 |     modeText.setPosition(10, 10);
+      |                                ^
+In file included from /usr/local/include/SFML/Graphics/Shape.hpp:37,
+                 from /usr/local/include/SFML/Graphics/CircleShape.hpp:32,
+                 from /usr/local/include/SFML/Graphics.hpp:32,
+                 from main.cpp:9:
+/usr/local/include/SFML/Graphics/Transformable.hpp:70:10: note: candidate: ‘void sf::Transformable::setPosition(sf::Vector2f)’
+   70 |     void setPosition(Vector2f position);
+      |          ^~~~~~~~~~~
+/usr/local/include/SFML/Graphics/Transformable.hpp:70:10: note:   candidate expects 1 argument, 2 provided
+main.cpp:1204:19: error: no matching function for call to ‘sf::Event::Event()’
+ 1204 |         sf::Event event;
+      |                   ^~~~~
+In file included from /usr/local/include/SFML/Window/WindowBase.inl:28,
+                 from /usr/local/include/SFML/Window/WindowBase.hpp:617,
+                 from /usr/local/include/SFML/Window/Window.hpp:32,
+                 from /usr/local/include/SFML/Graphics/RenderWindow.hpp:36,
+                 from /usr/local/include/SFML/Graphics.hpp:45,
+                 from main.cpp:9:
+/usr/local/include/SFML/Window/Event.hpp:306:5: note: candidate: ‘template<class TEventSubtype> sf::Event::Event(const TEventSubtype&)’
+  306 |     Event(const TEventSubtype& eventSubtype);
+      |     ^~~~~
+/usr/local/include/SFML/Window/Event.hpp:306:5: note:   template argument deduction/substitution failed:
+main.cpp:1204:19: note:   candidate expects 1 argument, 0 provided
+ 1204 |         sf::Event event;
+      |                   ^~~~~
+In file included from /usr/local/include/SFML/Window/WindowBase.inl:28,
+                 from /usr/local/include/SFML/Window/WindowBase.hpp:617,
+                 from /usr/local/include/SFML/Window/Window.hpp:32,
+                 from /usr/local/include/SFML/Graphics/RenderWindow.hpp:36,
+                 from /usr/local/include/SFML/Graphics.hpp:45,
+                 from main.cpp:9:
+/usr/local/include/SFML/Window/Event.hpp:46:7: note: candidate: ‘constexpr sf::Event::Event(const sf::Event&)’
+   46 | class Event
+      |       ^~~~~
+/usr/local/include/SFML/Window/Event.hpp:46:7: note:   candidate expects 1 argument, 0 provided
+/usr/local/include/SFML/Window/Event.hpp:46:7: note: candidate: ‘constexpr sf::Event::Event(sf::Event&&)’
+/usr/local/include/SFML/Window/Event.hpp:46:7: note:   candidate expects 1 argument, 0 provided
+main.cpp:1205:38: error: no matching function for call to ‘sf::RenderWindow::pollEvent(sf::Event&)’
+ 1205 |         while (window.pollEvent(event))
+      |                                      ^
+In file included from /usr/local/include/SFML/Window/Window.hpp:32,
+                 from /usr/local/include/SFML/Graphics/RenderWindow.hpp:36,
+                 from /usr/local/include/SFML/Graphics.hpp:45,
+                 from main.cpp:9:
+/usr/local/include/SFML/Window/WindowBase.hpp:226:40: note: candidate: ‘std::optional<sf::Event> sf::WindowBase::pollEvent()’
+  226 |     [[nodiscard]] std::optional<Event> pollEvent();
+      |                                        ^~~~~~~~~
+/usr/local/include/SFML/Window/WindowBase.hpp:226:40: note:   candidate expects 0 arguments, 1 provided
+main.cpp:1207:23: error: ‘class sf::Event’ has no member named ‘type’
+ 1207 |             if (event.type == sf::Event::Closed)
+      |                       ^~~~
+main.cpp:1207:48: error: expected primary-expression before ‘)’ token
+ 1207 |             if (event.type == sf::Event::Closed)
+      |                                                ^
+main.cpp:1209:23: error: ‘class sf::Event’ has no member named ‘type’
+ 1209 |             if (event.type == sf::Event::KeyPressed)
+      |                       ^~~~
+main.cpp:1209:52: error: expected primary-expression before ‘)’ token
+ 1209 |             if (event.type == sf::Event::KeyPressed)
+      |                                                    ^
+main.cpp:1212:27: error: ‘class sf::Event’ has no member named ‘key’
+ 1212 |                 if (event.key.scancode == sf::Keyboard::Scancode::Escape)
+      |                           ^~~
+main.cpp:1214:27: error: ‘class sf::Event’ has no member named ‘key’
+ 1214 |                 if (event.key.scancode == sf::Keyboard::Scancode::Num1)
+      |                           ^~~
+main.cpp:1216:27: error: ‘class sf::Event’ has no member named ‘key’
+ 1216 |                 if (event.key.scancode == sf::Keyboard::Scancode::Num2)
+      |                           ^~~
+main.cpp:1218:27: error: ‘class sf::Event’ has no member named ‘key’
+ 1218 |                 if (event.key.scancode == sf::Keyboard::Scancode::Num3)
+      |                           ^~~
+main.cpp:1220:27: error: ‘class sf::Event’ has no member named ‘key’
+ 1220 |                 if (event.key.scancode == sf::Keyboard::Scancode::Num4)
+      |                           ^~~
+main.cpp:1223:23: error: ‘class sf::Event’ has no member named ‘type’
+ 1223 |             if (event.type == sf::Event::MouseButtonPressed && currentMode == 2)
+      |                       ^~~~
+main.cpp:1223:61: error: expected primary-expression before ‘&&’ token
+ 1223 |             if (event.type == sf::Event::MouseButtonPressed && currentMode == 2)
+      |                                                             ^~
+main.cpp:1225:27: error: ‘class sf::Event’ has no member named ‘mouseButton’
+ 1225 |                 if (event.mouseButton.button == sf::Mouse::Button::Left)
+      |                           ^~~~~~~~~~~
+main.cpp:1227:70: error: ‘class sf::Event’ has no member named ‘mouseButton’
+ 1227 |                     mouseTarget.position = {static_cast<float>(event.mouseButton.x),
+      |                                                                      ^~~~~~~~~~~
+main.cpp:1228:70: error: ‘class sf::Event’ has no member named ‘mouseButton’
+ 1228 |                                             static_cast<float>(event.mouseButton.y)};
+      |                                                                      ^~~~~~~~~~~
+main.cpp:1228:84: error: no match for ‘operator=’ (operand types are ‘sf::Vector2f’ {aka ‘sf::Vector2<float>’} and ‘<brace-enclosed initializer list>’)
+ 1228 |                                             static_cast<float>(event.mouseButton.y)};
+      |                                                                                    ^
+In file included from /usr/local/include/SFML/Graphics/Rect.hpp:30,
+                 from /usr/local/include/SFML/Graphics/Shape.hpp:35,
+                 from /usr/local/include/SFML/Graphics/CircleShape.hpp:32,
+                 from /usr/local/include/SFML/Graphics.hpp:32,
+                 from main.cpp:9:
+/usr/local/include/SFML/System/Vector2.hpp:40:7: note: candidate: ‘constexpr sf::Vector2<float>& sf::Vector2<float>::operator=(const sf::Vector2<float>&)’
+   40 | class Vector2
+      |       ^~~~~~~
+/usr/local/include/SFML/System/Vector2.hpp:40:7: note:   no known conversion for argument 1 from ‘<brace-enclosed initializer list>’ to ‘const sf::Vector2<float>&’
+/usr/local/include/SFML/System/Vector2.hpp:40:7: note: candidate: ‘constexpr sf::Vector2<float>& sf::Vector2<float>::operator=(sf::Vector2<float>&&)’
+/usr/local/include/SFML/System/Vector2.hpp:40:7: note:   no known conversion for argument 1 from ‘<brace-enclosed initializer list>’ to ‘sf::Vector2<float>&&’
+main.cpp:1263:39: error: no matching function for call to ‘sf::CircleShape::setOrigin(int, int)’
+ 1263 |             targetShape.setOrigin(5, 5);
+      |                                       ^
+In file included from /usr/local/include/SFML/Graphics/Shape.hpp:37,
+                 from /usr/local/include/SFML/Graphics/CircleShape.hpp:32,
+                 from /usr/local/include/SFML/Graphics.hpp:32,
+                 from main.cpp:9:
+/usr/local/include/SFML/Graphics/Transformable.hpp:115:10: note: candidate: ‘void sf::Transformable::setOrigin(sf::Vector2f)’
+  115 |     void setOrigin(Vector2f origin);
+      |          ^~~~~~~~~
+/usr/local/include/SFML/Graphics/Transformable.hpp:115:10: note:   candidate expects 1 argument, 2 provided
+make: *** [Makefile:21: steering] Error 1
