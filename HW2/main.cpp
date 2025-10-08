@@ -251,6 +251,39 @@ public:
     }
 };
 
+class ArriveAndAlign : public SteeringBehavior {
+private:
+    Arrive arrive;
+    Align align;
+
+public:
+    // Parameters are: (arrive_maxAccel, arrive_maxSpeed, arrive_targetRadius, arrive_slowRadius, arrive_timeToTarget,
+    //                  align_maxAngularAccel, align_maxRotation, align_targetRadius, align_slowRadius, align_timeToTarget)
+    ArriveAndAlign(float arrive_maxAccel = 200.f,
+                   float arrive_maxSpeed = 100.f,
+                   float arrive_targetRadius = 5.f,
+                   float arrive_slowRadius = 100.f,
+                   float arrive_timeToTarget = 0.1f,
+                   float align_maxAngularAccel = 5.f,
+                   float align_maxRotation = 2.f,
+                   float align_targetRadius = 0.01f,
+                   float align_slowRadius = 0.5f,
+                   float align_timeToTarget = 0.1f)
+        : arrive(arrive_maxAccel, arrive_maxSpeed, arrive_targetRadius, arrive_slowRadius, arrive_timeToTarget),
+          align(align_maxAngularAccel, align_maxRotation, align_targetRadius, align_slowRadius, align_timeToTarget)
+    {}
+
+    SteeringOutput calculateSteering(const Kinematic &character, const Kinematic &target) override {
+        SteeringOutput sArrive = arrive.calculateSteering(character, target);
+        SteeringOutput sAlign  = align.calculateSteering(character, target);
+
+        SteeringOutput out;
+        out.linear  = sArrive.linear;   // take linear from Arrive
+        out.angular = sAlign.angular;    // take angular from Align
+        return out;
+    }
+};
+
 // LookWhereYoureGoing
 class LookWhereYoureGoing : public SteeringBehavior {
     Align align;
