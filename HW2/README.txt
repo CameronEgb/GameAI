@@ -1,6 +1,8 @@
 Build and Run Instructions:
 
-First, to ensure compatability with SFML3.0.0, make sure your library path is in the makefile in SFML glags
+First, if not already done, you must build SFML from source using CMAKE, as automated with the provided sfml-install script in piazza
+    this is in order to be able to use dymanic libraries
+To ensure compatability with SFML3.0.0, make sure your library path is specified in the makefile in SFML flags for dynamic linking
 
 next, in the directory with main.cpp run the command
     make run

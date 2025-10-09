@@ -1,45 +1,5 @@
-main.cpp: In member function ‘virtual SteeringOutput LookWhereYoureGoing::calculateSteering(const Kinematic&, const Kinematic&)’:
-main.cpp:292:177: warning: unused parameter ‘t’ [-Wunused-parameter]
-  292 | class LookWhereYoureGoing : public SteeringBehavior { Align align; public: LookWhereYoureGoing():align(){} SteeringOutput calculateSteering(const Kinematic &c,const Kinematic &t) override { if (c.velocity.x==0 && c.velocity.y==0) return SteeringOutput(); Kinematic targ; targ.orientation = std::atan2(c.velocity.y, c.velocity.x); return align.calculateSteering(c,targ); } };
-      |                                                                                                                                                                ~~~~~~~~~~~~~~~~~^
-main.cpp: In constructor ‘CharacterFull::CharacterFull(sf::Vector2f, sf::Color, int, int)’:
-main.cpp:497:69: error: no matching function for call to ‘sf::Sprite::Sprite()’
-  497 |           currentBehavior(nullptr), maxSpeed(150.f), maxRotation(3.f)
-      |                                                                     ^
-In file included from /usr/local/include/SFML/Graphics.hpp:48,
-                 from main.cpp:4:
-/usr/local/include/SFML/Graphics/Sprite.hpp:78:5: note: candidate: ‘sf::Sprite::Sprite(const sf::Texture&, const IntRect&)’
-   78 |     Sprite(const Texture& texture, const IntRect& rectangle);
-      |     ^~~~~~
-/usr/local/include/SFML/Graphics/Sprite.hpp:78:5: note:   candidate expects 2 arguments, 0 provided
-/usr/local/include/SFML/Graphics/Sprite.hpp:61:14: note: candidate: ‘sf::Sprite::Sprite(const sf::Texture&)’
-   61 |     explicit Sprite(const Texture& texture);
-      |              ^~~~~~
-/usr/local/include/SFML/Graphics/Sprite.hpp:61:14: note:   candidate expects 1 argument, 0 provided
-/usr/local/include/SFML/Graphics/Sprite.hpp:50:25: note: candidate: ‘constexpr sf::Sprite::Sprite(const sf::Sprite&)’
-   50 | class SFML_GRAPHICS_API Sprite : public Drawable, public Transformable
-      |                         ^~~~~~
-/usr/local/include/SFML/Graphics/Sprite.hpp:50:25: note:   candidate expects 1 argument, 0 provided
-/usr/local/include/SFML/Graphics/Sprite.hpp:50:25: note: candidate: ‘constexpr sf::Sprite::Sprite(sf::Sprite&&)’
-/usr/local/include/SFML/Graphics/Sprite.hpp:50:25: note:   candidate expects 1 argument, 0 provided
-main.cpp: In constructor ‘Boid::Boid(sf::Vector2f, sf::Color)’:
-main.cpp:600:78: error: no matching function for call to ‘sf::Sprite::Sprite()’
-  600 |         : breadcrumbs(20,10,color), flockingBehavior(nullptr), maxSpeed(200.f)
-      |                                                                              ^
-In file included from /usr/local/include/SFML/Graphics.hpp:48,
-                 from main.cpp:4:
-/usr/local/include/SFML/Graphics/Sprite.hpp:78:5: note: candidate: ‘sf::Sprite::Sprite(const sf::Texture&, const IntRect&)’
-   78 |     Sprite(const Texture& texture, const IntRect& rectangle);
-      |     ^~~~~~
-/usr/local/include/SFML/Graphics/Sprite.hpp:78:5: note:   candidate expects 2 arguments, 0 provided
-/usr/local/include/SFML/Graphics/Sprite.hpp:61:14: note: candidate: ‘sf::Sprite::Sprite(const sf::Texture&)’
-   61 |     explicit Sprite(const Texture& texture);
-      |              ^~~~~~
-/usr/local/include/SFML/Graphics/Sprite.hpp:61:14: note:   candidate expects 1 argument, 0 provided
-/usr/local/include/SFML/Graphics/Sprite.hpp:50:25: note: candidate: ‘constexpr sf::Sprite::Sprite(const sf::Sprite&)’
-   50 | class SFML_GRAPHICS_API Sprite : public Drawable, public Transformable
-      |                         ^~~~~~
-/usr/local/include/SFML/Graphics/Sprite.hpp:50:25: note:   candidate expects 1 argument, 0 provided
-/usr/local/include/SFML/Graphics/Sprite.hpp:50:25: note: candidate: ‘constexpr sf::Sprite::Sprite(sf::Sprite&&)’
-/usr/local/include/SFML/Graphics/Sprite.hpp:50:25: note:   candidate expects 1 argument, 0 provided
-make: *** [Makefile:21: steering] Error 1
+/usr/bin/ld: cannot find -lsfml-graphics-s
+/usr/bin/ld: cannot find -lsfml-window-s
+/usr/bin/ld: cannot find -lsfml-system-s
+collect2: error: ld returned 1 exit status
+make: *** [Makefile:24: steering] Error 1
