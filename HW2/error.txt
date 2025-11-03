@@ -1,5 +1,0 @@
-/usr/bin/ld: cannot find -lsfml-graphics-s
-/usr/bin/ld: cannot find -lsfml-window-s
-/usr/bin/ld: cannot find -lsfml-system-s
-collect2: error: ld returned 1 exit status
-make: *** [Makefile:24: steering] Error 1
