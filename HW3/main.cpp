@@ -150,7 +150,7 @@ int main() {
         int x = obs % GRID_SIZE;
         int y = obs / GRID_SIZE;
         sf::RectangleShape rect({CELL_W, CELL_H});
-        rect.setPosition(static_cast<float>(x) * CELL_W, static_cast<float>(y) * CELL_H);
+        rect.setPosition({static_cast<float>(x) * CELL_W, static_cast<float>(y) * CELL_H});
         rect.setFillColor(sf::Color(100, 100, 100)); // Gray walls
         wallShapes.push_back(rect);
     }

@@ -1,52 +1,14 @@
-steering.cpp: In constructor ‘Character::Character(sf::Vector2f, sf::Color)’:
-steering.cpp:297:23: error: invalid conversion from ‘unsigned int’ to ‘const void*’ [-fpermissive]
-  297 |         sf::Image img(16u,16u);
-      |                       ^~~
-      |                       |
-      |                       unsigned int
-In file included from /usr/local/include/SFML/Graphics.hpp:38,
-                 from steering.h:4,
-                 from steering.cpp:1:
-/usr/local/include/SFML/Graphics/Image.hpp:120:23: note:   initializing argument 1 of ‘sf::Image::Image(const void*, std::size_t)’
-  120 |     Image(const void* data, std::size_t size);
-      |           ~~~~~~~~~~~~^~~~
-steering.cpp:298:105: error: no matching function for call to ‘sf::Image::setPixel(unsigned int&, unsigned int&, sf::Color)’
-  298 |         for (unsigned y=0;y<16;++y) for (unsigned x=0;x<16;++x) img.setPixel(x,y, sf::Color(180,180,180));
-      |                                                                                                         ^
-In file included from /usr/local/include/SFML/Graphics.hpp:38,
-                 from steering.h:4,
-                 from steering.cpp:1:
-/usr/local/include/SFML/Graphics/Image.hpp:315:10: note: candidate: ‘void sf::Image::setPixel(sf::Vector2u, sf::Color)’
-  315 |     void setPixel(Vector2u coords, Color color);
-      |          ^~~~~~~~
-/usr/local/include/SFML/Graphics/Image.hpp:315:10: note:   candidate expects 2 arguments, 3 provided
-steering.cpp:299:30: warning: ignoring return value of ‘bool sf::Texture::loadFromImage(const sf::Image&, bool, const IntRect&)’, declared with attribute nodiscard [-Wunused-result]
-  299 |         texture.loadFromImage(img);
-      |         ~~~~~~~~~~~~~~~~~~~~~^~~~~
-In file included from /usr/local/include/SFML/Graphics/Font.hpp:34,
-                 from /usr/local/include/SFML/Graphics.hpp:36,
-                 from steering.h:4,
-                 from steering.cpp:1:
-/usr/local/include/SFML/Graphics/Texture.hpp:380:24: note: declared here
-  380 |     [[nodiscard]] bool loadFromImage(const Image& image, bool sRgb = false, const IntRect& area = {});
-      |                        ^~~~~~~~~~~~~
-steering.cpp:302:71: error: no matching function for call to ‘sf::Sprite::setOrigin(float, float)’
-  302 |     sprite->setOrigin(texture.getSize().x/2.f, texture.getSize().y/2.f);
-      |                                                                       ^
+main.cpp: In function ‘int main()’:
+main.cpp:153:88: error: no matching function for call to ‘sf::RectangleShape::setPosition(float, float)’
+  153 |         rect.setPosition(static_cast<float>(x) * CELL_W, static_cast<float>(y) * CELL_H);
+      |                                                                                        ^
 In file included from /usr/local/include/SFML/Graphics/Shape.hpp:37,
                  from /usr/local/include/SFML/Graphics/CircleShape.hpp:32,
                  from /usr/local/include/SFML/Graphics.hpp:32,
-                 from steering.h:4,
-                 from steering.cpp:1:
-/usr/local/include/SFML/Graphics/Transformable.hpp:115:10: note: candidate: ‘void sf::Transformable::setOrigin(sf::Vector2f)’
-  115 |     void setOrigin(Vector2f origin);
-      |          ^~~~~~~~~
-/usr/local/include/SFML/Graphics/Transformable.hpp:115:10: note:   candidate expects 1 argument, 2 provided
-steering.cpp: In member function ‘void Character::updateWithBoundaryHandling(float, const Kinematic&)’:
-steering.cpp:337:50: warning: unused parameter ‘dt’ [-Wunused-parameter]
-  337 | void Character::updateWithBoundaryHandling(float dt, const Kinematic &target) {
-      |                                            ~~~~~~^~
-steering.cpp:337:71: warning: unused parameter ‘target’ [-Wunused-parameter]
-  337 | void Character::updateWithBoundaryHandling(float dt, const Kinematic &target) {
-      |                                                      ~~~~~~~~~~~~~~~~~^~~~~~
-make: *** [Makefile:55: steering.o] Error 1
+                 from graph.h:6,
+                 from main.cpp:1:
+/usr/local/include/SFML/Graphics/Transformable.hpp:70:10: note: candidate: ‘void sf::Transformable::setPosition(sf::Vector2f)’
+   70 |     void setPosition(Vector2f position);
+      |          ^~~~~~~~~~~
+/usr/local/include/SFML/Graphics/Transformable.hpp:70:10: note:   candidate expects 1 argument, 2 provided
+make: *** [Makefile:55: main.o] Error 1
