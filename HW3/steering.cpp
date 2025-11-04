@@ -254,7 +254,7 @@ Character::Character(sf::Vector2f start, sf::Color color)
 
     shape = sf::CircleShape(10.f); // Simple circle agent
     shape.setFillColor(color);
-    shape.setOrigin(10.f, 10.f); // Center
+    shape.setOrigin({10.f, 10.f}); // Center
 }
 
 void Character::setBehavior(SteeringBehavior *b) { currentBehavior = b; }
