@@ -177,6 +177,8 @@ SteeringOutput ArriveAndAlign::calculateSteering(const Kinematic &character, con
     return out;
 }
 
+void ArriveAndAlign::setSlowRadius(float r) { arrive.setSlowRadius(r); }
+
 // LookWhereYoureGoing
 LookWhereYoureGoing::LookWhereYoureGoing() : align() {}
 SteeringOutput LookWhereYoureGoing::calculateSteering(const Kinematic &c, const Kinematic & /*t*/) {
@@ -247,7 +249,7 @@ SteeringOutput WanderKinematic::calculateSteering(const Kinematic &c, const Kine
 
 // Character
 Character::Character(sf::Vector2f start, sf::Color color)
-    : breadcrumbs(20, 10, color), currentBehavior(nullptr), maxSpeed(200.f), maxRotation(5.f), currentWaypoint(0) {
+    : breadcrumbs(20, 10, color), currentBehavior(nullptr), maxSpeed(400.f), maxRotation(5.f), currentWaypoint(0) { // 2x speed
     kinematic.position = start;
     kinematic.velocity = sf::Vector2f(randomFloat(-50.f, 50.f), randomFloat(-50.f, 50.f));
     kinematic.orientation = std::atan2(kinematic.velocity.y, kinematic.velocity.x);
@@ -271,12 +273,24 @@ void Character::update(float dt, const Kinematic & /*dummyTarget*/) {
             currentPath.clear();
             currentWaypoint = 0;
             usingPath = false;
+            kinematic.velocity = {0.f, 0.f};
+            kinematic.rotation = 0.f;
         } else {
             target.position = currentPath[currentWaypoint];
         }
     }
 
-    if (currentBehavior && !currentPath.empty()) { // Only steer if path active
+    if (currentBehavior && usingPath) { // Only steer if path active
+        // Adjust slowRadius: small for intermediates, large for last
+        ArriveAndAlign* aa = dynamic_cast<ArriveAndAlign*>(currentBehavior);
+        if (aa) {
+            if (currentWaypoint < currentPath.size() - 1) {
+                aa->setSlowRadius(10.f); // Small, no early slow
+            } else {
+                aa->setSlowRadius(100.f); // Normal slow for final
+            }
+        }
+
         SteeringOutput s = currentBehavior->calculateSteering(kinematic, target);
         kinematic.position += kinematic.velocity * dt;
         kinematic.orientation += kinematic.rotation * dt;

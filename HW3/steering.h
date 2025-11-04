@@ -104,6 +104,7 @@ class Arrive : public SteeringBehavior {
 public:
     Arrive(float maxAccel=200.f,float maxSpd=100.f,float tRad=5.f,float sRad=100.f,float time=0.1f);
     SteeringOutput calculateSteering(const Kinematic &c, const Kinematic &t) override;
+    void setSlowRadius(float r) { slowRadius = r; } // Added
 };
 
 class Align : public SteeringBehavior {
@@ -145,6 +146,7 @@ public:
                    float align_slowRadius = 0.5f,
                    float align_timeToTarget = 0.1f);
     SteeringOutput calculateSteering(const Kinematic &character, const Kinematic &target) override;
+    void setSlowRadius(float r) { arrive.setSlowRadius(r); } // Added
 };
 
 class LookWhereYoureGoing : public SteeringBehavior {
