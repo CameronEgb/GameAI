@@ -1,0 +1,146 @@
+In file included from main.cpp:2:
+pathfinding.h:19:24: error: ‘function’ in namespace ‘std’ does not name a template type
+   19 | using Heuristic = std::function<float(int, int, const Graph&)>;
+      |                        ^~~~~~~~
+pathfinding.h:1:1: note: ‘std::function’ is defined in header ‘<functional>’; did you forget to ‘#include <functional>’?
+  +++ |+#include <functional>
+    1 | #ifndef PATHFINDING_H
+pathfinding.h:22:61: error: ‘Heuristic’ has not been declared
+   22 | std::vector<int> aStar(const Graph& g, int start, int goal, Heuristic h, Metrics& m);
+      |                                                             ^~~~~~~~~
+pathfinding.h:33:34: error: ‘Heuristic’ has not been declared
+   33 | void analyzeHeur(const Graph& g, Heuristic h, bool admissible); // prints freq overest etc
+      |                                  ^~~~~~~~~
+main.cpp: In function ‘int main()’:
+main.cpp:23:28: error: invalid conversion from ‘float (*)(int, int, const Graph&)’ to ‘int’ [-fpermissive]
+   23 |         aStar(small, s, g, euclideanHeur, ma);
+      |                            ^~~~~~~~~~~~~
+      |                            |
+      |                            float (*)(int, int, const Graph&)
+In file included from main.cpp:2:
+pathfinding.h:22:71: note:   initializing argument 4 of ‘std::vector<int> aStar(const Graph&, int, int, int, Metrics&)’
+   22 | std::vector<int> aStar(const Graph& g, int start, int goal, Heuristic h, Metrics& m);
+      |                                                             ~~~~~~~~~~^
+main.cpp:30:24: error: invalid conversion from ‘float (*)(int, int, const Graph&)’ to ‘int’ [-fpermissive]
+   30 |     analyzeHeur(small, euclideanHeur, true);
+      |                        ^~~~~~~~~~~~~
+      |                        |
+      |                        float (*)(int, int, const Graph&)
+In file included from main.cpp:2:
+pathfinding.h:33:44: note:   initializing argument 2 of ‘void analyzeHeur(const Graph&, int, bool)’
+   33 | void analyzeHeur(const Graph& g, Heuristic h, bool admissible); // prints freq overest etc
+      |                                  ~~~~~~~~~~^
+main.cpp:31:24: error: invalid conversion from ‘float (*)(int, int, const Graph&)’ to ‘int’ [-fpermissive]
+   31 |     analyzeHeur(small, overEstHeur, false);
+      |                        ^~~~~~~~~~~
+      |                        |
+      |                        float (*)(int, int, const Graph&)
+In file included from main.cpp:2:
+pathfinding.h:33:44: note:   initializing argument 2 of ‘void analyzeHeur(const Graph&, int, bool)’
+   33 | void analyzeHeur(const Graph& g, Heuristic h, bool admissible); // prints freq overest etc
+      |                                  ~~~~~~~~~~^
+main.cpp:34:70: error: no matching function for call to ‘sf::VideoMode::VideoMode(const int&, const int&)’
+   34 |     sf::RenderWindow window(sf::VideoMode(WINDOW_WIDTH, WINDOW_HEIGHT), "HW3 Integration");
+      |                                                                      ^
+In file included from /usr/local/include/SFML/Graphics/RenderWindow.hpp:35,
+                 from /usr/local/include/SFML/Graphics.hpp:45,
+                 from graph.h:6,
+                 from main.cpp:1:
+/usr/local/include/SFML/Window/VideoMode.hpp:61:14: note: candidate: ‘sf::VideoMode::VideoMode(sf::Vector2u, unsigned int)’
+   61 |     explicit VideoMode(Vector2u modeSize, unsigned int modeBitsPerPixel = 32);
+      |              ^~~~~~~~~
+/usr/local/include/SFML/Window/VideoMode.hpp:61:33: note:   no known conversion for argument 1 from ‘const int’ to ‘sf::Vector2u’ {aka ‘sf::Vector2<unsigned int>’}
+   61 |     explicit VideoMode(Vector2u modeSize, unsigned int modeBitsPerPixel = 32);
+      |                        ~~~~~~~~~^~~~~~~~
+/usr/local/include/SFML/Window/VideoMode.hpp:52:5: note: candidate: ‘constexpr sf::VideoMode::VideoMode()’
+   52 |     VideoMode() = default;
+      |     ^~~~~~~~~
+/usr/local/include/SFML/Window/VideoMode.hpp:52:5: note:   candidate expects 0 arguments, 2 provided
+/usr/local/include/SFML/Window/VideoMode.hpp:43:23: note: candidate: ‘constexpr sf::VideoMode::VideoMode(const sf::VideoMode&)’
+   43 | class SFML_WINDOW_API VideoMode
+      |                       ^~~~~~~~~
+/usr/local/include/SFML/Window/VideoMode.hpp:43:23: note:   candidate expects 1 argument, 2 provided
+/usr/local/include/SFML/Window/VideoMode.hpp:43:23: note: candidate: ‘constexpr sf::VideoMode::VideoMode(sf::VideoMode&&)’
+/usr/local/include/SFML/Window/VideoMode.hpp:43:23: note:   candidate expects 1 argument, 2 provided
+main.cpp:41:35: warning: narrowing conversion of ‘(x * (((int)WINDOW_WIDTH) / ((int)GRID_SIZE)))’ from ‘int’ to ‘float’ [-Wnarrowing]
+   41 |         indoor.positions[id] = {x * (WINDOW_WIDTH / GRID_SIZE), y * (WINDOW_HEIGHT / GRID_SIZE)};
+      |                                 ~~^~~~~~~~~~~~~~~~~~~~~~~~~~~~
+main.cpp:41:67: warning: narrowing conversion of ‘(y * (((int)WINDOW_HEIGHT) / ((int)GRID_SIZE)))’ from ‘int’ to ‘float’ [-Wnarrowing]
+   41 |         indoor.positions[id] = {x * (WINDOW_WIDTH / GRID_SIZE), y * (WINDOW_HEIGHT / GRID_SIZE)};
+      |                                                                 ~~^~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+main.cpp:49:33: warning: unused variable ‘y’ [-Wunused-variable]
+   49 |         int x = id % GRID_SIZE, y = id / GRID_SIZE;
+      |                                 ^
+main.cpp:61:19: error: no matching function for call to ‘sf::Event::Event()’
+   61 |         sf::Event event;
+      |                   ^~~~~
+In file included from /usr/local/include/SFML/Window/WindowBase.inl:28,
+                 from /usr/local/include/SFML/Window/WindowBase.hpp:617,
+                 from /usr/local/include/SFML/Window/Window.hpp:32,
+                 from /usr/local/include/SFML/Graphics/RenderWindow.hpp:36,
+                 from /usr/local/include/SFML/Graphics.hpp:45,
+                 from graph.h:6,
+                 from main.cpp:1:
+/usr/local/include/SFML/Window/Event.hpp:306:5: note: candidate: ‘template<class TEventSubtype> sf::Event::Event(const TEventSubtype&)’
+  306 |     Event(const TEventSubtype& eventSubtype);
+      |     ^~~~~
+/usr/local/include/SFML/Window/Event.hpp:306:5: note:   template argument deduction/substitution failed:
+main.cpp:61:19: note:   candidate expects 1 argument, 0 provided
+   61 |         sf::Event event;
+      |                   ^~~~~
+In file included from /usr/local/include/SFML/Window/WindowBase.inl:28,
+                 from /usr/local/include/SFML/Window/WindowBase.hpp:617,
+                 from /usr/local/include/SFML/Window/Window.hpp:32,
+                 from /usr/local/include/SFML/Graphics/RenderWindow.hpp:36,
+                 from /usr/local/include/SFML/Graphics.hpp:45,
+                 from graph.h:6,
+                 from main.cpp:1:
+/usr/local/include/SFML/Window/Event.hpp:46:7: note: candidate: ‘constexpr sf::Event::Event(const sf::Event&)’
+   46 | class Event
+      |       ^~~~~
+/usr/local/include/SFML/Window/Event.hpp:46:7: note:   candidate expects 1 argument, 0 provided
+/usr/local/include/SFML/Window/Event.hpp:46:7: note: candidate: ‘constexpr sf::Event::Event(sf::Event&&)’
+/usr/local/include/SFML/Window/Event.hpp:46:7: note:   candidate expects 1 argument, 0 provided
+main.cpp:62:38: error: no matching function for call to ‘sf::RenderWindow::pollEvent(sf::Event&)’
+   62 |         while (window.pollEvent(event)) {
+      |                                      ^
+In file included from /usr/local/include/SFML/Window/Window.hpp:32,
+                 from /usr/local/include/SFML/Graphics/RenderWindow.hpp:36,
+                 from /usr/local/include/SFML/Graphics.hpp:45,
+                 from graph.h:6,
+                 from main.cpp:1:
+/usr/local/include/SFML/Window/WindowBase.hpp:226:40: note: candidate: ‘std::optional<sf::Event> sf::WindowBase::pollEvent()’
+  226 |     [[nodiscard]] std::optional<Event> pollEvent();
+      |                                        ^~~~~~~~~
+/usr/local/include/SFML/Window/WindowBase.hpp:226:40: note:   candidate expects 0 arguments, 1 provided
+main.cpp:63:23: error: ‘class sf::Event’ has no member named ‘type’
+   63 |             if (event.type == sf::Event::Closed) window.close();
+      |                       ^~~~
+main.cpp:63:48: error: expected primary-expression before ‘)’ token
+   63 |             if (event.type == sf::Event::Closed) window.close();
+      |                                                ^
+main.cpp:64:23: error: ‘class sf::Event’ has no member named ‘type’
+   64 |             if (event.type == sf::Event::MouseButtonPressed) {
+      |                       ^~~~
+main.cpp:64:60: error: expected primary-expression before ‘)’ token
+   64 |             if (event.type == sf::Event::MouseButtonPressed) {
+      |                                                            ^
+main.cpp:65:42: error: ‘class sf::Event’ has no member named ‘mouseButton’
+   65 |                 sf::Vector2f click(event.mouseButton.x, event.mouseButton.y);
+      |                                          ^~~~~~~~~~~
+main.cpp:65:63: error: ‘class sf::Event’ has no member named ‘mouseButton’
+   65 |                 sf::Vector2f click(event.mouseButton.x, event.mouseButton.y);
+      |                                                               ^~~~~~~~~~~
+main.cpp:69:72: error: expected primary-expression before ‘;’ token
+   69 |                 int start = /* compute from chara.position similarly */;
+      |                                                                        ^
+main.cpp:71:59: error: invalid conversion from ‘float (*)(int, int, const Graph&)’ to ‘int’ [-fpermissive]
+   71 |                 auto pathIds = aStar(indoor, start, goal, euclideanHeur, m);
+      |                                                           ^~~~~~~~~~~~~
+      |                                                           |
+      |                                                           float (*)(int, int, const Graph&)
+In file included from main.cpp:2:
+pathfinding.h:22:71: note:   initializing argument 4 of ‘std::vector<int> aStar(const Graph&, int, int, int, Metrics&)’
+   22 | std::vector<int> aStar(const Graph& g, int start, int goal, Heuristic h, Metrics& m);
+      |                                                             ~~~~~~~~~~^
+make: *** [Makefile:55: main.o] Error 1

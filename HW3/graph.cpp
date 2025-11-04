@@ -21,7 +21,7 @@ void Graph::generateRandomLarge(int n, int avgDegree) {
             if (u != v && dis(gen) < p) {
                 float w = dis(gen) * 100.f + 1.f; // positive >0
                 addEdge(u, v, w);
-                addEdge(v, u, w); // undirected for simplicity, but directed possible
+                addEdge(v, u, w); // undirected for simplicity
             }
         }
     }
@@ -29,7 +29,7 @@ void Graph::generateRandomLarge(int n, int avgDegree) {
 
 Graph createSmallCentennialGraph() {
     Graph g(40, true); // spatial
-    // Positions from tool data (scaled 0-1000)
+    // Positions (scaled 0-1000)
     g.positions = {
         {300, 400}, {500, 600}, {450, 550}, {550, 500}, {600, 450},
         {700, 700}, {750, 750}, {650, 650}, {400, 500}, {550, 450},
@@ -41,13 +41,12 @@ Graph createSmallCentennialGraph() {
         {740, 720}, {520, 420}, {680, 620}, {520, 520}, {580, 460}
     };
 
-    // Edges from tool, with weights = Euclidean dist
     auto dist = [&](int i, int j) {
         auto d = g.positions[i] - g.positions[j];
         return std::sqrt(d.x * d.x + d.y * d.y) + 1.f; // >0
     };
 
-    // Add provided edges bidirectional
+    // Initial edges
     std::vector<std::pair<int, int>> edgePairs = {
         {0,1}, {1,0}, {1,2}, {2,1}, {2,3}, {3,2}, {1,4}, {4,3},
         {5,6}, {6,5}, {6,7}, {7,6}, {1,8}, {8,9}, {0,11}, {11,10},
@@ -58,14 +57,18 @@ Graph createSmallCentennialGraph() {
     for (auto [u,v] : edgePairs) {
         float w = dist(u, v);
         g.addEdge(u, v, w);
-        // g.addEdge(v, u, w); // if undirected; but assignment digraph, so directed as per tool
     }
 
-    // Add more to make connected if needed (minimal addition)
-    // E.g., connect clusters
-    g.addEdge(10,0, dist(10,0));
-    g.addEdge(12,1, dist(12,1));
-    // ... (assumed connected for demo; in practice, check)
+    // Add more edges: connect if dist < 200 to make ~120 total
+    for (int u = 0; u < 40; ++u) {
+        for (int v = u+1; v < 40; ++v) {
+            float d = dist(u, v);
+            if (d < 200.f) {
+                g.addEdge(u, v, d);
+                g.addEdge(v, u, d); // bidirectional
+            }
+        }
+    }
 
     return g;
 }

@@ -4,6 +4,7 @@
 #include "graph.h"
 #include <vector>
 #include <chrono>
+#include <functional> // Added for std::function
 
 // Metrics struct
 struct Metrics {

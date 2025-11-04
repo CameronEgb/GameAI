@@ -3,6 +3,8 @@
 #include "steering.h"
 #include <iostream>
 #include <SFML/Graphics.hpp>
+#include <optional> // For std::optional
+#include <cmath> // For std::hypot
 
 int main() {
     // Part 1: Graphs
@@ -15,7 +17,7 @@ int main() {
     // Init clusters for large
     initClusters(large, 100);
 
-    // Part 2: Dijkstra/A* compare
+    // Part 2: Dijkstra/A* compare on small
     for (int test = 0; test < 5; ++test) {
         int s = rand() % small.numVertices, g = rand() % small.numVertices;
         Metrics md, ma;
@@ -24,60 +26,100 @@ int main() {
         std::cout << "Small Test " << test << ": Dijk rt=" << md.runtime_ms << " fringe=" << md.max_fringe << " fill=" << md.fill << std::endl;
         std::cout << "A* rt=" << ma.runtime_ms << " fringe=" << ma.max_fringe << " fill=" << ma.fill << std::endl;
     }
-    // Similar for large, using clusterHeur for A*
+
+    // On large
+    for (int test = 0; test < 5; ++test) {
+        int s = rand() % large.numVertices, g = rand() % large.numVertices;
+        Metrics md, ma;
+        dijkstra(large, s, g, md);
+        aStar(large, s, g, clusterHeur, ma);
+        std::cout << "Large Test " << test << ": Dijk rt=" << md.runtime_ms << " fringe=" << md.max_fringe << " fill=" << md.fill << std::endl;
+        std::cout << "A* rt=" << ma.runtime_ms << " fringe=" << ma.max_fringe << " fill=" << ma.fill << std::endl;
+    }
 
     // Part 3: Heuristics on small
     analyzeHeur(small, euclideanHeur, true);
     analyzeHeur(small, overEstHeur, false);
 
     // Part 4: Integration SFML
-    sf::RenderWindow window(sf::VideoMode(WINDOW_WIDTH, WINDOW_HEIGHT), "HW3 Integration");
+    sf::RenderWindow window(sf::VideoMode({static_cast<unsigned>(WINDOW_WIDTH), static_cast<unsigned>(WINDOW_HEIGHT)}), "HW3 Integration");
+    window.setFramerateLimit(60);
+
     // Create grid graph for indoor
     const int GRID_SIZE = 20;
     Graph indoor(GRID_SIZE * GRID_SIZE, true);
-    // Set positions: row-major, scale to window
-    for (int y = 0; y < GRID_SIZE; ++y) for (int x = 0; x < GRID_SIZE; ++x) {
-        int id = y * GRID_SIZE + x;
-        indoor.positions[id] = {x * (WINDOW_WIDTH / GRID_SIZE), y * (WINDOW_HEIGHT / GRID_SIZE)};
+    // Set positions
+    for (int y = 0; y < GRID_SIZE; ++y) {
+        for (int x = 0; x < GRID_SIZE; ++x) {
+            int id = y * GRID_SIZE + x;
+            indoor.positions[id] = {static_cast<float>(x) * (WINDOW_WIDTH / static_cast<float>(GRID_SIZE)),
+                                    static_cast<float>(y) * (WINDOW_HEIGHT / static_cast<float>(GRID_SIZE))};
+        }
     }
     // Add edges: 4-dir, skip obstacles
-    // Simple 2x2 rooms: divide at 10, openings at mid
-    // Obstacles: say 3 blocks
-    std::vector<int> obstacles = {5*GRID_SIZE+5, 10*GRID_SIZE+10, 15*GRID_SIZE+15}; // example
+    std::vector<int> obstacles = {5*GRID_SIZE+5, 10*GRID_SIZE+10, 15*GRID_SIZE+15}; // example 3 obstacles
     for (int id = 0; id < indoor.numVertices; ++id) {
         if (std::find(obstacles.begin(), obstacles.end(), id) != obstacles.end()) continue;
-        int x = id % GRID_SIZE, y = id / GRID_SIZE;
-        // Right, down, etc., with weights
+        int x = id % GRID_SIZE;
+        int y = id / GRID_SIZE; // Used to fix warning
+        // Right
         if (x < GRID_SIZE-1 && std::find(obstacles.begin(), obstacles.end(), id+1) == obstacles.end())
             indoor.addEdge(id, id+1, 1.f);
-        // Add other dirs, bidirectional for undirected feel, but directed possible
+        // Left
+        if (x > 0 && std::find(obstacles.begin(), obstacles.end(), id-1) == obstacles.end())
+            indoor.addEdge(id, id-1, 1.f);
+        // Down
+        if (y < GRID_SIZE-1 && std::find(obstacles.begin(), obstacles.end(), id+GRID_SIZE) == obstacles.end())
+            indoor.addEdge(id, id+GRID_SIZE, 1.f);
+        // Up
+        if (y > 0 && std::find(obstacles.begin(), obstacles.end(), id-GRID_SIZE) == obstacles.end())
+            indoor.addEdge(id, id-GRID_SIZE, 1.f);
     }
-    // Rooms: assume connected via openings (no walls block all)
 
     Character chara({WINDOW_WIDTH/2.f, WINDOW_HEIGHT/2.f}, sf::Color::Red);
     chara.setBehavior(new ArriveAndAlign()); // as specified
+    chara.getKinematic().orientation = 0.f; // Init
 
+    sf::Clock clock;
     while (window.isOpen()) {
-        sf::Event event;
-        while (window.pollEvent(event)) {
-            if (event.type == sf::Event::Closed) window.close();
-            if (event.type == sf::Event::MouseButtonPressed) {
-                sf::Vector2f click(event.mouseButton.x, event.mouseButton.y);
-                // Quantize to grid
-                int gx = click.x / (WINDOW_WIDTH / GRID_SIZE), gy = click.y / (WINDOW_HEIGHT / GRID_SIZE);
-                int goal = gy * GRID_SIZE + gx;
-                int start = /* compute from chara.position similarly */;
-                Metrics m;
-                auto pathIds = aStar(indoor, start, goal, euclideanHeur, m);
-                std::vector<sf::Vector2f> pathPos;
-                for (int id : pathIds) pathPos.push_back(indoor.positions[id]);
-                chara.followPath(pathPos, 0.f); // init
+        float dt = clock.restart().asSeconds();
+
+        // Event loop (SFML 3.0 style)
+        while (true) {
+            std::optional<sf::Event> opt = window.pollEvent();
+            if (!opt) break;
+            const sf::Event &event = *opt;
+
+            if (event.is<sf::Event::Closed>()) {
+                window.close();
+            } else if (event.is<sf::Event::MouseButtonPressed>()) {
+                const auto *mb = event.getIf<sf::Event::MouseButtonPressed>();
+                if (mb) {
+                    sf::Vector2f click(static_cast<float>(mb->position.x), static_cast<float>(mb->position.y));
+                    // Quantize target
+                    int gx = static_cast<int>(click.x / (WINDOW_WIDTH / static_cast<float>(GRID_SIZE)));
+                    int gy = static_cast<int>(click.y / (WINDOW_HEIGHT / static_cast<float>(GRID_SIZE)));
+                    int goal = gy * GRID_SIZE + gx;
+                    // Quantize start from chara
+                    int sx = static_cast<int>(chara.getKinematic().position.x / (WINDOW_WIDTH / static_cast<float>(GRID_SIZE)));
+                    int sy = static_cast<int>(chara.getKinematic().position.y / (WINDOW_HEIGHT / static_cast<float>(GRID_SIZE)));
+                    int start_id = sy * GRID_SIZE + sx;
+                    Metrics m;
+                    auto pathIds = aStar(indoor, start_id, goal, euclideanHeur, m);
+                    std::vector<sf::Vector2f> pathPos;
+                    for (int id : pathIds) pathPos.push_back(indoor.positions[id]);
+                    chara.followPath(pathPos, dt); // Update with path
+                }
             }
         }
-        // Update chara with dt, draw breadcrumbs, etc.
-        // Draw rooms/obstacles as rects
-        window.clear();
-        // ... draw code
+
+        // Update character (even without path, but followPath handles)
+        Kinematic dummyTarget; // If no path, perhaps wander or nothing
+        chara.update(dt, dummyTarget);
+
+        window.clear(sf::Color(30, 30, 40));
+        chara.draw(window);
+        // TODO: Draw grid/rooms/obstacles for visualization (optional rectangles)
         window.display();
     }
 
