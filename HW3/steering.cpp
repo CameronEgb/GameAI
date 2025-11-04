@@ -300,7 +300,7 @@ Character::Character(sf::Vector2f start, sf::Color color)
     }
     sprite = std::make_unique<sf::Sprite>(texture);
     sprite->setOrigin(texture.getSize().x/2.f, texture.getSize().y/2.f);
-    sprite->setScale(0.05f, 0.05f); // From truncated
+    sprite->setScale({1.5f, 1.5f}); // Fixed to HW2 value
     sprite->setColor(color);
 }
 
