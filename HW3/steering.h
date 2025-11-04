@@ -209,6 +209,8 @@ class Character {
     SteeringBehavior *currentBehavior;
     float maxSpeed;
     float maxRotation;
+    std::vector<sf::Vector2f> currentPath; // Added for path following
+    size_t currentWaypoint = 0; // Added
 public:
     Character(sf::Vector2f start, sf::Color color = sf::Color::Blue);
     void setBehavior(SteeringBehavior *b);
@@ -216,12 +218,10 @@ public:
     void clearBreadcrumbs();
     void setMaxSpeed(float s);
     void setPosition(sf::Vector2f p);
-    void update(float dt, const Kinematic &target);
+    void update(float dt, const Kinematic &target); // Now handles path internally
     void updateWithBoundaryHandling(float dt, const Kinematic &target);
     void draw(sf::RenderWindow &win);
-    void followPath(const std::vector<sf::Vector2f>& path, float dt); // Added for HW3
+    void setPath(const std::vector<sf::Vector2f>& path); // Renamed/updated for setting path
 };
-
-// Boid class (from original, if needed)
 
 #endif

@@ -3,8 +3,8 @@
 #include "steering.h"
 #include <iostream>
 #include <SFML/Graphics.hpp>
-#include <optional> // For std::optional
-#include <cmath> // For std::hypot
+#include <optional>
+#include <cmath>
 
 int main() {
     // Part 1: Graphs
@@ -47,44 +47,125 @@ int main() {
 
     // Create grid graph for indoor
     const int GRID_SIZE = 20;
+    const float CELL_W = WINDOW_WIDTH / static_cast<float>(GRID_SIZE);
+    const float CELL_H = WINDOW_HEIGHT / static_cast<float>(GRID_SIZE);
     Graph indoor(GRID_SIZE * GRID_SIZE, true);
     // Set positions
     for (int y = 0; y < GRID_SIZE; ++y) {
         for (int x = 0; x < GRID_SIZE; ++x) {
             int id = y * GRID_SIZE + x;
-            indoor.positions[id] = {static_cast<float>(x) * (WINDOW_WIDTH / static_cast<float>(GRID_SIZE)),
-                                    static_cast<float>(y) * (WINDOW_HEIGHT / static_cast<float>(GRID_SIZE))};
+            indoor.positions[id] = {static_cast<float>(x) * CELL_W + CELL_W / 2.f,
+                                    static_cast<float>(y) * CELL_H + CELL_H / 2.f}; // Center of cell
         }
     }
-    // Add edges: 4-dir, skip obstacles
-    std::vector<int> obstacles = {5*GRID_SIZE+5, 10*GRID_SIZE+10, 15*GRID_SIZE+15}; // example 3 obstacles
+
+    // Obstacles/walls
+    std::vector<int> obstacles;
+
+    // Perimeter walls
+    for (int x = 0; x < GRID_SIZE; ++x) {
+        obstacles.push_back(0 * GRID_SIZE + x); // top
+        obstacles.push_back((GRID_SIZE-1) * GRID_SIZE + x); // bottom
+    }
+    for (int y = 0; y < GRID_SIZE; ++y) {
+        obstacles.push_back(y * GRID_SIZE + 0); // left
+        obstacles.push_back(y * GRID_SIZE + (GRID_SIZE-1)); // right
+    }
+
+    // Dividers with openings
+    int mid_x = GRID_SIZE / 2;
+    int mid_y = GRID_SIZE / 2;
+    int opening_size = 3; // Open 3 cells in middle
+    int opening_start = (GRID_SIZE / 2) - (opening_size / 2);
+
+    // Vertical divider
+    for (int y = 0; y < GRID_SIZE; ++y) {
+        if (y < opening_start || y >= opening_start + opening_size) {
+            obstacles.push_back(y * GRID_SIZE + mid_x);
+        }
+    }
+
+    // Horizontal divider
+    for (int x = 0; x < GRID_SIZE; ++x) {
+        if (x < opening_start || x >= opening_start + opening_size) {
+            obstacles.push_back(mid_y * GRID_SIZE + x);
+        }
+    }
+
+    // 3 arbitrary obstacles (squares: single cells for simplicity)
+    obstacles.push_back(5 * GRID_SIZE + 5); // Top-left room
+    obstacles.push_back(5 * GRID_SIZE + 6);
+    obstacles.push_back(6 * GRID_SIZE + 5);
+    obstacles.push_back(6 * GRID_SIZE + 6); // Make 2x2 square
+
+    obstacles.push_back(14 * GRID_SIZE + 5); // Bottom-left
+    obstacles.push_back(14 * GRID_SIZE + 6);
+    obstacles.push_back(15 * GRID_SIZE + 5);
+    obstacles.push_back(15 * GRID_SIZE + 6);
+
+    obstacles.push_back(5 * GRID_SIZE + 14); // Top-right
+    obstacles.push_back(5 * GRID_SIZE + 15);
+    obstacles.push_back(6 * GRID_SIZE + 14);
+    obstacles.push_back(6 * GRID_SIZE + 15);
+
+    // Unique
+    std::sort(obstacles.begin(), obstacles.end());
+    auto last = std::unique(obstacles.begin(), obstacles.end());
+    obstacles.erase(last, obstacles.end());
+
+    // Add edges: 4-dir, skip if source or dest is obstacle
     for (int id = 0; id < indoor.numVertices; ++id) {
         if (std::find(obstacles.begin(), obstacles.end(), id) != obstacles.end()) continue;
         int x = id % GRID_SIZE;
-        int y = id / GRID_SIZE; // Used to fix warning
+        int y = id / GRID_SIZE;
         // Right
-        if (x < GRID_SIZE-1 && std::find(obstacles.begin(), obstacles.end(), id+1) == obstacles.end())
-            indoor.addEdge(id, id+1, 1.f);
+        if (x < GRID_SIZE-1) {
+            int nid = id + 1;
+            if (std::find(obstacles.begin(), obstacles.end(), nid) == obstacles.end())
+                indoor.addEdge(id, nid, 1.f);
+        }
         // Left
-        if (x > 0 && std::find(obstacles.begin(), obstacles.end(), id-1) == obstacles.end())
-            indoor.addEdge(id, id-1, 1.f);
+        if (x > 0) {
+            int nid = id - 1;
+            if (std::find(obstacles.begin(), obstacles.end(), nid) == obstacles.end())
+                indoor.addEdge(id, nid, 1.f);
+        }
         // Down
-        if (y < GRID_SIZE-1 && std::find(obstacles.begin(), obstacles.end(), id+GRID_SIZE) == obstacles.end())
-            indoor.addEdge(id, id+GRID_SIZE, 1.f);
+        if (y < GRID_SIZE-1) {
+            int nid = id + GRID_SIZE;
+            if (std::find(obstacles.begin(), obstacles.end(), nid) == obstacles.end())
+                indoor.addEdge(id, nid, 1.f);
+        }
         // Up
-        if (y > 0 && std::find(obstacles.begin(), obstacles.end(), id-GRID_SIZE) == obstacles.end())
-            indoor.addEdge(id, id-GRID_SIZE, 1.f);
+        if (y > 0) {
+            int nid = id - GRID_SIZE;
+            if (std::find(obstacles.begin(), obstacles.end(), nid) == obstacles.end())
+                indoor.addEdge(id, nid, 1.f);
+        }
     }
 
-    Character chara({WINDOW_WIDTH/2.f, WINDOW_HEIGHT/2.f}, sf::Color::Red);
-    chara.setBehavior(new ArriveAndAlign()); // as specified
-    chara.getKinematic().orientation = 0.f; // Init
+    // Prepare wall shapes for drawing
+    std::vector<sf::RectangleShape> wallShapes;
+    for (int obs : obstacles) {
+        int x = obs % GRID_SIZE;
+        int y = obs / GRID_SIZE;
+        sf::RectangleShape rect({CELL_W, CELL_H});
+        rect.setPosition(static_cast<float>(x) * CELL_W, static_cast<float>(y) * CELL_H);
+        rect.setFillColor(sf::Color(100, 100, 100)); // Gray walls
+        wallShapes.push_back(rect);
+    }
+
+    Character chara({WINDOW_WIDTH/2.f, WINDOW_HEIGHT/2.f}, sf::Color::Red); // Center start
+    chara.setBehavior(new ArriveAndAlign());
+    chara.getKinematic().orientation = 0.f;
+    chara.getKinematic().velocity = {0.f, 0.f}; // Start stationary
 
     sf::Clock clock;
     while (window.isOpen()) {
         float dt = clock.restart().asSeconds();
+        if (dt <= 0.f) dt = 0.016f;
 
-        // Event loop (SFML 3.0 style)
+        // Event loop
         while (true) {
             std::optional<sf::Event> opt = window.pollEvent();
             if (!opt) break;
@@ -97,29 +178,37 @@ int main() {
                 if (mb) {
                     sf::Vector2f click(static_cast<float>(mb->position.x), static_cast<float>(mb->position.y));
                     // Quantize target
-                    int gx = static_cast<int>(click.x / (WINDOW_WIDTH / static_cast<float>(GRID_SIZE)));
-                    int gy = static_cast<int>(click.y / (WINDOW_HEIGHT / static_cast<float>(GRID_SIZE)));
+                    int gx = static_cast<int>(click.x / CELL_W);
+                    int gy = static_cast<int>(click.y / CELL_H);
                     int goal = gy * GRID_SIZE + gx;
+                    if (std::find(obstacles.begin(), obstacles.end(), goal) != obstacles.end()) continue; // Ignore click on wall
+
                     // Quantize start from chara
-                    int sx = static_cast<int>(chara.getKinematic().position.x / (WINDOW_WIDTH / static_cast<float>(GRID_SIZE)));
-                    int sy = static_cast<int>(chara.getKinematic().position.y / (WINDOW_HEIGHT / static_cast<float>(GRID_SIZE)));
+                    int sx = static_cast<int>(chara.getKinematic().position.x / CELL_W);
+                    int sy = static_cast<int>(chara.getKinematic().position.y / CELL_H);
                     int start_id = sy * GRID_SIZE + sx;
+
                     Metrics m;
                     auto pathIds = aStar(indoor, start_id, goal, euclideanHeur, m);
+                    if (pathIds.empty()) continue; // No path, ignore
+
                     std::vector<sf::Vector2f> pathPos;
                     for (int id : pathIds) pathPos.push_back(indoor.positions[id]);
-                    chara.followPath(pathPos, dt); // Update with path
+                    chara.setPath(pathPos);
                 }
             }
         }
 
-        // Update character (even without path, but followPath handles)
-        Kinematic dummyTarget; // If no path, perhaps wander or nothing
-        chara.update(dt, dummyTarget);
+        // Update character (passes dummy, but handles path inside)
+        Kinematic dummy;
+        chara.update(dt, dummy);
 
         window.clear(sf::Color(30, 30, 40));
+        // Draw walls
+        for (auto& rect : wallShapes) {
+            window.draw(rect);
+        }
         chara.draw(window);
-        // TODO: Draw grid/rooms/obstacles for visualization (optional rectangles)
         window.display();
     }
 

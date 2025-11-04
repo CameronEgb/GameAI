@@ -288,23 +288,28 @@ SteeringOutput Cohesion::calculateSteering(const Kinematic &c, const Kinematic &
 }
 
 // Character
+#include "steering.h"
+
+// ... (all previous implementations up to Cohesion unchanged)
+
+// Character
 Character::Character(sf::Vector2f start, sf::Color color)
-    : breadcrumbs(20, 10, color), currentBehavior(nullptr), maxSpeed(200.f), maxRotation(5.f) { // Assumed maxRotation
+    : breadcrumbs(20, 10, color), currentBehavior(nullptr), maxSpeed(200.f), maxRotation(5.f), currentWaypoint(0) {
     kinematic.position = start;
     kinematic.velocity = sf::Vector2f(randomFloat(-50.f, 50.f), randomFloat(-50.f, 50.f));
     kinematic.orientation = std::atan2(kinematic.velocity.y, kinematic.velocity.x);
 
     if (!texture.loadFromFile("boid-sm.png")) {
-        sf::Image img({16u, 16u}, sf::Color::Transparent); // Fixed constructor: size as Vector2u, color Transparent
+        sf::Image img({16u, 16u}, sf::Color::Transparent);
         for (unsigned y = 0; y < 16; ++y) {
             for (unsigned x = 0; x < 16; ++x) {
-                img.setPixel({x, y}, sf::Color(180, 180, 180)); // Fixed: use Vector2u {x,y}
+                img.setPixel({x, y}, sf::Color(180, 180, 180));
             }
         }
-        (void)texture.loadFromImage(img); // Ignore nodiscard with (void)
+        (void)texture.loadFromImage(img);
     }
     sprite = std::make_unique<sf::Sprite>(texture);
-    sprite->setOrigin({texture.getSize().x / 2.f, texture.getSize().y / 2.f}); // Fixed: use Vector2f {}
+    sprite->setOrigin({texture.getSize().x / 2.f, texture.getSize().y / 2.f});
     sprite->setScale({1.5f, 1.5f});
     sprite->setColor(color);
 }
@@ -315,7 +320,19 @@ void Character::clearBreadcrumbs() { breadcrumbs.clear(); }
 void Character::setMaxSpeed(float s) { maxSpeed = s; }
 void Character::setPosition(sf::Vector2f p) { kinematic.position = p; sprite->setPosition(p); }
 
-void Character::update(float dt, const Kinematic &target) {
+void Character::update(float dt, const Kinematic & /*dummyTarget*/) {
+    Kinematic target = kinematic; // Default to self if no path/behavior
+    bool usingPath = !currentPath.empty();
+    if (usingPath) {
+        if (currentWaypoint >= currentPath.size()) {
+            currentPath.clear();
+            currentWaypoint = 0;
+            usingPath = false;
+        } else {
+            target.position = currentPath[currentWaypoint];
+        }
+    }
+
     if (currentBehavior) {
         SteeringOutput s = currentBehavior->calculateSteering(kinematic, target);
         kinematic.position += kinematic.velocity * dt;
@@ -331,6 +348,13 @@ void Character::update(float dt, const Kinematic &target) {
     } else {
         kinematic.position += kinematic.velocity * dt;
         kinematic.orientation += kinematic.rotation * dt;
+    }
+
+    if (usingPath) {
+        float dist = std::hypot(kinematic.position.x - target.position.x, kinematic.position.y - target.position.y);
+        if (dist < 10.f) {
+            ++currentWaypoint;
+        }
     }
 
     kinematic.orientation = mapToRange(kinematic.orientation);
@@ -340,37 +364,12 @@ void Character::update(float dt, const Kinematic &target) {
 }
 
 void Character::updateWithBoundaryHandling(float dt, const Kinematic &target) {
-    (void)dt; // Suppress unused
-    (void)target; // Suppress unused
-    // Implement if needed from HW2; for now, placeholder or copy full if available
-    // Assuming it's similar to update, with boundaries
-    if (currentBehavior) {
-        SteeringOutput s = currentBehavior->calculateSteering(kinematic, target);
-        kinematic.position += kinematic.velocity * dt;
-        kinematic.orientation += kinematic.rotation * dt;
-        kinematic.velocity += s.linear * dt;
-        kinematic.rotation += s.angular * dt;
-
-        float speed = std::sqrt(kinematic.velocity.x*kinematic.velocity.x + kinematic.velocity.y*kinematic.velocity.y);
-        if (speed > maxSpeed) kinematic.velocity = (kinematic.velocity / speed) * maxSpeed;
-
-        if (std::abs(kinematic.rotation) > maxRotation)
-            kinematic.rotation = (kinematic.rotation / std::abs(kinematic.rotation)) * maxRotation;
-    } else {
-        kinematic.position += kinematic.velocity * dt;
-        kinematic.orientation += kinematic.rotation * dt;
-    }
-
+    update(dt, target); // Call regular update, then boundaries
     const float margin = 4.f;
     if (kinematic.position.x < margin) { kinematic.position.x = margin; kinematic.velocity.x = std::abs(kinematic.velocity.x) * 0.8f; }
     if (kinematic.position.x > WINDOW_WIDTH - margin) { kinematic.position.x = WINDOW_WIDTH - margin; kinematic.velocity.x = -std::abs(kinematic.velocity.x) * 0.8f; }
     if (kinematic.position.y < margin) { kinematic.position.y = margin; kinematic.velocity.y = std::abs(kinematic.velocity.y) * 0.8f; }
     if (kinematic.position.y > WINDOW_HEIGHT - margin) { kinematic.position.y = WINDOW_HEIGHT - margin; kinematic.velocity.y = -std::abs(kinematic.velocity.y) * 0.8f; }
-
-    kinematic.orientation = mapToRange(kinematic.orientation);
-    breadcrumbs.update(kinematic.position);
-    sprite->setPosition(kinematic.position);
-    sprite->setRotation(sf::degrees(kinematic.orientation * 180.f / PI));
 }
 
 void Character::draw(sf::RenderWindow &win) {
@@ -378,14 +377,7 @@ void Character::draw(sf::RenderWindow &win) {
     win.draw(*sprite);
 }
 
-void Character::followPath(const std::vector<sf::Vector2f>& path, float dt) {
-    if (path.empty()) return;
-    static size_t idx = 0;
-    Kinematic target;
-    target.position = path[idx];
-    update(dt, target);
-    if (std::hypot(kinematic.position.x - path[idx].x, kinematic.position.y - path[idx].y) < 10.f) {
-        idx++;
-        if (idx >= path.size()) idx = 0;
-    }
+void Character::setPath(const std::vector<sf::Vector2f>& path) {
+    currentPath = path;
+    currentWaypoint = 0;
 }
