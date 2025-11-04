@@ -146,7 +146,7 @@ public:
                    float align_slowRadius = 0.5f,
                    float align_timeToTarget = 0.1f);
     SteeringOutput calculateSteering(const Kinematic &character, const Kinematic &target) override;
-    void setSlowRadius(float r) { arrive.setSlowRadius(r); } // Added
+    void setSlowRadius(float r); // Declaration only
 };
 
 class LookWhereYoureGoing : public SteeringBehavior {
@@ -162,21 +162,6 @@ class WallAvoidance : public SteeringBehavior {
     float detectionDistance;
 public:
     WallAvoidance(float margin=20.f, float maxAcc=300.f, float detectDist=120.f);
-    SteeringOutput calculateSteering(const Kinematic &c, const Kinematic & /*t*/) override;
-};
-
-class Wander : public SteeringBehavior {
-    float wanderOffset, wanderRadius, wanderRate, wanderOrientation, maxAcceleration;
-    LookWhereYoureGoing lwg;
-public:
-    Wander(float offset=60.f, float radius=40.f, float rate=0.5f, float maxA=80.f);
-    SteeringOutput calculateSteering(const Kinematic &c, const Kinematic &t) override;
-};
-
-class WanderKinematic : public SteeringBehavior {
-    float wanderOffset, wanderRadius, wanderRate, wanderOrientation, maxAcceleration, maxRotation;
-public:
-    WanderKinematic(float offset=60.f, float radius=40.f, float rate=0.5f, float maxA=80.f, float maxR=2.f);
     SteeringOutput calculateSteering(const Kinematic &c, const Kinematic & /*t*/) override;
 };
 

@@ -1,14 +1,8 @@
-main.cpp: In function ‘int main()’:
-main.cpp:153:88: error: no matching function for call to ‘sf::RectangleShape::setPosition(float, float)’
-  153 |         rect.setPosition(static_cast<float>(x) * CELL_W, static_cast<float>(y) * CELL_H);
-      |                                                                                        ^
-In file included from /usr/local/include/SFML/Graphics/Shape.hpp:37,
-                 from /usr/local/include/SFML/Graphics/CircleShape.hpp:32,
-                 from /usr/local/include/SFML/Graphics.hpp:32,
-                 from graph.h:6,
-                 from main.cpp:1:
-/usr/local/include/SFML/Graphics/Transformable.hpp:70:10: note: candidate: ‘void sf::Transformable::setPosition(sf::Vector2f)’
-   70 |     void setPosition(Vector2f position);
-      |          ^~~~~~~~~~~
-/usr/local/include/SFML/Graphics/Transformable.hpp:70:10: note:   candidate expects 1 argument, 2 provided
-make: *** [Makefile:55: main.o] Error 1
+steering.cpp:180:6: error: redefinition of ‘void ArriveAndAlign::setSlowRadius(float)’
+  180 | void ArriveAndAlign::setSlowRadius(float r) { arrive.setSlowRadius(r); }
+      |      ^~~~~~~~~~~~~~
+In file included from steering.cpp:1:
+steering.h:149:10: note: ‘void ArriveAndAlign::setSlowRadius(float)’ previously defined here
+  149 |     void setSlowRadius(float r) { arrive.setSlowRadius(r); } // Added
+      |          ^~~~~~~~~~~~~
+make: *** [Makefile:55: steering.o] Error 1

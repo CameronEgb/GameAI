@@ -177,7 +177,9 @@ SteeringOutput ArriveAndAlign::calculateSteering(const Kinematic &character, con
     return out;
 }
 
-void ArriveAndAlign::setSlowRadius(float r) { arrive.setSlowRadius(r); }
+void ArriveAndAlign::setSlowRadius(float r) {
+    arrive.setSlowRadius(r);
+}
 
 // LookWhereYoureGoing
 LookWhereYoureGoing::LookWhereYoureGoing() : align() {}
@@ -203,47 +205,6 @@ SteeringOutput WallAvoidance::calculateSteering(const Kinematic &c, const Kinema
     if (dt < detectionDistance) avoid.y += (detectionDistance - dt)/detectionDistance * maxAcceleration;
     if (db < detectionDistance) avoid.y -= (detectionDistance - db)/detectionDistance * maxAcceleration;
     out.linear = avoid;
-    return out;
-}
-
-// Wander
-Wander::Wander(float offset, float radius, float rate, float maxA)
-    : wanderOffset(offset), wanderRadius(radius), wanderRate(rate), wanderOrientation(0.f), maxAcceleration(maxA) {}
-SteeringOutput Wander::calculateSteering(const Kinematic &c, const Kinematic &t) {
-    wanderOrientation += randomBinomial() * wanderRate;
-    float targetOrientation = wanderOrientation + c.orientation;
-    sf::Vector2f orientationVec(std::cos(c.orientation), std::sin(c.orientation));
-    sf::Vector2f circleCenter = c.position + orientationVec * wanderOffset;
-    sf::Vector2f wanderTarget(circleCenter.x + wanderRadius * std::cos(targetOrientation),
-                              circleCenter.y + wanderRadius * std::sin(targetOrientation));
-    SteeringOutput out;
-    out.linear = wanderTarget - c.position;
-    float mag = std::sqrt(out.linear.x*out.linear.x + out.linear.y*out.linear.y);
-    if (mag > 0.f) out.linear = (out.linear / mag) * maxAcceleration;
-    SteeringOutput look = lwg.calculateSteering(c, t);
-    out.angular = look.angular;
-    return out;
-}
-
-// WanderKinematic
-WanderKinematic::WanderKinematic(float offset, float radius, float rate, float maxA, float maxR)
-    : wanderOffset(offset), wanderRadius(radius), wanderRate(rate), wanderOrientation(0.f), maxAcceleration(maxA), maxRotation(maxR) {}
-SteeringOutput WanderKinematic::calculateSteering(const Kinematic &c, const Kinematic & /*t*/) {
-    wanderOrientation += randomBinomial() * wanderRate;
-    float targetOrientation = wanderOrientation + c.orientation;
-    sf::Vector2f orientationVec(std::cos(c.orientation), std::sin(c.orientation));
-    sf::Vector2f circleCenter = c.position + orientationVec * wanderOffset;
-    sf::Vector2f wanderTarget(circleCenter.x + wanderRadius * std::cos(targetOrientation),
-                              circleCenter.y + wanderRadius * std::sin(targetOrientation));
-    SteeringOutput out;
-    out.linear = wanderTarget - c.position;
-    float mag = std::sqrt(out.linear.x*out.linear.x + out.linear.y*out.linear.y);
-    if (mag > 0.f) out.linear = (out.linear / mag) * maxAcceleration;
-    sf::Vector2f toTarget = wanderTarget - c.position;
-    float desiredOrientation = std::atan2(toTarget.y, toTarget.x);
-    float rotation = mapToRange(desiredOrientation - c.orientation);
-    out.angular = rotation * 3.f;
-    if (std::abs(out.angular) > maxRotation) out.angular = (out.angular / std::abs(out.angular)) * maxRotation;
     return out;
 }
 
