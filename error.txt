@@ -1,23 +1,52 @@
-pathfinding.cpp: In function ‘float euclideanHeur(int, int, const Graph&)’:
-pathfinding.cpp:90:17: error: ‘sqrt’ is not a member of ‘std’; did you mean ‘sort’?
-   90 |     return std::sqrt(d.x * d.x + d.y * d.y);
-      |                 ^~~~
-      |                 sort
-pathfinding.cpp: In function ‘float clusterHeur(int, int, const Graph&)’:
-pathfinding.cpp:108:46: warning: unused parameter ‘g’ [-Wunused-parameter]
-  108 | float clusterHeur(int u, int v, const Graph& g) {
-      |                                 ~~~~~~~~~~~~~^
-pathfinding.cpp: In function ‘void analyzeHeur(const Graph&, Heuristic, bool)’:
-pathfinding.cpp:118:10: error: ‘mt19937’ is not a member of ‘std’
-  118 |     std::mt19937 gen(std::random_device{}());
-      |          ^~~~~~~
-pathfinding.cpp:118:43: error: expected primary-expression before ‘)’ token
-  118 |     std::mt19937 gen(std::random_device{}());
-      |                                           ^
-pathfinding.cpp:121:21: error: ‘gen’ was not declared in this scope
-  121 |         int s = dis(gen), goal = dis(gen);
-      |                     ^~~
-pathfinding.cpp:123:36: error: ‘goal’ was not declared in this scope
-  123 |         auto path = dijkstra(g, s, goal, m); // true dist
-      |                                    ^~~~
-make: *** [Makefile:55: pathfinding.o] Error 1
+steering.cpp: In constructor ‘Character::Character(sf::Vector2f, sf::Color)’:
+steering.cpp:297:23: error: invalid conversion from ‘unsigned int’ to ‘const void*’ [-fpermissive]
+  297 |         sf::Image img(16u,16u);
+      |                       ^~~
+      |                       |
+      |                       unsigned int
+In file included from /usr/local/include/SFML/Graphics.hpp:38,
+                 from steering.h:4,
+                 from steering.cpp:1:
+/usr/local/include/SFML/Graphics/Image.hpp:120:23: note:   initializing argument 1 of ‘sf::Image::Image(const void*, std::size_t)’
+  120 |     Image(const void* data, std::size_t size);
+      |           ~~~~~~~~~~~~^~~~
+steering.cpp:298:105: error: no matching function for call to ‘sf::Image::setPixel(unsigned int&, unsigned int&, sf::Color)’
+  298 |         for (unsigned y=0;y<16;++y) for (unsigned x=0;x<16;++x) img.setPixel(x,y, sf::Color(180,180,180));
+      |                                                                                                         ^
+In file included from /usr/local/include/SFML/Graphics.hpp:38,
+                 from steering.h:4,
+                 from steering.cpp:1:
+/usr/local/include/SFML/Graphics/Image.hpp:315:10: note: candidate: ‘void sf::Image::setPixel(sf::Vector2u, sf::Color)’
+  315 |     void setPixel(Vector2u coords, Color color);
+      |          ^~~~~~~~
+/usr/local/include/SFML/Graphics/Image.hpp:315:10: note:   candidate expects 2 arguments, 3 provided
+steering.cpp:299:30: warning: ignoring return value of ‘bool sf::Texture::loadFromImage(const sf::Image&, bool, const IntRect&)’, declared with attribute nodiscard [-Wunused-result]
+  299 |         texture.loadFromImage(img);
+      |         ~~~~~~~~~~~~~~~~~~~~~^~~~~
+In file included from /usr/local/include/SFML/Graphics/Font.hpp:34,
+                 from /usr/local/include/SFML/Graphics.hpp:36,
+                 from steering.h:4,
+                 from steering.cpp:1:
+/usr/local/include/SFML/Graphics/Texture.hpp:380:24: note: declared here
+  380 |     [[nodiscard]] bool loadFromImage(const Image& image, bool sRgb = false, const IntRect& area = {});
+      |                        ^~~~~~~~~~~~~
+steering.cpp:302:71: error: no matching function for call to ‘sf::Sprite::setOrigin(float, float)’
+  302 |     sprite->setOrigin(texture.getSize().x/2.f, texture.getSize().y/2.f);
+      |                                                                       ^
+In file included from /usr/local/include/SFML/Graphics/Shape.hpp:37,
+                 from /usr/local/include/SFML/Graphics/CircleShape.hpp:32,
+                 from /usr/local/include/SFML/Graphics.hpp:32,
+                 from steering.h:4,
+                 from steering.cpp:1:
+/usr/local/include/SFML/Graphics/Transformable.hpp:115:10: note: candidate: ‘void sf::Transformable::setOrigin(sf::Vector2f)’
+  115 |     void setOrigin(Vector2f origin);
+      |          ^~~~~~~~~
+/usr/local/include/SFML/Graphics/Transformable.hpp:115:10: note:   candidate expects 1 argument, 2 provided
+steering.cpp: In member function ‘void Character::updateWithBoundaryHandling(float, const Kinematic&)’:
+steering.cpp:337:50: warning: unused parameter ‘dt’ [-Wunused-parameter]
+  337 | void Character::updateWithBoundaryHandling(float dt, const Kinematic &target) {
+      |                                            ~~~~~~^~
+steering.cpp:337:71: warning: unused parameter ‘target’ [-Wunused-parameter]
+  337 | void Character::updateWithBoundaryHandling(float dt, const Kinematic &target) {
+      |                                                      ~~~~~~~~~~~~~~~~~^~~~~~
+make: *** [Makefile:55: steering.o] Error 1
