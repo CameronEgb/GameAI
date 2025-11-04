@@ -1,0 +1,26 @@
+CSC 584/484 Fall 2025 - Homework 3: Pathfinding and Path Following
+Author: [Your Name]
+
+This submission includes code for all parts: graphs, Dijkstra/A*, heuristics, and SFML integration with HW2 steering for path following.
+
+Compilation Instructions:
+- Make sure SFML 3.0.0 is installed (static or shared; Makefile detects).
+- Run `make` to build "hw3".
+- Run `./hw3` for the full demo (SFML window for integration part; console for others).
+
+Demo Instructions:
+- Part 1 (Graphs): On startup, console prints small graph description (NCSU Centennial Campus, 40 vertices, spatial) and large graph (random, 50k vertices).
+- Part 2 (Dijkstra/A*): Console runs tests on both graphs (5 random start/end pairs each), printing runtime, max fringe size, visited nodes (fill). Uses Euclidean heuristic for small A*, cluster for large.
+- Part 3 (Heuristics): Console tests 2 heuristics on small graph (Euclidean admissible, 2x Euclidean inadmissible), with overestimation stats (frequency, avg overest across 100 pairs).
+- Part 4 (Integration): SFML window opens. Click to set target; character pathfinds (A* on grid graph) and follows using ArriveAndAlign from HW2. Shows breadcrumbs. Indoor: 2x2 rooms with doors, 3 obstacles. Dense 20x20 grid.
+
+Files:
+- main.cpp: Entry, demos all parts.
+- graph.h/cpp: Graph classes (weighted digraph, spatial nodes).
+- pathfinding.h/cpp: Dijkstra, A*, heuristics.
+- steering.h/cpp: HW2 steering behaviors (minimal changes for path following).
+
+Notes:
+- Small graph figure: Run and see console; resembles Centennial via coords (software-rendered in potential SFML mode, but console for now).
+- Large graph: Random Erdos-Renyi, not dense.
+- No writeup included as per instructions.
