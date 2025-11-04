@@ -3,6 +3,8 @@
 #include <set>
 #include <limits>
 #include <iostream>
+#include <random> // Added
+#include <cmath> // Added for std::sqrt, std::abs
 
 using pii = std::pair<float, int>; // dist, node
 
@@ -106,6 +108,7 @@ void initClusters(const Graph& g, int numClusters) {
 }
 
 float clusterHeur(int u, int v, const Graph& g) {
+    (void)g; // Suppress unused warning
     int cu = cluster[u], cv = cluster[v];
     if (cu == cv) return 0.f;
     return std::abs(clusterCenter[cu] - clusterCenter[cv]); // reasonable dist
@@ -132,5 +135,5 @@ void analyzeHeur(const Graph& g, Heuristic h, bool admissible) {
             totalOver += heurVal - trueDist;
         }
     }
-    std::cout << "Heuristic " << (admissible ? "admissible" : "inadmissible") << ": Overestimates " << overCount << "/" << samples << " times, avg over " << (totalOver / overCount) << std::endl;
+    std::cout << "Heuristic " << (admissible ? "admissible" : "inadmissible") << ": Overestimates " << overCount << "/" << samples << " times, avg over " << (overCount ? totalOver / overCount : 0.f) << std::endl;
 }
