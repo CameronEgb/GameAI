@@ -1,5 +1,3 @@
-// steering.h - From HW2, minimal changes (added path following)
-
 #ifndef STEERING_H
 #define STEERING_H
 
@@ -9,17 +7,20 @@
 #include <cmath>
 #include <memory>
 #include <random>
+#include <algorithm>
+#include <cstdint>
+#include <optional>
 
 constexpr float PI = 3.14159265f;
 constexpr int WINDOW_WIDTH = 800;
 constexpr int WINDOW_HEIGHT = 600;
 
-// Utilities from HW2...
+// Utilities
 float mapToRange(float rotation);
 float randomBinomial();
 float randomFloat(float a, float b);
 
-// Kinematic and SteeringOutput from HW2...
+// Data
 struct Kinematic {
     sf::Vector2f position{0.f,0.f};
     float orientation{0.f};
@@ -32,36 +33,195 @@ struct SteeringOutput {
     float angular{0.f};
 };
 
-// Breadcrumb from HW2...
+// Breadcrumbs
 class Breadcrumb {
-    // ... full code from provided main.cpp
-    // (copy-paste the Breadcrumb class here)
+    std::queue<sf::Vector2f> q;
+    int maxCrumbs;
+    int dropInterval;
+    int counter;
+    sf::Color color;
+public:
+    Breadcrumb(int maxCrumbs_=30, int dropInterval_=5, sf::Color c=sf::Color::Blue);
+    void update(const sf::Vector2f &pos);
+    void draw(sf::RenderWindow &win);
+    void clear();
 };
 
-// SteeringBehavior interface from HW2...
+// Steering interface
 class SteeringBehavior {
 public:
     virtual ~SteeringBehavior() = default;
     virtual SteeringOutput calculateSteering(const Kinematic &character, const Kinematic &target) = 0;
 };
 
-// All classes from HW2: PositionMatching, VelocityMatching, etc.
-// (copy-paste all from provided main.cpp: PositionMatching to WanderKinematic, Separation, Cohesion, etc.)
-// BlendedSteering, etc.
-
-// ArriveAndAlign as specified
-class ArriveAndAlign : public SteeringBehavior {
-    // full code from HW2
-};
-
-// Character class from HW2, added followPath
-class Character {
-    // full from HW2
+// Basic steering algorithms
+class PositionMatching : public SteeringBehavior {
+    float maxAccel;
 public:
-    // ... 
-    void followPath(const std::vector<sf::Vector2f>& path, float dt); // new: sequential arrive/align
+    explicit PositionMatching(float m = 100.f);
+    SteeringOutput calculateSteering(const Kinematic &c, const Kinematic &t) override;
 };
 
-// Boid from HW2 (if needed, but not for this)
+class VelocityMatching : public SteeringBehavior {
+protected:
+    float maxAccel;
+    float timeToTarget;
+public:
+    VelocityMatching(float maxA=100.f, float time=0.1f);
+    SteeringOutput calculateSteering(const Kinematic &c, const Kinematic &t) override;
+};
+
+class FastVelocityMatching : public VelocityMatching {
+public:
+    FastVelocityMatching();
+};
+
+class OrientationMatching : public SteeringBehavior {
+    float maxAngAccel;
+    float maxRotation;
+    float targetRadius;
+    float slowRadius;
+    float timeToTarget;
+public:
+    OrientationMatching(float maxAA=5.f, float maxR=2.f);
+    SteeringOutput calculateSteering(const Kinematic &c, const Kinematic &t) override;
+};
+
+class RotationMatching : public SteeringBehavior {
+    float maxAngAccel;
+    float timeToTarget;
+public:
+    RotationMatching(float maxA=5.f, float time=0.1f);
+    SteeringOutput calculateSteering(const Kinematic &c, const Kinematic &t) override;
+};
+
+class Arrive : public SteeringBehavior {
+    float maxAcceleration;
+    float maxSpeed;
+    float targetRadius;
+    float slowRadius;
+    float timeToTarget;
+public:
+    Arrive(float maxAccel=200.f,float maxSpd=100.f,float tRad=5.f,float sRad=100.f,float time=0.1f);
+    SteeringOutput calculateSteering(const Kinematic &c, const Kinematic &t) override;
+};
+
+class Align : public SteeringBehavior {
+    float maxAngularAcceleration;
+    float maxRotation;
+    float targetRadius;
+    float slowRadius;
+    float timeToTarget;
+public:
+    Align(float maxAngAccel=5.f, float maxRot=2.f, float tRad=0.01f, float sRad=0.5f, float time=0.1f);
+    SteeringOutput calculateSteering(const Kinematic &c, const Kinematic &t) override;
+};
+
+class SmoothAlign : public Align {
+public:
+    SmoothAlign();
+};
+
+class Face : public SteeringBehavior {
+    Align align;
+public:
+    Face();
+    SteeringOutput calculateSteering(const Kinematic &c, const Kinematic &t) override;
+};
+
+class ArriveAndAlign : public SteeringBehavior {
+private:
+    Arrive arrive;
+    Align align;
+public:
+    ArriveAndAlign(float arrive_maxAccel = 200.f,
+                   float arrive_maxSpeed = 100.f,
+                   float arrive_targetRadius = 5.f,
+                   float arrive_slowRadius = 100.f,
+                   float arrive_timeToTarget = 0.1f,
+                   float align_maxAngularAccel = 5.f,
+                   float align_maxRotation = 2.f,
+                   float align_targetRadius = 0.01f,
+                   float align_slowRadius = 0.5f,
+                   float align_timeToTarget = 0.1f);
+    SteeringOutput calculateSteering(const Kinematic &character, const Kinematic &target) override;
+};
+
+class LookWhereYoureGoing : public SteeringBehavior {
+    Align align;
+public:
+    LookWhereYoureGoing();
+    SteeringOutput calculateSteering(const Kinematic &c, const Kinematic & /*t*/) override;
+};
+
+class WallAvoidance : public SteeringBehavior {
+    float wallMargin;
+    float maxAcceleration;
+    float detectionDistance;
+public:
+    WallAvoidance(float margin=20.f, float maxAcc=300.f, float detectDist=120.f);
+    SteeringOutput calculateSteering(const Kinematic &c, const Kinematic & /*t*/) override;
+};
+
+class Wander : public SteeringBehavior {
+    float wanderOffset, wanderRadius, wanderRate, wanderOrientation, maxAcceleration;
+    LookWhereYoureGoing lwg;
+public:
+    Wander(float offset=60.f, float radius=40.f, float rate=0.5f, float maxA=80.f);
+    SteeringOutput calculateSteering(const Kinematic &c, const Kinematic &t) override;
+};
+
+class WanderKinematic : public SteeringBehavior {
+    float wanderOffset, wanderRadius, wanderRate, wanderOrientation, maxAcceleration, maxRotation;
+public:
+    WanderKinematic(float offset=60.f, float radius=40.f, float rate=0.5f, float maxA=80.f, float maxR=2.f);
+    SteeringOutput calculateSteering(const Kinematic &c, const Kinematic & /*t*/) override;
+};
+
+// Flocking
+class Separation : public SteeringBehavior {
+    float threshold;
+    float decayCoefficient;
+    float maxAcceleration;
+    std::vector<Kinematic*> *boids;
+public:
+    Separation(std::vector<Kinematic*> *b, float thresh=100.f, float decay=5000.f, float maxA=100.f);
+    SteeringOutput calculateSteering(const Kinematic &c, const Kinematic & /*t*/) override;
+};
+
+class Cohesion : public SteeringBehavior {
+    float neighborhoodRadius;
+    float maxAcceleration;
+    std::vector<Kinematic*> *boids;
+    Arrive arrive;
+public:
+    Cohesion(std::vector<Kinematic*> *b, float radius=150.f, float maxA=10.f);
+    SteeringOutput calculateSteering(const Kinematic &c, const Kinematic & /*t*/) override;
+};
+
+// ... (add other flocking like Alignment if needed from original)
+
+class Character {
+    Kinematic kinematic;
+    Breadcrumb breadcrumbs;
+    sf::Texture texture;
+    std::unique_ptr<sf::Sprite> sprite;
+    SteeringBehavior *currentBehavior;
+    float maxSpeed;
+    float maxRotation;
+public:
+    Character(sf::Vector2f start, sf::Color color = sf::Color::Blue);
+    void setBehavior(SteeringBehavior *b);
+    Kinematic &getKinematic();
+    void clearBreadcrumbs();
+    void setMaxSpeed(float s);
+    void setPosition(sf::Vector2f p);
+    void update(float dt, const Kinematic &target);
+    void updateWithBoundaryHandling(float dt, const Kinematic &target);
+    void draw(sf::RenderWindow &win);
+    void followPath(const std::vector<sf::Vector2f>& path, float dt); // Added for HW3
+};
+
+// Boid class (from original, if needed)
 
 #endif
