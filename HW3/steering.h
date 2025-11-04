@@ -178,34 +178,10 @@ public:
     SteeringOutput calculateSteering(const Kinematic &c, const Kinematic & /*t*/) override;
 };
 
-// Flocking
-class Separation : public SteeringBehavior {
-    float threshold;
-    float decayCoefficient;
-    float maxAcceleration;
-    std::vector<Kinematic*> *boids;
-public:
-    Separation(std::vector<Kinematic*> *b, float thresh=100.f, float decay=5000.f, float maxA=100.f);
-    SteeringOutput calculateSteering(const Kinematic &c, const Kinematic & /*t*/) override;
-};
-
-class Cohesion : public SteeringBehavior {
-    float neighborhoodRadius;
-    float maxAcceleration;
-    std::vector<Kinematic*> *boids;
-    Arrive arrive;
-public:
-    Cohesion(std::vector<Kinematic*> *b, float radius=150.f, float maxA=10.f);
-    SteeringOutput calculateSteering(const Kinematic &c, const Kinematic & /*t*/) override;
-};
-
-// ... (add other flocking like Alignment if needed from original)
-
 class Character {
     Kinematic kinematic;
     Breadcrumb breadcrumbs;
-    sf::Texture texture;
-    std::unique_ptr<sf::Sprite> sprite;
+    sf::CircleShape shape; // Replaced sprite with simple circle
     SteeringBehavior *currentBehavior;
     float maxSpeed;
     float maxRotation;
