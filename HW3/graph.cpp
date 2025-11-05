@@ -27,7 +27,7 @@ void Graph::generateRandomLarge(int n, int avgDegree) {
     }
 }
 
-Graph createSmallCentennialGraph() {
+Graph createSmallCampusGraph() {
     Graph g(40, true); // spatial
     // Positions (scaled 0-1000)
     g.positions = {
@@ -59,7 +59,7 @@ Graph createSmallCentennialGraph() {
         g.addEdge(u, v, w);
     }
 
-    // Add more edges: connect if dist < 200 to make ~120 total
+    // Add more edges: connect if dist < 200, due to walking accessibile connections, to make ~120 total
     for (int u = 0; u < 40; ++u) {
         for (int v = u+1; v < 40; ++v) {
             float d = dist(u, v);

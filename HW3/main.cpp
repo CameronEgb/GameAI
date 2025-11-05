@@ -8,8 +8,8 @@
 
 int main() {
     // Part 1: Graphs
-    Graph small = createSmallCentennialGraph();
-    std::cout << "Small graph: NCSU Centennial, 40 verts" << std::endl;
+    Graph small = createSmallCampusGraph();
+    std::cout << "Small graph: UKy Campus, 40 verts" << std::endl;
     Graph large(0);
     large.generateRandomLarge(50000, 4); // avg degree 4, ~200k edges
     std::cout << "Large graph: Random, 50k verts" << std::endl;

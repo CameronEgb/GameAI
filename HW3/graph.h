@@ -16,6 +16,6 @@ public:
     void generateRandomLarge(int n, int avgDegree); // for large
 };
 
-Graph createSmallCentennialGraph(); // hardcoded
+Graph createSmallCampusGraph(); // hardcoded
 
 #endif
