@@ -108,8 +108,7 @@ class Arrive : public SteeringBehavior {
     float slowRadius;
     float timeToTarget;
 public:
-    Arrive(float maxAccel=200.f,float maxSpd=100.f,float tRad=5.f,float
-           ,float sRad=100.f,float time=0.1f);
+    Arrive(float maxAccel=200.f,float maxSpd=100.f,float tRad=5.f,float sRad=100.f,float time=0.1f);
     SteeringOutput calculateSteering(const Kinematic &c, const Kinematic &t) override;
 
     // **Declaration only** – definition lives in steering.cpp
