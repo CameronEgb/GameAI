@@ -113,34 +113,24 @@ int main() {
     auto last = std::unique(obstacles.begin(), obstacles.end());
     obstacles.erase(last, obstacles.end());
 
-    // Add edges: 4-dir, skip if source or dest is obstacle
+    // Add edges: 8-dir for smoother paths, skip if source or dest is obstacle
     for (int id = 0; id < indoor.numVertices; ++id) {
         if (std::find(obstacles.begin(), obstacles.end(), id) != obstacles.end()) continue;
         int x = id % GRID_SIZE;
         int y = id / GRID_SIZE;
-        // Right
-        if (x < GRID_SIZE-1) {
-            int nid = id + 1;
-            if (std::find(obstacles.begin(), obstacles.end(), nid) == obstacles.end())
-                indoor.addEdge(id, nid, 1.f);
-        }
-        // Left
-        if (x > 0) {
-            int nid = id - 1;
-            if (std::find(obstacles.begin(), obstacles.end(), nid) == obstacles.end())
-                indoor.addEdge(id, nid, 1.f);
-        }
-        // Down
-        if (y < GRID_SIZE-1) {
-            int nid = id + GRID_SIZE;
-            if (std::find(obstacles.begin(), obstacles.end(), nid) == obstacles.end())
-                indoor.addEdge(id, nid, 1.f);
-        }
-        // Up
-        if (y > 0) {
-            int nid = id - GRID_SIZE;
-            if (std::find(obstacles.begin(), obstacles.end(), nid) == obstacles.end())
-                indoor.addEdge(id, nid, 1.f);
+        // 8 directions
+        for (int dx = -1; dx <= 1; ++dx) {
+            for (int dy = -1; dy <= 1; ++dy) {
+                if (dx == 0 && dy == 0) continue;
+                int nx = x + dx, ny = y + dy;
+                if (nx >= 0 && nx < GRID_SIZE && ny >= 0 && ny < GRID_SIZE) {
+                    int nid = ny * GRID_SIZE + nx;
+                    if (std::find(obstacles.begin(), obstacles.end(), nid) == obstacles.end()) {
+                        float w = (dx != 0 && dy != 0) ? std::sqrt(2.f) : 1.f; // Diagonal cost
+                        indoor.addEdge(id, nid, w);
+                    }
+                }
+            }
         }
     }
 

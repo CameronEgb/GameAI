@@ -123,6 +123,8 @@ SteeringOutput Arrive::calculateSteering(const Kinematic &c, const Kinematic &t)
     return out;
 }
 
+void Arrive::setSlowRadius(float r) { slowRadius = r; }
+
 // Align
 Align::Align(float maxAngAccel, float maxRot, float tRad, float sRad, float time)
     : maxAngularAcceleration(maxAngAccel), maxRotation(maxRot), targetRadius(tRad), slowRadius(sRad), timeToTarget(time) {}
