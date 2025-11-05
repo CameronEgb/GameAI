@@ -1,8 +1,8 @@
-steering.cpp:180:6: error: redefinition of ‘void ArriveAndAlign::setSlowRadius(float)’
-  180 | void ArriveAndAlign::setSlowRadius(float r) { arrive.setSlowRadius(r); }
-      |      ^~~~~~~~~~~~~~
+steering.cpp:126:6: error: redefinition of ‘void Arrive::setSlowRadius(float)’
+  126 | void Arrive::setSlowRadius(float r) { slowRadius = r; }
+      |      ^~~~~~
 In file included from steering.cpp:1:
-steering.h:149:10: note: ‘void ArriveAndAlign::setSlowRadius(float)’ previously defined here
-  149 |     void setSlowRadius(float r) { arrive.setSlowRadius(r); } // Added
+steering.h:107:10: note: ‘void Arrive::setSlowRadius(float)’ previously defined here
+  107 |     void setSlowRadius(float r) { slowRadius = r; } // Added
       |          ^~~~~~~~~~~~~
 make: *** [Makefile:55: steering.o] Error 1

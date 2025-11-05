@@ -108,15 +108,19 @@ SteeringOutput RotationMatching::calculateSteering(const Kinematic &c, const Kin
 
 // Arrive
 Arrive::Arrive(float maxAccel,float maxSpd,float tRad,float sRad,float time)
-    : maxAcceleration(maxAccel), maxSpeed(maxSpd), targetRadius(tRad), slowRadius(sRad), timeToTarget(time) {}
+    : maxAcceleration(maxAccel), maxSpeed(maxSpd), targetRadius(tRad),
+      slowRadius(sRad), timeToTarget(time) {}
+
 SteeringOutput Arrive::calculateSteering(const Kinematic &c, const Kinematic &t) {
     SteeringOutput out;
     sf::Vector2f direction = t.position - c.position;
     float dist = std::sqrt(direction.x*direction.x + direction.y*direction.y);
     if (dist < targetRadius) return out;
+
     float targetSpeed = (dist > slowRadius) ? maxSpeed : maxSpeed * dist / slowRadius;
     sf::Vector2f targetVel(0.f, 0.f);
     if (dist > 0.0001f) targetVel = (direction / dist) * targetSpeed;
+
     out.linear = (targetVel - c.velocity) / timeToTarget;
     float mag = std::sqrt(out.linear.x*out.linear.x + out.linear.y*out.linear.y);
     if (mag > maxAcceleration) out.linear = (out.linear / mag) * maxAcceleration;

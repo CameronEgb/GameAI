@@ -15,11 +15,13 @@ constexpr float PI = 3.14159265f;
 constexpr int WINDOW_WIDTH = 800;
 constexpr int WINDOW_HEIGHT = 600;
 
+// ---------------------------------------------------------------------
 // Utilities
 float mapToRange(float rotation);
 float randomBinomial();
 float randomFloat(float a, float b);
 
+// ---------------------------------------------------------------------
 // Data
 struct Kinematic {
     sf::Vector2f position{0.f,0.f};
@@ -33,6 +35,7 @@ struct SteeringOutput {
     float angular{0.f};
 };
 
+// ---------------------------------------------------------------------
 // Breadcrumbs
 class Breadcrumb {
     std::queue<sf::Vector2f> q;
@@ -47,13 +50,16 @@ public:
     void clear();
 };
 
+// ---------------------------------------------------------------------
 // Steering interface
 class SteeringBehavior {
 public:
     virtual ~SteeringBehavior() = default;
-    virtual SteeringOutput calculateSteering(const Kinematic &character, const Kinematic &target) = 0;
+    virtual SteeringOutput calculateSteering(const Kinematic &character,
+                                             const Kinematic &target) = 0;
 };
 
+// ---------------------------------------------------------------------
 // Basic steering algorithms
 class PositionMatching : public SteeringBehavior {
     float maxAccel;
@@ -102,9 +108,12 @@ class Arrive : public SteeringBehavior {
     float slowRadius;
     float timeToTarget;
 public:
-    Arrive(float maxAccel=200.f,float maxSpd=100.f,float tRad=5.f,float sRad=100.f,float time=0.1f);
+    Arrive(float maxAccel=200.f,float maxSpd=100.f,float tRad=5.f,float
+           ,float sRad=100.f,float time=0.1f);
     SteeringOutput calculateSteering(const Kinematic &c, const Kinematic &t) override;
-    void setSlowRadius(float r) { slowRadius = r; } // Added
+
+    // **Declaration only** – definition lives in steering.cpp
+    void setSlowRadius(float r);
 };
 
 class Align : public SteeringBehavior {
@@ -114,7 +123,8 @@ class Align : public SteeringBehavior {
     float slowRadius;
     float timeToTarget;
 public:
-    Align(float maxAngAccel=5.f, float maxRot=2.f, float tRad=0.01f, float sRad=0.5f, float time=0.1f);
+    Align(float maxAngAccel=5.f, float maxRot=2.f, float tRad=0.01f,
+          float sRad=0.5f, float time=0.1f);
     SteeringOutput calculateSteering(const Kinematic &c, const Kinematic &t) override;
 };
 
@@ -133,7 +143,7 @@ public:
 class ArriveAndAlign : public SteeringBehavior {
 private:
     Arrive arrive;
-    Align align;
+    Align  align;
 public:
     ArriveAndAlign(float arrive_maxAccel = 200.f,
                    float arrive_maxSpeed = 100.f,
@@ -145,15 +155,16 @@ public:
                    float align_targetRadius = 0.01f,
                    float align_slowRadius = 0.5f,
                    float align_timeToTarget = 0.1f);
-    SteeringOutput calculateSteering(const Kinematic &character, const Kinematic &target) override;
-    void setSlowRadius(float r); // Declaration only
+    SteeringOutput calculateSteering(const Kinematic &character,
+                                     const Kinematic &target) override;
+    void setSlowRadius(float r);          // declaration only
 };
 
 class LookWhereYoureGoing : public SteeringBehavior {
     Align align;
 public:
     LookWhereYoureGoing();
-    SteeringOutput calculateSteering(const Kinematic &c, const Kinematic & /*t*/) override;
+    SteeringOutput calculateSteering(const Kinematic &c, const Kinematic &/*t*/) override;
 };
 
 class WallAvoidance : public SteeringBehavior {
@@ -162,18 +173,20 @@ class WallAvoidance : public SteeringBehavior {
     float detectionDistance;
 public:
     WallAvoidance(float margin=20.f, float maxAcc=300.f, float detectDist=120.f);
-    SteeringOutput calculateSteering(const Kinematic &c, const Kinematic & /*t*/) override;
+    SteeringOutput calculateSteering(const Kinematic &c, const Kinematic &/*t*/) override;
 };
 
+// ---------------------------------------------------------------------
+// Character
 class Character {
     Kinematic kinematic;
     Breadcrumb breadcrumbs;
-    sf::CircleShape shape; // Replaced sprite with simple circle
+    sf::CircleShape shape;
     SteeringBehavior *currentBehavior;
     float maxSpeed;
     float maxRotation;
-    std::vector<sf::Vector2f> currentPath; // Added for path following
-    size_t currentWaypoint = 0; // Added
+    std::vector<sf::Vector2f> currentPath;
+    size_t currentWaypoint = 0;
 public:
     Character(sf::Vector2f start, sf::Color color = sf::Color::Blue);
     void setBehavior(SteeringBehavior *b);
@@ -181,10 +194,10 @@ public:
     void clearBreadcrumbs();
     void setMaxSpeed(float s);
     void setPosition(sf::Vector2f p);
-    void update(float dt, const Kinematic &target); // Now handles path internally
+    void update(float dt, const Kinematic &target);
     void updateWithBoundaryHandling(float dt, const Kinematic &target);
     void draw(sf::RenderWindow &win);
-    void setPath(const std::vector<sf::Vector2f>& path); // Renamed/updated for setting path
+    void setPath(const std::vector<sf::Vector2f>& path);
 };
 
 #endif
